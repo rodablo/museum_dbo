@@ -1,8 +1,10 @@
 .AUTODEPEND
 .NOSWAP
 
-__DBO2_BUILD_NUMBER__ = 60
-__DBO2_BUILD_NUMBER_S_= "0060\0"
+__DBO_VER_MAJOR__   = 2
+__DBO_VER_MINOR__   = 1
+__DBO_VER_BUILD__   = 62
+__DBO_VER_BUILD_S__ = "0062\0"
 
 ###
 ### TOOLS...
@@ -46,11 +48,11 @@ LINKOBJS = \
 ###
 ### LINK
 ###
-dbo20.dll: $(.path.obj)\dbomc.hxx $(.path.obj)\dboidl.hxx $(.path.obj)\dboidl.obj $(LINKOBJS:ZZ=$(EMPTY)) dbo.res dbo.def makefile
+dbo21.dll: $(.path.obj)\dbomc.hxx $(.path.obj)\dboidl.hxx $(.path.obj)\dboidl.obj $(LINKOBJS:ZZ=$(EMPTY)) dbo.res dbo.def makefile
    $(TLINK32) -Tpd -aa -L.\LIB;C:\BC5\LIB;C:\ORANT\OCI73\LIB\BORLAND; -v -c -n -V4.0 -w-dup -x @&&|
 .\lib\c0d32dyn.obj+
 $(TMP)\dboidl.obj+
-$(LINKOBJS:ZZ=$(TMP2)), $(BINARY)\dbo20.dll, $(TMP)\dbo20.map,+
+$(LINKOBJS:ZZ=$(TMP2)), $(BINARY)\dbo21.dll, $(TMP)\dbo20.map,+
 #cg32.lib+
 cw32.lib+
 #cw32mt.lib+
@@ -99,7 +101,7 @@ $(TMP)\dboidl.obj: $(TMP)\dboidl.c
 -IC:\MSTOOLS\INCLUDE
 -IC:\ORANT\OCI73\INCLUDE 
 -DINC_OLE2;STRICT;_DEBUG 
--D__DBO2_BUILD_NUMBER__=$(__DBO2_BUILD_NUMBER__)
+-D__DBO2_BUILD_NUMBER__=$(__DBO_VER_BUILD__)
 #-DRWQE_STANDARD_LIBRARY           # ????
 #-DRWSTD_NO_NAMESPACE              # si saco los namespaces no linkea los string
 #-DRWSTD_NO_NEW_HEADER             # .....
@@ -140,13 +142,45 @@ $(TMP)\dboidl.obj: $(TMP)\dboidl.c
 ###
 #$(TMP)\dbo.res :  dbo.rc dboidl.tlb $(TMP)\MSG00000.bin
 #$(.path.res)\
-dbo.res: dbo.rc $(TMP)\dboidl.hxx $(TMP)\dbomc.hxx 
+dbo.res: dbo.rc $(TMP)\dboidl.hxx $(TMP)\dbomc.hxx $(TMP)\versioninfo.rc
     $(BRC32) -R @&&|
     -I$(.path.obj);C:\BC5\INCLUDE; 
     -DINC_OLE2;STRICT;_DEBUG;  
-    -d__DBO2_BUILD_NUMBER_S_=$(__DBO2_BUILD_NUMBER_S__)	
     -FO$@ dbo.rc               
 |
+
+$(TMP)\versioninfo.rc:	makefile
+	copy &&|
+VS_VERSION_INFO VERSIONINFO 
+  FILEVERSION     $(__DBO_VER_MAJOR__),$(__DBO_VER_MINOR__),$(__DBO_VER_BUILD__),0
+  PRODUCTVERSION  $(__DBO_VER_MAJOR__),$(__DBO_VER_MINOR__),$(__DBO_VER_BUILD__),0
+  FILEFLAGSMASK   /*VS_FF_DEBUG |*/ VS_FF_PRERELEASE
+  FILEFLAGS       VS_FF_PRERELEASE | VS_FF_SPECIALBUILD
+  FILEOS          VOS_NT_WINDOWS32 //VOS_WINDOWS32
+  FILETYPE        VFT_DLL
+  FILESUBTYPE     VS_USER_DEFINED
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "00000000"
+    BEGIN
+      VALUE "CompanyName", "RODABLO\0"
+      VALUE "FileDescription", "DBO2\0"
+      VALUE "FileVersion", "2.1\0"
+      VALUE "InternalName", "DBO2\0"
+      VALUE "LegalCopyright", "(1998) RODABLO para Origenes A.F.J.P.\0"
+      VALUE "ProductName", "DBO2\0"
+      VALUE "ProductVersion", "2.1\0"
+      VALUE "Build", $(__DBO_VER_BUILD_S__) "\0"
+    END	             
+  END
+  BLOCK "VarFileInfo"
+  BEGIN                                // Language | Translation
+    VALUE "Translation", 0x000, 0x000  // 
+  END
+END
+| $(TMP)\versioninfo.rc
+
 ####################################################################################################
 ###
 ### RELEASE
@@ -156,7 +190,7 @@ dbo.res: dbo.rc $(TMP)\dboidl.hxx $(TMP)\dbomc.hxx
 ###
 ### DEBUG
 ###
-debug:  dbo20.dll
+debug:  dbo21.dll
         #td32.exe -sd$(SOURCE) -t$(BINARY) -c$(SOURCE)\dbo20.td2 "c:\Program Files\Microsoft Visual Basic\vb32.exe" $(SOURCE)\vb\dbo20.vbp      
         td32.exe -sd$(SOURCE) -t$(BINARY) -c$(SOURCE)\dbo20.td2 "c:\Archivos de Programa\DevStudio\vb\vb5.exe" d:\z\xxx\vb\dbo20.vbp
 
