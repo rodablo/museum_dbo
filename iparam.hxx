@@ -21,8 +21,6 @@ public:
   virtual void    ClearBind() = 0;
   virtual bool    IsStrict() = 0;
   //
-  virtual void    Internal_put_Value(VARIANT& Index, VARIANT& Value) = 0;	
-  //
   virtual ~IIParam() {}
 };
 
