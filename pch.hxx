@@ -8,7 +8,7 @@
 /**
 *** opciones compilador
 ***/ 
-#pragma option -d  // merge strings para las excepciones
+//pragma option -d  // merge strings para las excepciones
 
 /**
 ***
