@@ -2,38 +2,50 @@
 #define _AUXSTRING_HXX_ 
 
 /**
+***
+***/
+
+#define _PEND_ 0  
+//#define PEND(msg)
+
+
+/**
 *** NEW/DELETE
 ***/
-//  extern "C" {
+extern "C" {
 // // void* __trackmalloc__(size_t size);
 // // void* __trackrealloc__(void *block, size_t size);
 // // void  __trackfree__(void *block);
 
-//    void* malloc(size_t size);
-//    void* realloc(void *block, size_t size);
-//    void  free(void *block);
-//  }
+//   void* malloc(size_t size);
+//   void* realloc(void *block, size_t size);
+//   void  free(void *block);
+}
 
 inline void*
 operator new(size_t size) {
-  return malloc(size);
+  return ::HeapAlloc(::GetProcessHeap(), HEAP_GENERATE_EXCEPTIONS, size);
+  //return malloc(size);
   //return _trackmalloc__(size);
 }
 
 inline void*
 operator new[](size_t size) {
-  return malloc(size);
-  //  return _trackmalloc__(size);
+  return ::HeapAlloc(::GetProcessHeap(), HEAP_GENERATE_EXCEPTIONS, size);
+  //  return malloc(size);
+  // return _trackmalloc__(size);
 }
 
 inline void
 operator delete(void* ptr/*,[size_t Type_size]*/) {
-  free(ptr);
+  ::HeapFree(::GetProcessHeap(), /*HEAP_NO_SERIALIZE*/0, ptr);
+  //free(ptr);
 }
 
 inline void
 operator delete[](void* ptr/*,[size_t Type_size]*/) {
-  free(ptr);
+  ::HeapFree(::GetProcessHeap(), /*HEAP_NO_SERIALIZE*/0, ptr);
+  //free(ptr);
 }
 
 /**
@@ -167,10 +179,34 @@ protected:
 };
 
 /**
-***
+*** VAR
 ***/
+class VAR
+{
+public:
+  explicit VAR() : _pV(0)   {}
+  VAR(VARIANT& v) : _pV(&v) {}
+  ~VAR()                    {}
+  operator VARTYPE()  {return V_VT(_pV);}
+  operator VARIANT*() {return _pV;}
+  operator long();
+  operator int();
+  operator short();
+  operator BSTR();
+  
+  bool IsBSTR()       {return VT_BSTR == V_VT(_pV);}
+  
+private:
+  VARIANT* _pV;
+};
+
+
 bool
 GetShortFromVariant(short& dest, VARIANT& src);
+
+
+
+
 
 #endif //_AUXSTRING_HXX_ 
 

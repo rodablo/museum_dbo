@@ -103,8 +103,9 @@ CreateColumn(IICursor& cursor, sword pos, IIColumn*& pObj)
       cd.m_vtRowType = VT_BSTR;
       pObj = new TBSTRColumn(cd);     
       break;
-
+#if _PEND_
 #pragma message ¿A que se refiere con ANSI?????
+#endif
     case SQLT_AFC: // Ansi fixed char 
     case SQLT_AVC: // Ansi Var char 
     case SQLT_CHR: // (ORANET TYPE) character string
@@ -335,6 +336,9 @@ HRESULT __stdcall
 TColumn::get_Ref(VARIANT* retv)
 {
   try {
+#if _PEND_
+#pragma message Esto podria tener un parametro Index como el param (y ret el array si no lo paso)
+#endif
     //verifica contenido valido
     // 
     VariantClear(retv);
