@@ -32,16 +32,18 @@ extern void __stdcall LicFree();
 /**
 ***     DLLENTRYPOINT
 ***/
-BOOL WINAPI
-DllEntryPoint(HINSTANCE hInstance, DWORD fdwReason, LPVOID /*lpvReserved*/)
+/*extern "C"*/ BOOL WINAPI 
+DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID /*lpReserved*/)
+//BOOL WINAPI
+//DllEntryPoint(HINSTANCE hInstance, DWORD fdwReason, LPVOID /*lpvReserved*/)
 {
   if (DLL_PROCESS_ATTACH == fdwReason)
     {
       //	DebugBreak();  //asm { int 0x03 }
       LicLoad();
-      
-      //      if (LicValidate())
-      //MessageBeep(-1);
+      // 
+      extern void Throw(unsigned int code, _EXCEPTION_POINTERS* pEP);
+      _set_se_translator(Throw);
 
       // globlaliza
       g_hInst = hInstance;
@@ -91,7 +93,7 @@ HRESULT APIENTRY
 DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppvObj)
 {
   // por el new
-  try {
+ __try {
     // pesimismo inicial
     *ppvObj = 0;
     // Vencimiento
@@ -161,24 +163,24 @@ WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
           }
       }
     break;
-    /*          
-                case WM_CLOSE: 
+    /*
+                case WM_CLOSE:
                 // Hide the window to release the refcount added by CoLockObjectExternal
                 // (See CLines::ShowWindow)
                 //g_pDataServer->m_bUserClosing = TRUE;
-                //g_pDataServer->ShowWindow(SW_HIDE); 
+                //g_pDataServer->ShowWindow(SW_HIDE);
                 //DestroyWindow(hwnd);
                 return 0L;
-      
-                case WM_DESTROY:            
+
+                case WM_DESTROY:
                 //PostQuitMessage(0);
                 break;
-                */      
-    default:                         
+                */
+    default:
       return DefWindowProc(hwnd, msg, wParam, lParam);
     }
   return NULL;
-} 
+}
 
 /**
 ***
@@ -187,18 +189,18 @@ bool
 GetShortFromVariant(short& dest, VARIANT& src)
 {
   // en funcion del tipo
-  switch (V_VT(&src)) 
+  switch (V_VT(&src))
     {
-    case VT_UI1:// Byte 
+    case VT_UI1:// Byte
       dest = (short)V_UI1(&src); break;
     case VT_I2: // Integer
-      dest = (short)V_I2(&src);  break;            
-    case VT_I4: // Long     
-      dest = (short)V_I4(&src);  break; 
-    case VT_R4: // Single     
-      dest = (short)V_R4(&src);  break; 
-    case VT_R8: // Double     
-      dest = (short)V_R8(&src);  break;      
+      dest = (short)V_I2(&src);  break;
+    case VT_I4: // Long
+      dest = (short)V_I4(&src);  break;
+    case VT_R4: // Single
+      dest = (short)V_R4(&src);  break;
+    case VT_R8: // Double
+      dest = (short)V_R8(&src);  break;
     default:
       return false;
     }
