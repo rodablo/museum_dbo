@@ -53,81 +53,236 @@ TCursor::GetParam(string& name)
 }
 
 /**
+***
+***
+*** TEMPLATE TIENUMVARIANT
+***/
+template <class Tcontainer>
+class TIENUMVARIANT
+  :  public IEnumVARIANT
+{
+public:
+  /// IUnknown
+  virtual HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
+  virtual ULONG   __stdcall AddRef() { 
+    return ++_cRef; }
+  virtual ULONG   __stdcall Release();
+
+  /// IEnumVariant
+  virtual HRESULT __stdcall Next(unsigned long celt, 
+				 VARIANT* rgvar, 
+				 unsigned long* pceltFetched);
+  virtual HRESULT __stdcall Skip(unsigned long celt);
+  virtual HRESULT __stdcall Reset();
+  virtual HRESULT __stdcall Clone(IEnumVARIANT** ppEnum);
+
+  TIENUMVARIANT(IICursor& iicursor, Tcontainer& Container);
+  virtual ~TIENUMVARIANT();  
+
+protected:
+  ULONG         	_cRef;             // ref count
+  IICursor&  		_IICursor;
+  //
+  Tcontainer&           _Container;
+  Tcontainer::iterator 	_iterator;
+};
+
+template <class Tcontainer>
+TIENUMVARIANT<Tcontainer>::TIENUMVARIANT(IICursor& iicursor, Tcontainer& Container)
+  : _IICursor(iicursor),
+    _Container(Container)
+{
+  _cRef = 0;
+  _IICursor.AddRef();
+  _iterator = _Container.begin();
+}
+
+template <class Tcontainer>
+TIENUMVARIANT<Tcontainer>::~TIENUMVARIANT()
+{
+  _IICursor.Release();
+}
+
+template <class Tcontainer>
+inline HRESULT __stdcall
+TIENUMVARIANT<Tcontainer>::QueryInterface(REFIID riid, LPVOID* ppvObj) 
+{
+  if (0 == ppvObj)
+    return E_INVALIDARG;
+
+  *ppvObj = 0;
+  // es vtable o ISupportErrorInfo?
+  if (IsEqualIID(riid, IID_IEnumVARIANT) ||
+      IsEqualIID(riid, IID_IUnknown))
+    *ppvObj = this;
+  else
+    return E_NOINTERFACE;
+
+  // retorna retenida
+  ((IUnknown*)*ppvObj)->AddRef(); 
+  return NOERROR;
+}
+
+template <class Tcontainer>
+ULONG __stdcall
+TIENUMVARIANT<Tcontainer>::Release()
+{
+  if(0 == --_cRef)
+    {
+      delete this; 
+      return 0L;   // no puede retornar m_cRef porque aqui ya no existe
+    }
+  return _cRef;
+}
+
+/**
+*** IEnumVARIANT
+***/
+template <class Tcontainer>
+HRESULT __stdcall 
+TIENUMVARIANT<Tcontainer>::Next(unsigned long celt, 
+				 VARIANT* rgvar, 
+				 unsigned long* pceltFetched)
+{
+  VARIANT* pV;
+  // pesimismo inicial
+  if (0 != pceltFetched)
+    *pceltFetched = 0;
+  // inicializa el array resultado
+  for (pV = rgvar; pV < rgvar + celt; pV++)
+    VariantInit(pV);
+  // itera y retorna tantos como se solicitaron 
+  for (pV = rgvar; ( pV < rgvar + celt ) && ( _iterator < _Container.end() );
+       pV++, _iterator++)
+    {
+      // para la interface;
+      IDispatch* pIDispatch;
+      if (SUCCEEDED((*_iterator)->QueryInterface(IID_IDispatch, (void**)&pIDispatch)))
+	{
+	  V_VT(pV)       = VT_DISPATCH;
+	  V_DISPATCH(pV) = pIDispatch;
+	  // notifica
+	  if (0 != pceltFetched)
+	    (*pceltFetched)++;
+	}
+    }
+  // returna en funcion del exito
+  if (celt > (pV - rgvar))
+    return ResultFromScode(S_FALSE);
+  else	
+    return NOERROR;
+}
+
+template <class Tcontainer>
+HRESULT __stdcall 
+TIENUMVARIANT<Tcontainer>::Skip(unsigned long celt)
+{
+  // se pasa del final ?
+  if (celt > _Container.end() - _iterator)
+    {
+      _iterator = _Container.end();
+      return ResultFromScode(S_FALSE);
+    }
+  else
+    {
+      _iterator = _iterator + celt;
+      return NOERROR;
+    }
+}
+
+template <class Tcontainer>
+HRESULT __stdcall
+TIENUMVARIANT<Tcontainer>::Reset()
+{
+  // resetea el iterador local de la enumeracion
+  _iterator = _Container.begin();
+  //
+  return NOERROR;
+}
+
+template <class Tcontainer>
+HRESULT __stdcall 
+TIENUMVARIANT<Tcontainer>::Clone(IEnumVARIANT** ppEnum)
+{
+  //
+  if (0 != ppEnum)
+    *ppEnum = 0;
+  //
+  return NOERROR;
+}
+
+HRESULT   
+TCursor::NewEnumColumns(IUnknown** ppIUnknown)
+{
+  if (0 == ppIUnknown)
+    return NOERROR;
+  // 
+  TIENUMVARIANT<V_AP_IICOLUMN > * pIEV = new TIENUMVARIANT<V_AP_IICOLUMN >(*this, m_vCols);
+  //
+  HRESULT hr = pIEV->QueryInterface(IID_IUnknown, (void**)ppIUnknown);
+  if (FAILED(hr))
+    delete pIEV;
+  //
+  return hr;
+}
+
+HRESULT   
+TCursor::NewEnumParams(IUnknown** ppIUnknown)
+{
+  if (0 == ppIUnknown)
+    return NOERROR;
+  // 
+  TIENUMVARIANT<V_AP_IIPARAM > * pIEV = new TIENUMVARIANT<V_AP_IIPARAM >(*this, m_vParam);
+  //
+  HRESULT hr = pIEV->QueryInterface(IID_IUnknown, (void**)ppIUnknown);
+  if (FAILED(hr))
+    delete pIEV;
+  //
+  return hr;
+}
+
+/**
 *** DO'S
 ***/
 void
 TCursor::_BindParam(VARIANT& Wich, VARIANT& Value, VARIANT& AsType, VARIANT& Length)
 {
-  // temporalmente aqui
-  AP<IIParam> apParam;
-  // crea el parametro
-  ::_CreateParam(*this, Wich, Value, AsType, Length, apParam);
-  // verifica bind previo y lo elimina
-  if (-1 == apParam->Number())
+  // Por compatibilidad hacia atras considera la posibilidad de tener que deducir 
+  // el tipo del value.
+  VARTYPE vt;
+  // determina el tipo usando AsType
+  if (VT_ERROR != V_VT(&AsType))
     {
-      // lo busca para ver si es rebind
-      MAP_NAME_2_P_IIPARAM::iterator i = m_mapName2P.find(apParam->Name());
-      // si lo encontro?
-      if (i != m_mapName2P.end())
-	{
-	  // ok lo busca en el vector y lo elimina
-	  for (V_AP_IIPARAM::iterator b = m_vParam.begin(); b != m_vParam.end(); b++)
-	      if ((*b)->UniqueID() == ((*i).second)->UniqueID())
-		{
-		  if (!(*b)->ZeroRef())
-		    RAISE_INTERNAL(DBO_E_RUNTIME_CANT_DESTROY_S_S, 
-				   "Param",(*b)->Name().c_str());
-		  //
-		  m_vParam.erase(b);
-		  break;
-		}
-	  // elimina el key
-	  m_mapName2P.erase(i); // verificar que esto borra el punterno solamente
-	}
+      vt = (VARTYPE)V_I2(&AsType);
+    }
+  // lo deduce desde Valor inicial
+  else if (VT_ERROR != V_VT(&Value)) // lo deduce del valor inicial
+    {
+      vt = V_VT(&Value);
     }
   else
-    {
-      // lo busca para ver si es rebind
-       MAP_NUMBER_2_P_IIPARAM::iterator i = m_mapNumber2P.find(apParam->Number());
-      // si lo encontro?
-      if (i != m_mapNumber2P.end())
-	{
-	  // ok lo busca en el vector y lo elimina
-	  for (V_AP_IIPARAM::iterator b = m_vParam.begin(); b != m_vParam.end(); b++)
-	      if ((*b)->UniqueID() == ((*i).second)->UniqueID())
-		{
-		  char buf[34];
-		  if (!(*b)->ZeroRef())
-		    RAISE_INTERNAL(DBO_E_RUNTIME_CANT_DESTROY_S_S, 
-				   "Param", itoa((*b)->Number(), buf, 10));
-		  m_vParam.erase(b);
-		  break;
-		}
-	  //  elimina el key
-	  m_mapNumber2P.erase(i); // verificar que esto borra el punterno solamente
-	}
-    }
-  // bindea 
-  apParam->_Bind(); 
-  // bind OK agrega
-  if (-1 == apParam->Number())
-    m_mapName2P[apParam->Name()]     = apParam.get();
-  else
-    m_mapNumber2P[apParam->Number()] = apParam.get();   
-  // agrega al map de TODOS los parametros y libera 
-  m_vParam.insert(m_vParam.end(), apParam);
-  //m_mapU2P[apParam->UniqueID()] = AP<IIParam>(apParam);
-}
+    // no puede determinar el tipo
+    RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_CANT_DETERMINE_VTYPE);
 
-/**
-  CreateParam
-  Primero verifica que el parametro no exista (else genera un error) luego
-  crea el parametro (vacio) listo pa' bindear.
-  */
+  // invoca a _Bind
+  IIParam*    pParam;
+  //  AP<IIParam> apParam;
+  _Bind(Wich, (dboVarType)vt, Length, (Param**)&pParam);
+  //apParam = pParam;
+  // si existe setea el valor inicial
+  if (VT_ERROR != V_VT(&Value))
+    {	
+      VARIANT v;
+      V_VT(&v) = VT_ERROR;
+      pParam->/*_apBind->*/Internal_put_Value(v, Value);
+    }
+  // leva el ancla
+  //apParam.release();
+}
 
 void 
 TCursor::_Bind(VARIANT& Wich, 
-	       dboVarType AsType, VARIANT& StringLength, VARIANT& Value, 
+	       dboVarType AsType, VARIANT& StringLength, 
 	       Param** retv)
 {
   IIParam* pParam;
@@ -200,7 +355,7 @@ TCursor::_Bind(VARIANT& Wich,
 	}
     }
   // ahora bindea
-  pParam->Bind(AsType, StringLength, Value);
+  pParam->Bind(AsType, StringLength/*, Value*/);
   // retorna si se solicito
   if (0 != retv)
     {
@@ -308,11 +463,19 @@ TCursor::_UndefineColumn(string& name)
 }
 
 void
-TCursor::_Execute(VARIANT& N)
+TCursor::_Execute(VARIANT& N, VARIANT& Offset)
 {
   short n;
+
   if (GetShortFromVariant(n, N))
-    CHECK_OCI(oexn(&m_cda, n, 0));    
+    {
+      short offset = 0;
+      // 
+      if (VT_ERROR != V_VT(&Offset))
+	GetShortFromVariant(offset, Offset);	
+      //
+      CHECK_OCI(oexn(&m_cda, n, offset));    
+    }	
   else
     // 1. Ejecuta y chequea errores
     CHECK_OCI(oexec(&m_cda));
@@ -321,10 +484,23 @@ TCursor::_Execute(VARIANT& N)
 }
 
 bool
-TCursor::_ExecutePL(VARIANT& N)
+TCursor::_ExecutePL(VARIANT& N, VARIANT& Offset)
 {
   // Ejecuta 
-  ::oexec(&m_cda);
+  short n;
+  if (GetShortFromVariant(n, N))
+   {
+      short offset = 0;
+      // 
+      if (VT_ERROR != V_VT(&Offset))
+	GetShortFromVariant(offset, Offset);	
+      //
+      CHECK_OCI(oexn(&m_cda, n, offset));    
+   }
+  else
+    // 1. Ejecuta y chequea errores
+    CHECK_OCI(oexec(&m_cda));
+
   // Evalua que paso
   switch (m_cda.rc)
     {
