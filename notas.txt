@@ -1,0 +1,142 @@
+revisar todos los AddRef cuando se entregan las interfaces
+
+sacar los ap de los vectores y revisar las iteraciones de las destrucciones
+
+!! revisar si hay quue addref cuando se entregan las columnas en la colleccion
+
+---------------------
+
+!! terminar las columnas
+
+referencia separada para las columnas y manejar la vida de las columnas por
+el reference count.
+
+--------------------
+
+el array de columnas debe ser sorted by pos
+
+define cols deberia implementarse
+
+generalizar la validacion del vt con el de la Params)
+
+------------------------------
+
+¿pasar todos los Index a short?
+
+------------------------------
+
+almacenar los parametros en un map<unique, AP<IIParam > > permite localizar mas tarde el parametro y 
+extraerlo (esto tambien es verdadero con un vector
+
+en el caso de los parametros es posible querer re-bindear un parametro, en este caso el usar uniques 
+me independiza mas de internals (como la diff del vector)
+
+---------------------------------------------
+
+¿No será conveniente usar referencias (VARIANT*) en los variants de input para evitar 
+que el vb tenga que copiarlo?
+
+---------------------
+
+  /*enum VARENUM
+    {
+    VT_EMPTY           = 0,
+    VT_NULL            = 1,
+    VT_I2              = 2,
+    VT_I4              = 3,
+    VT_R4              = 4,
+    VT_R8              = 5,
+    VT_CY              = 6,
+    VT_DATE            = 7,
+    VT_BSTR            = 8,
+    VT_DISPATCH        = 9,
+    VT_ERROR           = 10,
+    VT_BOOL            = 11,
+    VT_VARIANT         = 12,
+    VT_UNKNOWN         = 13,
+    VT_DECIMAL         = 14,
+
+    VT_I1              = 16,
+    VT_UI1             = 17,
+    VT_UI2             = 18,
+    VT_UI4             = 19,
+    VT_I8              = 20,
+    VT_UI8             = 21,
+    VT_INT             = 22,
+    VT_UINT            = 23,
+    VT_VOID            = 24,
+    VT_HRESULT         = 25,
+    VT_PTR             = 26,
+    VT_SAFEARRAY       = 27,
+    VT_CARRAY          = 28,
+    VT_USERDEFINED     = 29,
+    VT_LPSTR           = 30,
+    VT_LPWSTR          = 31,
+
+    VT_FILETIME        = 64,
+    VT_BLOB            = 65,
+    VT_STREAM          = 66,
+    VT_STORAGE         = 67,
+    VT_STREAMED_OBJECT = 68,
+    VT_STORED_OBJECT   = 69,
+    VT_BLOB_OBJECT     = 70,
+    VT_CF              = 71,
+    VT_CLSID           = 72,
+
+    VT_VECTOR          = 0x1000,
+    VT_ARRAY           = 0x2000,
+    VT_BYREF           = 0x4000,
+    VT_RESERVED        = 0x8000,
+
+    VT_ILLEGAL         = 0xffff,
+    VT_ILLEGALMASKED   = 0x0fff,
+    VT_TYPEMASK        = 0x0fff
+    };*/
+--------------------------
+
+
+revisar que efectivamente se esten llamando a los destructores de lo AP<> el un RAISE 
+y
+revisar si el definecolumns y el fetch se avisan que las columnas estan definidas
+
+revisar la maquina para que no se llame a oexfet luego de un execute
+
+
+---------------------------
+
+30-1-98
+
+numerar definitivamente  los id(x)
+
+!! agregar Strict , NullOk , Precision, scale,
+
+plantear seriamente la maquina de estados
+
+revisar que el definecolumns borre las previas.
+
+------------------------------
+
+pendiente 
+bool 
+TColumn::ValidateIndex(long)
+
+-------------------------------
+16 /2/ 98
+
+verifique que un raise en un destructor invoca el delete para el objeto ( no el destructor)
+
+por lo que la memoria queda liberada (pero la destruccion hay que hacerla explicita)
+
+-----------------------------
+
+los parametros que no tienen valorinicial por defecto deberiantener el indocador
+de nulo en true
+
+-------------------------------
+
+en el caso de rebindeo es necesario un InternalReparse y loop->Bind()
+
+-------------------------------
+
+si las clases IXXX no tienen destructores virtuales, los derivados no se 
+llaman (pero la mem se libera)
