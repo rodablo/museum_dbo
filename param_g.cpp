@@ -88,7 +88,7 @@ TGParam::get_Number(short* retv)
 {
   try {
     // si no es numerico raise (IsNumeric)
-    *retv = -1 != m_swNumber ? m_swNumber : 0;
+    *retv = (short)(-1 != m_swNumber ? m_swNumber : 0);
   }
   __AUTO_EXCEPT;
 }
@@ -180,6 +180,19 @@ TGParam::get_Strict(VARIANT_BOOL* retv)
 {  
   *retv = IsStrict() ? VARIANT_TRUE : VARIANT_FALSE;
   return NOERROR;
+}
+
+HRESULT __stdcall 
+TGParam::get_NVL(VARIANT Index, VARIANT NullVaLue, VARIANT* retv)
+{
+  try {
+    //
+    if (_apBind.is_empty())
+      RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_NOT_BINDED_S, "name");
+    //
+    _apBind->get_NVL(Index, NullVaLue, retv);
+  }
+  __AUTO_EXCEPT;
 }
 
 /**
