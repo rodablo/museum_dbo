@@ -3,7 +3,7 @@
 
 __VERSION_MAJOR = 2
 __VERSION_MINOR = 1
-__VERSION_BUILD = 73
+__VERSION_BUILD = 74
 __VERSION       = $(__VERSION_MAJOR).$(__VERSION_MINOR).$(__VERSION_BUILD)
 
 !if $d(ALTERNATE)
@@ -21,7 +21,7 @@ __INST_NAME   = dbo-$(__VERSION)
 ###
 ### TOOLS...
 ###
-BCROOT  = k:\Borland\bc501
+BCROOT  = c:\bc501
 IMPLIB  = $(BCROOT)\bin\Implib
 BCC32   = $(BCROOT)\bin\Bcc32 
 BCC32I  = $(BCROOT)\bin\Bcc32i 
@@ -29,8 +29,8 @@ TLINK32 = $(BCROOT)\bin\TLink32
 TLIB    = TLib
 BRC32   = $(BCROOT)\bin\Brc32
 TASM32  = Tasm32
-MC      = k:\mstools\bin\mc.exe  
-MIDL    = k:\mstools\bin\midl.exe
+MC      = c:\mstools\bin\mc.exe  
+MIDL    = c:\mstools\bin\midl.exe
 IS      = "c:\Program Files\InstallShield\InstallShield Express BC++ 5.02 Edition\isx.exe"
 ZIP     = "c:\Program Files\WinZip\WINZIP32.EXE"
 ZIPSE   = "c:\Program Files\WinZip Self-Extractor\Winzipse.exe"
@@ -39,10 +39,12 @@ ZIPSE   = "c:\Program Files\WinZip Self-Extractor\Winzipse.exe"
 ### Paths
 ###
 TMP       = c:\temp\object
-BINARY    = c:\z\bin
-SOURCE    = c:\z\work
+BINARY    = z:\bin
+SOURCE    = z:\work
 TMP2      = $(TMP)\\
 EMPTY     = 
+OCIROOT   = C:\ORAWIN95\OCI73
+#OCIROOT   = .\OCI73
 
 .path.obj=$(TMP)
 .path.cpp=$(SOURCE)
@@ -70,7 +72,7 @@ LINKOBJS = \
 ### LINK
 ###
 $(__FILE_NAME).dll: $(.path.obj)\dbomc.hxx $(.path.obj)\dboidl.hxx $(.path.obj)\dboidl.obj $(LINKOBJS:ZZ=$(EMPTY)) dbo.res dbo.def makefile
-   $(TLINK32) -Tpd -aa -L.\LIB;$(BCROOT)\LIB;.\OCI73\LIB\BORLAND; -v -c -n -V4.0 -w-dup -x @&&|
+   $(TLINK32) -Tpd -aa -L.\LIB;$(BCROOT)\LIB;$(OCIROOT)\LIB\BORLAND; -v -c -n -V4.0 -w-dup -x @&&|
 .\lib\c0d32dyn.obj+
 $(TMP)\dboidl.obj+
 $(LINKOBJS:ZZ=$(TMP2)), $(BINARY)\$(__FILE_NAME).dll, $(TMP)\$(__FILE_NAME).map,+
@@ -103,7 +105,7 @@ $(TMP)\dboidl.hxx: dboidl.idl # Ver multiples targets en el make
 /D __ALTERNATE__=$(__ALTERNATE__)
 /D __BASE_NAME=$(__BASE_NAME) 
 /D __FILE_NAME=$(__FILE_NAME) 
-/I k:\mstools\include /tlb $*.tlb /iid $*.c /h $< dboidl.idl
+/I c:\mstools\include /tlb $*.tlb /iid $*.c /h $< dboidl.idl
 |
 
 $(TMP)\dboidl.obj: $(TMP)\dboidl.c
@@ -122,8 +124,8 @@ $(TMP)\dboidl.obj: $(TMP)\dboidl.c
 -H"PCH.HXX"
 -I$(TMP) 
 -I$(BCROOT)\INCLUDE
--IK:\MSTOOLS\INCLUDE
--I.\OCI73\INCLUDE 
+-Ic:\MSTOOLS\INCLUDE
+-I$(OCIROOT)\INCLUDE 
 -DINC_OLE2;STRICT;_DEBUG 
 -D__ALTERNATE=$(__ALTERNATE)
 -D__DBO2_BUILD_NUMBER__=$(__VERSION_BUILD)
@@ -183,7 +185,7 @@ VS_VERSION_INFO VERSIONINFO
   PRODUCTVERSION  $(__VERSION_MAJOR),$(__VERSION_MINOR),$(__VERSION_BUILD),0
   FILEFLAGSMASK   /*VS_FF_DEBUG |*/ VS_FF_PRERELEASE
   FILEFLAGS       VS_FF_PRERELEASE | VS_FF_SPECIALBUILD
-  FILEOS          VOS_NT_WINDOWS32 //VOS_WINDOWS32
+  //FILEOS          VOS__WINDOWS32  //VOS_NT_WINDOWS32
   FILETYPE        VFT_DLL
   FILESUBTYPE     VS_USER_DEFINED
 BEGIN
@@ -225,7 +227,7 @@ $(__FILE_NAME).cnt: $(SOURCE)\contents.cnt
 	copy $(SOURCE)\contents.cnt $(BINARY)\$(__FILE_NAME).cnt
 
 $(__FILE_NAME).hlp: $(TMP)\help.hpj $(SOURCE)\caratula.rtf $(SOURCE)\topicos.rtf
-	k:\mstools\bin\HCW /C /E /M $(TMP)\help.hpj 
+	c:\mstools\bin\HCW /C /E /M $(TMP)\help.hpj 
 ###
 ###
 ### ESTO GENERA EL .HPJ
@@ -481,14 +483,14 @@ Group1Size=1886030
 Group1Files=2
 Group1Name=Dll
 Group1Dir=<INSTALLDIR>
-Group1File1=C:\z\bin\dbo21.dll
+Group1File1=Z:\bin\dbo21.dll
 Group1File2=$(SOURCE)\license.reg
 Group2Size=50643
 Group2Files=2
 Group2Name=Help
 Group2Dir=<INSTALLDIR>
-Group2File1=C:\z\bin\DBO21.HLP
-Group2File2=c:\z\bin\dbo21.cnt
+Group2File1=Z:\bin\DBO21.HLP
+Group2File2=Z:\bin\dbo21.cnt
 [Components]
 Components=2
 Component1Groups=1
