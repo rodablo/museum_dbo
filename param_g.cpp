@@ -158,16 +158,6 @@ TGParam::put_Value(VARIANT Index, VARIANT Value)
   __AUTO_EXCEPT;
 }  
 
-void 
-TGParam::Internal_put_Value(VARIANT& Index, VARIANT& Value)
-{
-  //
-  if (_apBind.is_empty())
-    RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_NOT_BINDED_S, "name");
-  //
-  _apBind->put_Value(Index, Value);
-} 
-
 HRESULT __stdcall 
 TGParam::put_Strict(VARIANT_BOOL Strict)
 {  
