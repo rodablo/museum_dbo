@@ -84,6 +84,7 @@ protected:
   //  bool        m_fInFetch;  //
   //
   SAFEARRAY*  m_psaRows;   // data    
+  void*       m_pV;
   // ::odefin
   sb2*        m_pIndp;     // x col fetch null-status
   ub2*        m_pRLen;     // x col len del la data movida

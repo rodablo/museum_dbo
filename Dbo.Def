@@ -1,5 +1,0 @@
-EXPORTS
-	DllCanUnloadNow
-	DllGetClassObject
-	_LicenseInformation @100
-	_BuildNumber        @101
