@@ -54,6 +54,21 @@ TSession::~TSession()
   g_cObj--;
 }
 
+STDMETHODIMP
+TSession::QueryInterface(REFIID riid, LPVOID* ppvObj)
+{
+  if (0 == ppvObj)
+    return E_INVALIDARG;
+  //
+  if (IsEqualIID(riid, IID_IConnectionPointContainer)) {
+    *ppvObj = 0;
+    //((IUnknown*)*ppvObj)->AddRef(); 
+    return NOERROR;
+  }
+  else 
+    return TIDISPATCH<IISession, &IID__Session>::QueryInterface(riid, ppvObj);
+}
+
 /**
 *** PROPIEDADES
 ***/
@@ -211,7 +226,7 @@ TSession::get_CursorCount(long* retv)
 *** METODOS 
 ***/
 HRESULT __stdcall
-TSession::CreateCursor(Cursor** ppCursor)
+TSession::CreateCursor(_Cursor** ppCursor)
 {
   try {
     // conecta si es necesaro
@@ -223,7 +238,7 @@ TSession::CreateCursor(Cursor** ppCursor)
     // engancha con el bloque
     AP<IICursor> apC(pC); 
     // Le pide la interfaz IIDCURSOR
-    CHECK_HRESULT(pC->QueryInterface(IID_Cursor, (void**)ppCursor));
+    CHECK_HRESULT(pC->QueryInterface(IID__Cursor, (void**)ppCursor));
     // libera
     *ppCursor = apC.release();
   }

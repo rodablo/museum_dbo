@@ -349,8 +349,11 @@ TStringSBind::get_NVL(VARIANT& Index, VARIANT& NullVaLue, VARIANT* retv)
     V_BSTR(retv) = WIDE(_data).SysAllocString();
 }
 
+
+#include "param_bind_piecewise.cpp"
+
 /**
-***
+*** Bind
 ***/
 void
 TGParam::Bind(dboVarType AsType, VARIANT& StringLength)
@@ -370,7 +373,8 @@ TGParam::Bind(dboVarType AsType, VARIANT& StringLength)
 	{
 	  short _length;
 	  if (!GetShortFromVariant(_length, StringLength))
-	    RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_LENGTH_TYPE_MISMATCH_I, V_VT(&StringLength));
+	    RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_LENGTH_TYPE_MISMATCH_I, 
+			   V_VT(&StringLength));
 	  length = _length;
 	}
       //       else if (/*VT_ERROR !=*/VT_BSTR == V_VT(&Value))
@@ -385,6 +389,26 @@ TGParam::Bind(dboVarType AsType, VARIANT& StringLength)
 	RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_STRINGLENGTH_CANT_BE_ZERO);
       // crea
       _apBind = new TStringSBind(*this, length);
+    }
+  else if (dboVPiecewiseLong == AsType)
+    {
+      // solo en String
+      if (VT_ERROR != V_VT(&StringLength))
+	RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_STRINGLENGTH_ONLY_IN_STRING);
+      if (!m_IICursor.HasSink())
+	RAISE_INTERNAL(DBO_E_RUNTIME_PIECEWISE_NEED_EVENTS);
+      // crea
+      _apBind = new TPWLongBind(*this);
+    }
+  else if (dboVPiecewiseBinary == AsType)
+    {
+      // solo en String
+      if (VT_ERROR != V_VT(&StringLength))
+	RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_STRINGLENGTH_ONLY_IN_STRING);
+      if (!m_IICursor.HasSink())
+	RAISE_INTERNAL(DBO_E_RUNTIME_PIECEWISE_NEED_EVENTS);
+      // crea
+      _apBind = new TPWBinaryBind(*this);
     }
   else
     {
