@@ -4,49 +4,26 @@
 *** $NOSWAP $CAP MSG(RC2MSG) @$RSP(/ms_ext /char unsigned /nologo /win32 /I c:\mstools\include /tlb $NAME($EDNAME).tlb /iid $NAME($EDNAME).c /h $OUTNAME) $SAVE EDIT $EDNAME
 ***/
 #include "hlpsym.h"
-
 /**
 *** CONFIG
 ***/
+#include <config.h>
 #define __VISUAL5__ 1
 
-#if __VISUAL5__ 
-cpp_quote("#define __VISUAL5__ 1")
-#else
-cpp_quote("#define __VISUAL5__ 0")
-#endif
+// #if __VISUAL5__ 
+// cpp_quote("#define __VISUAL5__ 1")
+// #else
+// cpp_quote("#define __VISUAL5__ 0")
+// #endif
 
-#define __LIB_LCID__      0
-cpp_quote("#define __LIB_LCID__      0")
-#define __LIB_VER_MAJOR__ 2
-cpp_quote("#define __LIB_VER_MAJOR__ 2")
-#define __LIB_VER_MINOR__ 1
-cpp_quote("#define __LIB_VER_MINOR__ 1")
+// #define __LIB_LCID__      0
+// cpp_quote("#define __LIB_LCID__      0")
+// #define __LIB_VERSION_MAJOR__ 2
+// cpp_quote("#define __LIB_VER_MAJOR__ 2")
+// #define __LIB_VERSION_MINOR__ 1
+// cpp_quote("#define __LIB_VER_MINOR__ 1")
 
 cpp_quote("#define __LIBID__ LIBID_DBO21")
-
-///
-#if __COMPAT00__
-#define SESSION  Session
-#define ISESSION IDboLogon
-#define ICURSOR  IDboSql
-  cpp_quote("#define __COMPAT00__ 1")
-  cpp_quote("#define CLSIDSESSION CLSID_Session")
-  cpp_quote("#define IIDSESSION   IID_IDboLogon")
-  cpp_quote("#define IIDCURSOR    IID_IDboSql")
-  cpp_quote("#define ISESSION     IDboLogon")
-  cpp_quote("#define ICURSOR      IDboSql")
-#else
-#define SESSION  Session
-#define ISESSION _Session
-#define ICURSOR  Cursor
-  cpp_quote("#define __COMPAT00__ 0")
-  cpp_quote("#define CLSIDSESSION CLSID_Session")
-  cpp_quote("#define IIDSESSION   IID__Session")
-  cpp_quote("#define IIDCURSOR    IID_Cursor")
-  cpp_quote("#define ISESSION     _Session")
-  cpp_quote("#define ICURSOR      Cursor")
-#endif
 
 #if __ALTERNATE
 #define UUID_LIBID   		"-ef82-11cf-b8c6-00a02454eec8"
@@ -60,7 +37,7 @@ cpp_quote("#define __LIBID__ LIBID_DBO21")
 #define UUID_AUXILIAR 	   	"-ef82-11cf-b8c6-00a02454eec8"
 #define UUID_CLSID_SESSION 	"-ef82-11cf-b8c6-00a02454eec8"
 #else
-#define UUID_LIBID   		"ca43d288-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_LIBID   		__UUID_LIBID
 #define UUID_VARENUM		"ca43d291-ef82-11cf-b8c6-00a02454eec8"
 #define UUID_PARAM		"ca43d290-ef82-11cf-b8c6-00a02454eec8"
 #define UUID_COLUMN		"ca43d28c-ef82-11cf-b8c6-00a02454eec8"
@@ -69,15 +46,14 @@ cpp_quote("#define __LIBID__ LIBID_DBO21")
 #define UUID_CURSOR		"ca43d28a-ef82-11cf-b8c6-00a02454eec8"
 #define UUID__SESSION		"ca43d28b-ef82-11cf-b8c6-00a02454eec8"
 #define UUID_AUXILIAR 	   	"ca43d299-ef82-11cf-b8c6-00a02454eec8"
-#define UUID_CLSID_SESSION 	"ca43d287-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_CLSID_SESSION 	__UUID_CLSID
 #endif
 
 /**
 *** MODIFICACIONES
 ***
-1.  Los BSTR* como in pasan a ser BSTR (no hay problemas porque hay que
-    recompilar las aplicaciones visual).
-2.  X
+1.
+2.
 ***/
 
 /// Dispatch ID's
@@ -86,17 +62,17 @@ cpp_quote("#define __LIBID__ LIBID_DBO21")
   //#define dual oleautomation
   //#define dual dispinterface
 /**
-*** LIBID_DBO21
+*** LIBID_XXXXX
 ***/
   [
    uuid(UUID_LIBID),
-   helpfile("dbo21.hlp"),
+   helpfile(__HLP_NAME_S),
    helpcontext(IDH_CONTENIDO),
    helpstring("DBO 2.1"),
-   lcid(0),
-   version(2.1)
+   lcid(__LIB_LCID),
+   version(__LIB_VERSION)
   ]
-library DBO21
+library __PROGID
 {
   /// OLE2
   importlib("stdole32.tlb");
@@ -389,7 +365,7 @@ library DBO21
    pointer_default(unique),
    dual
   ]
-    interface ICURSOR : IDispatch
+    interface Cursor : IDispatch
     {
       /// PROPIEDADES
       [id(10), propget, helpcontext(IDH_CURSOR_EOF),
@@ -514,7 +490,7 @@ library DBO21
    dual,
    hidden
   ]
-    interface ISESSION : IDispatch
+    interface _Session : IDispatch
     {
       [id(11), propget, helpcontext(IDH_SESSION_USER),
       helpstring("User.")]
@@ -591,7 +567,7 @@ library DBO21
         
 	[id(115), helpcontext(IDH_SESSION_CREATECURSOR),
 	helpstring("Crea un instancia de Cursor.")]
-	  HRESULT CreateCursor([out, retval] ICURSOR** retval);
+	  HRESULT CreateCursor([out, retval] Cursor** retval);
 
 	[restricted]
 	  HRESULT Dummy1();
@@ -609,7 +585,7 @@ library DBO21
   [
    uuid(UUID_AUXILIAR),  
    helpstring("Auxiliar"), helpcontext(IDH_AUXILIAR), 
-   dllname("dbo21.dll")
+   dllname(__DLL_NAME_S)
   ] 
     module Auxiliar
     { 
@@ -630,9 +606,9 @@ library DBO21
    helpcontext(IDH_SESSION),
    helpstring("Session.")/*, licensed*/
   ]
-    coclass SESSION
+    coclass Session
     {
-      [default] interface ISESSION;
+      [default] interface _Session;
                 
       interface IDispatch;
     }

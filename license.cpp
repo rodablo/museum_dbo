@@ -8,7 +8,7 @@
 #include <wincrypt.h>
 #include <lm.h>         // for NetXxx API
 
-#define __RSA__ 1
+#define __RSA__ 0
 
 #if __RSA__
 #include <rsaeuro.h>

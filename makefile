@@ -7,31 +7,57 @@ __VERSION_BUILD = 65
 __VERSION       = $(__VERSION_MAJOR).$(__VERSION_MINOR).$(__VERSION_BUILD)
 
 !if $d(ALTERNATE)
-__ALTERNATE   = 1
-__BASE_NAME   = ALTERNATE
-__FILE_NAME   = alternate
-__INST_NAME   = alternate-$(__VERSION)
+__ALTERNATE  = 1
+__CODE_NAME  = ALTERNATE
+__BASE_NAME  = $(__CODE_NAME)$(__VERSION_MAJOR)$(__VERSION_MINOR) 
+__FILE_NAME  = alternate-$(__VERSION)
+__PROGID     = $(__BASE_NAME)
+__UUID_CLSID = ""
+__UUID_LIBID = ""
 !else
-__ALTERNATE = 0
-__CODE_NAME = DBO
-__BASE_NAME = $(__CODE_NAME)$(__VERSION_MAJOR)$(__VERSION_MINOR)
-__FILE_NAME = dbo21
-__INST_NAME = dbo-$(__VERSION)
+__ALTERNATE  = 0
+__CODE_NAME  = DBO
+__BASE_NAME  = $(__CODE_NAME)$(__VERSION_MAJOR)$(__VERSION_MINOR)
+__FILE_NAME  = dbo-$(__VERSION)
+__LEGAL_STR  = (1998) RODABLO para Origenes A.F.J.P.
+__PROGID     = $(__BASE_NAME)
+__UUID_CLSID = ca43d287-ef82-11cf-b8c6-00a02454eec8
+__UUID_LIBID = ca43d288-ef82-11cf-b8c6-00a02454eec8
 !endif
+__DLL_NAME_S = "$(__FILE_NAME).dll"
+__HLP_NAME_S = "$(__FILE_NAME).hlp"
 
 ###
 ### TOOLS...
 ###
+!if "MRODABLOATH" == "$(COMPUTERNAME)"
+BCROOT  = C:\BC501
+PRGFILE = "c:\Program Files"
+!else
+BCROOT  = C:\BC5
+PRGFILE = "c:\Archivos de programa"
+!endif
 IMPLIB  = Implib
-BCC32   = Bcc32 
-BCC32I  = Bcc32i 
-TLINK32 = TLink32
-TLIB    = TLib
-BRC32   = Brc32
+CPP     = $(BCROOT)\bin\Cpp32.exe
+BCC32   = $(BCROOT)\bin\Bcc32 
+BCC32I  = $(BCROOT)\bin\Bcc32i 
+TLINK32 = $(BCROOT)\bin\TLink32
+TLIB    = $(BCROOT)\bin\TLib
+BRC32   = $(BCROOT)\bin\Brc32
 TASM32  = Tasm32
 MC      = c:\mstools\bin\mc.exe  
 MIDL    = c:\mstools\bin\midl.exe
+
+!if MRODABLOATH == "$(COMPUTERNAME)"
+ZIP     = "c:\Program Files\WinZip\WINZIP32.EXE"
+ZIPSE   = "c:\Program Files\WinZip Self-Extractor\Winzipse.exe"
+#ZIPSE   = "c:\Program Files\WinZip\Winzipse.exe"
+!else
 ZIP     = "c:\Archivos de programa\WinZip\WINZIP32.EXE"
+ZIPSE   = "c:\Archivos de programa\WinZip Self-Extractor\Winzipse.exe"
+#ZIPSE  = "c:\Archivos de programa\WinZip\Winzipse.exe"
+!endif
+
 
 ###
 ### Paths
@@ -47,9 +73,11 @@ EMPTY     =
 .path.res=$(TMP)
 .path.zip=$(TMP)
 .path.dll=$(BINARY)
+.path.exe=$(BINARY)
 .path.hlp=$(BINARY)
 .path.cnt=$(BINARY)
 .path.inf=$(BINARY)
+.path.i  =$(TMP)
 
 ###
 ###
@@ -70,20 +98,51 @@ LINKOBJS = \
 ### LINK
 ###
 $(__FILE_NAME).dll: $(.path.obj)\dbomc.hxx $(.path.obj)\dboidl.hxx $(.path.obj)\dboidl.obj $(LINKOBJS:ZZ=$(EMPTY)) dbo.res dbo.def makefile
-   $(TLINK32) -Tpd -aa -L.\LIB;C:\BC5\LIB;C:\ORANT\OCI73\LIB\BORLAND; -v -c -n -V4.0 -w-dup -x @&&|
+   $(TLINK32) -Tpd -aa -L.\LIB;$(BCROOT)\LIB;C:\ORANT\OCI73\LIB\BORLAND; -v -c -n -V4.0 -w-dup -x @&&|
 .\lib\c0d32dyn.obj+
 $(TMP)\dboidl.obj+
 $(LINKOBJS:ZZ=$(TMP2)), $(BINARY)\$(__FILE_NAME).dll, $(TMP)\$(__FILE_NAME).map,+
 #cg32.lib+
 cw32.lib+
 #cw32mt.lib+
-#C:\BC5\LIB\bidsf.lib+
+#$(BCROOT)\LIB\bidsf.lib+
 oleaut32.lib advapi32.lib ole2w32.lib import32.lib+
-#.\crypto\rsa.lib+
 #d:\work\lib\
 ociw32.lib, dbo.def, $(TMP)\dbo.res
 |
-#    tdstrp32 $(BINARY)\dbo20.dll
+###
+###
+###
+### CONFIG.H
+###
+$(TMP)\config.h: makefile
+	sed "s/@/#/g" < &&|	# uso el sed porque '#' es comentoario para el make
+@ifndef __CONFIG_H_
+@define __CONFIG_H_
+// VERSION
+@define __VERSION_MAJOR $(__VERSION_MAJOR)
+@define __VERSION_MINOR $(__VERSION_MINOR)
+@define __VERSION_BUILD $(__VERSION_BUILD)
+@define __VERSION       $(__VERSION)
+// NOMBRES
+@define __ALTERNATE  $(__ALTERNATE)
+@define __CODE_NAME  $(__CODE_NAME)
+@define __BASE_NAME  $(__BASE_NAME)
+@define __FILE_NAME  $(__FILE_NAME)
+@define __DLL_NAME_S $(__DLL_NAME_S)
+@define __HLP_NAME_S $(__HLP_NAME_S)
+// UUIDs & Cia
+@define __PROGID     $(__PROGID)
+@define __UUID_CLSID "$(__UUID_CLSID)"
+@define __UUID_LIBID "$(__UUID_LIBID)"
+
+@define __LIB_VERSION_MAJOR $(__VERSION_MAJOR)
+@define __LIB_VERSION_MINOR $(__VERSION_MINOR)
+@define __LIB_VERSION       $(__VERSION_MAJOR).$(__VERSION_MINOR)
+@define __LIB_LCID          0
+
+@endif
+| > $< 
 ###
 ###
 ### MC
@@ -96,18 +155,15 @@ $(TMP)\dbomc.hxx: dbomc.mc #$(TMP)\dbomc.hxx $(TMP)\MSG00000.bin: dbomc.mc
 ###
 ### IDL
 ###
-#$(TMP)\dboidl.hxx dboidl.tlb: dboidl.idl # Ver multiples targets en el make
-
-$(TMP)\dboidl.hxx: dboidl.idl # Ver multiples targets en el make
+$(TMP)\dboidl.hxx: dboidl.idl $(TMP)\config.h # Ver multiples targets en el make
 #$(TMP)\dboidl.c: dboidl.idl # Ver multiples targets en el make
     $(MIDL) @&&|        
-/ms_ext /char unsigned /nologo /win32 /D __COMPAT00__=0
-/D __ALTERNATE=$(__ALTERNATE)
-/D __BASE_NAME=$(__BASE_NAME) 
-/D __FILE_NAME=$(__FILE_NAME) 
-/I c:\mstools\include /tlb $*.tlb /iid $*.c /h $< dboidl.idl
+/ms_ext /char unsigned /nologo /win32 
+/I $(TMP)
+/I c:\mstools\include
+/tlb $*.tlb /iid $*.c /h $< dboidl.idl
 |
-
+###
 $(TMP)\dboidl.obj: $(TMP)\dboidl.c
     $(BCC32) -P- -c -o$@ $(TMP)\dboidl.c
 ###
@@ -123,15 +179,11 @@ $(TMP)\dboidl.obj: $(TMP)\dboidl.c
 -H=$(TMP)\$(__FILE_NAME).csm       #   
 -H"PCH.HXX"
 -I$(TMP) 
--IC:\BC5\INCLUDE
+-I$(BCROOT)\INCLUDE
 -IC:\MSTOOLS\INCLUDE
 -IC:\ORANT\OCI73\INCLUDE 
 -I.\CRYPTO
 -DINC_OLE2;STRICT;_DEBUG 
--D__ALTERNATE=$(__ALTERNATE)
--D__DBO2_BUILD_NUMBER__=$(__VERSION_BUILD)
--D__BASE_NAME=$(__BASE_NAME)
--D__FILE_NAME=$(__FILE_NAME)
 #-DRWQE_STANDARD_LIBRARY           # ????
 #-DRWSTD_NO_NAMESPACE              # si saco los namespaces no linkea los string
 #-DRWSTD_NO_NEW_HEADER             # .....
@@ -140,7 +192,7 @@ $(TMP)\dboidl.obj: $(TMP)\dboidl.c
 -DRWDEBUG=1   			   # ¿¿¡¡ Atención !!??
 #-D__USING_STD_NAMES__             #
 #-D__STD_STRING                      
-#-N                                 # Check stack overflow 
+#-N                                # Check stack overflow 
 -tWDE                              # Windows DLL, explicit functions exported
 -ff-                               # ANSI float
 -x                                 # enable exceptions
@@ -163,7 +215,8 @@ $(TMP)\dboidl.obj: $(TMP)\dboidl.c
 -5                                 # i386 pentium i486  
 #-vGd 
 #-vGt
--wcln -wsig -wucp -w-par -w-pch- -wstv -wasm -wamp -wobs -wpch -wdef -wnod -wamb -wbbf -wpin -wnak
+-wcln -wsig -wucp -w-par -w-pch- -wstv -wasm -wamp 
+-wobs -wpch -wdef -wnod -wamb -wbbf -wpin -wnak
 | -o$@ $. 
 ###
 ###
@@ -174,7 +227,7 @@ $(TMP)\dboidl.obj: $(TMP)\dboidl.c
 #$(.path.res)\
 dbo.res: dbo.rc $(TMP)\dboidl.hxx $(TMP)\dbomc.hxx $(TMP)\versioninfo.rc
     $(BRC32) -R @&&|
-    -I$(.path.obj);C:\BC5\INCLUDE; 
+    -I$(.path.obj);$(BCROOT)\INCLUDE; 
     -DINC_OLE2;STRICT;_DEBUG;  
     -FO$@ dbo.rc               
 |
@@ -195,15 +248,15 @@ BEGIN
     BLOCK "00000000"
     BEGIN
       VALUE "CompanyName", "RODABLO\0"
-      VALUE "FileDescription", "DBO2\0"
+      VALUE "FileDescription", "$(__BASE_NAME)\0"
       VALUE "FileVersion", "$(__VERSION)\0"
       VALUE "InternalName","$(__FILE_NAME)\0"
 !if __ALTERNATE
       VALUE "LegalCopyright", ""
 !else
-      VALUE "LegalCopyright", "(1998) RODABLO para Origenes A.F.J.P.\0"
+      VALUE "LegalCopyright", "$(__LEGAL_STR)\0"
 !endif
-      VALUE "ProductName", "DBO2\0"
+      VALUE "ProductName", "$(__FILE_NAME)\0"
       VALUE "ProductVersion", "$(__VERSION_MAJOR).$(__VERSION_MINOR)\0"
       VALUE "Build", "$(__VERSION_BUILD)\0"
     END	             
@@ -213,7 +266,7 @@ BEGIN
     VALUE "Translation", 0x000, 0x000  // 
   END
 END
-| $(TMP)\versioninfo.rc
+| $< 
 ###
 ###
 ###
@@ -223,9 +276,9 @@ viewhelp: help
 	winhlp32 $(BINARY)\$(__FILE_NAME).hlp
 
 help: $(__FILE_NAME).hlp $(__FILE_NAME).cnt	
-
+# s/__TITLE__/$(__CODE_NAME) $(__VERSION_MAJOR).$(__VERSION_MINOR)/g
 $(__FILE_NAME).cnt: $(SOURCE)\contents.cnt
-	copy $(SOURCE)\contents.cnt $(BINARY)\$(__FILE_NAME).cnt
+	sed "s/FILE.HLP/$(__FILE_NAME).hlp/g" < $(SOURCE)\contents.cnt > $< # $(BINARY)\$(__FILE_NAME).cnt
 
 $(__FILE_NAME).hlp: $(TMP)\help.hpj $(SOURCE)\caratula.rtf $(SOURCE)\topicos.rtf
 	HCW /C /E /M $(TMP)\help.hpj 
@@ -234,7 +287,7 @@ $(__FILE_NAME).hlp: $(TMP)\help.hpj $(SOURCE)\caratula.rtf $(SOURCE)\topicos.rtf
 ### ESTO GENERA EL .HPJ
 ###
 $(TMP)\help.hpj: makefile
-    copy &&|
+    sed "s/@/#/g" < &&|
 ; This file is maintained by HCW. Do not modify this file directly. (JA!JA!)
 
 [OPTIONS]
@@ -243,9 +296,9 @@ COMPRESS=12 Hall Zeck
 ERRORLOG=$(TMP)\help.err
 LCID=0x2c0a 0x2 0x0 ;Spanish (Argentina)
 REPORT=Yes
-TITLE=DBO 2.1 Introduccón y Referencia
+TITLE=$(__CODE_NAME) $(__VERSION_MAJOR).$(__VERSION_MINOR) Introduccón y Referencia
 CNT=$(__FILE_NAME).cnt
-COPYRIGHT=(1998) RODABLO para Origenes A.F.J.P.
+COPYRIGHT=$(__LEGAL_STR)
 TMPDIR=$(TMP)
 BMROOT=.
 ROOT=.
@@ -256,10 +309,10 @@ $(SOURCE)\caratula.rtf
 $(SOURCE)\topicos.rtf
 
 [MAP]
-#include .\hlpsym.h
+@include $(SOURCE)\hlpsym.h
 
 [WINDOWS]
-main="DBO 2.1 Introducción y Referencia",(316,65,701,868),19460,,(r8454143); Ventana Principal del Help
+main="$(__CODE_NAME) $(__VERSION_MAJOR).$(__VERSION_MINOR) Introducción y Referencia",(316,65,701,868),19460,,(r8454143); Ventana Principal del Help
 ref="Navegador",(87,65,229,129),4,(r14876671),(r12632256),f2
 
 [CONFIG]
@@ -268,59 +321,59 @@ CreateButton(102, "Cursor",  JumpId($(__FILE_NAME).hlp, IDH_CURSOR))
 CreateButton(104, "Param",   JumpId($(__FILE_NAME).hlp, IDH_PARAM))
 CreateButton(106, "Column",  JumpId($(__FILE_NAME).hlp, IDH_COLUMN)) 
 BrowseButtons ()
-| $(TMP)\help.hpj
+| > $< #$(TMP)\help.hpj 
 ###
 ###
 ###
 ### INSTALLEXE
 ###
-install: $(BINARY)\$(__INST_NAME).exe
+install: $(BINARY)\$(__FILE_NAME).exe
 
 ###
 ### SE
 ###
-$(BINARY)\$(__INST_NAME).exe: $(__INST_NAME).zip makefile
-	winzipse $(TMP)\$(__INST_NAME).zip -t &&|
-DBO $(__VERSION)
-©1998 RODABLO para OriGenes A.F.J.P
+$(BINARY)\$(__FILE_NAME).exe: $(__FILE_NAME).zip makefile
+	$(ZIPSE) $(TMP)\$(__FILE_NAME).zip -t &&|
+$(__CODE_NAME) $(__VERSION)
+$(__LEGAL_STR)
 | @&&|
 -win32
 -i $(SOURCE)\dbo21.ico
--st "Instalar DBO $(__VERSION)"
+-st "Instalar $(__CODE_NAME) $(__VERSION)"
 -setup
 -le
 #-auto
 -o
--c "rundll32 setupapi,InstallHinfSection DoIt 132 .\$(__INST_NAME).inf"
+-c "rundll32 setupapi,InstallHinfSection DoIt 132 .\$(__FILE_NAME).inf"
 | 
-	copy $(TMP)\$(__INST_NAME).exe $(BINARY)\$(__INST_NAME).exe
-	del  /Q /F $(TMP)\$(__INST_NAME).exe
+	copy $(TMP)\$(__FILE_NAME).exe $(BINARY)\$(__FILE_NAME).exe
+	del  /Q /F $(TMP)\$(__FILE_NAME).exe
 ###
 ###
 ### ZIP
 ###
-$(__INST_NAME).zip: $(__FILE_NAME).dll $(__FILE_NAME).hlp $(__FILE_NAME).cnt $(__INST_NAME).inf
+$(__FILE_NAME).zip: $(__FILE_NAME).dll $(__FILE_NAME).hlp $(__FILE_NAME).cnt $(__FILE_NAME).inf
 	tdstrp32 $(BINARY)\$(__FILE_NAME).dll
-	del /Q /F $(TMP)\$(__INST_NAME).zip
-	$(ZIP) -min -a -ex $(TMP)\$(__INST_NAME).zip @&&|
+	del /Q /F $(TMP)\$(__FILE_NAME).zip
+	$(ZIP) -min -a -ex $<  @&&|
 $(BINARY)\$(__FILE_NAME).dll 
 $(BINARY)\$(__FILE_NAME).hlp 
 $(BINARY)\$(__FILE_NAME).cnt
-$(BINARY)\$(__INST_NAME).inf 
+$(BINARY)\$(__FILE_NAME).inf 
 |
 
 ###
 ###
 ### .INF
 ###
-$(__INST_NAME).inf: makefile
+$(__FILE_NAME).inf: makefile
 	copy &&|
 ;;;
-;;; $(__INST_NAME).inf
+;;; $(__FILE_NAME).inf
 ;;;
-;;; Instalación/Desinstalacíon para el dbo $(__VERSION)
+;;; Instalación/Desinstalacíon para el $(__CODE_NAME) $(__VERSION)
 ;;;
-;;; ©1998 RODABLO
+;;; $(__LEGAL_STR)
 ;;;
 [version]
 Signature="$$Windows NT$" 				;"$$CHICAGO$"
@@ -356,44 +409,44 @@ DelReg   = DelRegSection
 %FILE_NAME%.cnt
 
 [InfDirFiles]
-%INST_NAME%.inf
+%FILE_NAME%.inf
 
 ;;;
 ;;; REGISTRY
 ;;;
 [AddRegSection]
 ;;; Registra el servidor
-HKCR,DBO21.Session,,,%SHORT_DISP_NAME%
-HKCR,DBO21.Session\Clsid,,,%CLSID%
+HKCR,$(__PROGID).Session,,,%SHORT_DISP_NAME%
+HKCR,$(__PROGID).Session\Clsid,,,%CLSID%
 
 HKCR,CLSID\%CLSID%,,,%SHORT_DISP_NAME%
 HKCR,CLSID\%CLSID%\InProcServer32,,,%24%\%PROGRAMFILESDIR%\%DISP_NAME%\%FILE_NAME%.dll
-HKCR,CLSID\%CLSID%\ProgId,,,DBO21.Session
+HKCR,CLSID\%CLSID%\ProgId,,,$(__PROGID).Session
 HKCR,CLSID\%CLSID%\Programmable,,,
 HKCR,CLSID\%CLSID%\TypeLib,,,%LIBID%
-HKCR,CLSID\%CLSID%\Version,,,DBO21.Session
-HKCR,CLSID\%CLSID%\VersionIndependentProgID,,,DBO21.Session
+HKCR,CLSID\%CLSID%\Version,,,$(__PROGID).Session
+HKCR,CLSID\%CLSID%\VersionIndependentProgID,,,$(__PROGID).Session
 
-HKCR,TypeLib\%LIBID%\2.1,,,%SHORT_DISP_NAME%
-HKCR,TypeLib\%LIBID%\2.1\FLAGS,,,0
-HKCR,TypeLib\%LIBID%\2.1\HELPDIR,,,%24%\%PROGRAMFILESDIR%\%DISP_NAME%\%FILE_NAME%.hlp
-HKCR,TypeLib\%LIBID%\2.1\0\win32,,,%24%\%PROGRAMFILESDIR%\%DISP_NAME%\%FILE_NAME%.dll
+HKCR,TypeLib\%LIBID%\$(__VERSION_MAJOR).$(__VERSION_MINOR),,,%SHORT_DISP_NAME%
+HKCR,TypeLib\%LIBID%\$(__VERSION_MAJOR).$(__VERSION_MINOR)\FLAGS,,,0
+HKCR,TypeLib\%LIBID%\$(__VERSION_MAJOR).$(__VERSION_MINOR)\HELPDIR,,,%24%\%PROGRAMFILESDIR%\%DISP_NAME%\%FILE_NAME%.hlp
+HKCR,TypeLib\%LIBID%\$(__VERSION_MAJOR).$(__VERSION_MINOR)\0\win32,,,%24%\%PROGRAMFILESDIR%\%DISP_NAME%\%FILE_NAME%.dll
 
 ;;; Registra la desinstalación
-HKLM,%APPUNINSTALLKEY%\%INST_NAME%,"DisplayName",,"%DISP_NAME%"
-HKLM,%APPUNINSTALLKEY%\%INST_NAME%,"UninstallString",,"RunDll32 advpack.dll,LaunchINFSection %17%\%INST_NAME%.inf, Uninstall"
+HKLM,%APPUNINSTALLKEY%\%FILE_NAME%,"DisplayName",,"%DISP_NAME%"
+HKLM,%APPUNINSTALLKEY%\%FILE_NAME%,"UninstallString",,"RunDll32 advpack.dll,LaunchINFSection %17%\%FILE_NAME%.inf, Uninstall"
 
 ;;; Registra la licencia
 
 [DelRegSection]
 ;;; Remueve el servidor
-HKCR,DBO21.Session
+HKCR,$(__PROGID).Session
 HKCR,CLSID\%CLSID%
 HKCR,TypeLib\%LIBID%
 HKCR,Interface\%CLSID%
 
 ;;; Remueve la desinstalación
-HKLM,%APPUNINSTALLKEY%\%INST_NAME%,
+HKLM,%APPUNINSTALLKEY%\%FILE_NAME%,
 
 ;;; Remueve la licencia
 
@@ -407,7 +460,7 @@ HKLM,%APPUNINSTALLKEY%\%INST_NAME%,
 %FILE_NAME%.dll = 1 
 %FILE_NAME%.hlp = 1
 %FILE_NAME%.cnt = 1
-%INST_NAME%.inf = 1
+%FILE_NAME%.inf = 1
 
 ;;;
 ;;; STRINGS 
@@ -420,22 +473,22 @@ PROGRAMFILESDIR = "Archivos de programa"
 ;;; Keys 
 APPUNINSTALLKEY = "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
 ;;; Varios
-DISKID          = "DBO 2.1 - Disco de instalacíon"
-DISP_NAME       = "DBO $(__VERSION)"       
-SHORT_DISP_NAME = "DBO $(__VERSION_MAJOR).$(__VERSION_MINOR)"       
-INST_NAME       = "$(__INST_NAME)"
-FILE_NAME       = "dbo21"
-BASE_NAME       = "DBO21"
+DISKID          = "$(__CODE_NAME) $(__VERSION_MAJOR).$(__VERSION_MINOR) - Disco de instalacíon"
+DISP_NAME       = "$(__CODE_NAME) $(__VERSION)"       
+SHORT_DISP_NAME = "$(__CODE_NAME) $(__VERSION_MAJOR).$(__VERSION_MINOR)"       
+FILE_NAME       = "$(__FILE_NAME)"
+BASE_NAME       = $(__BASE_NAME)
 RODABLO         = "RODABLO"
-CLSID	        = "{CA43D287-EF82-11cf-B8C6-00A02454EEC8}"
-LIBID	        = "{CA43D288-EF82-11cf-B8C6-00A02454EEC8}"
-| $(BINARY)\$(__INST_NAME).inf
+CLSID	        = {$(__UUID_CLSID)}
+LIBID	        = {$(__UUID_LIBID)}
+| $< 
 
 ###
 ###
 ### DEBUG
 ###
 debug:  $(__FILE_NAME).dll
+	copy $(BINARY)\$(__FILE_NAME).dll "c:\Archivos de Programa\$(__CODE_NAME) $(__VERSION)\$(__FILE_NAME).dll"
 	td32.exe -sd$(SOURCE) -t$(BINARY) -c$(SOURCE)\dbo20.td2 "c:\Archivos de Programa\DevStudio\vb\vb5.exe" d:\z\xxx\vb\dbo20.vbp
 ###
 ###
@@ -444,13 +497,29 @@ debug:  $(__FILE_NAME).dll
 ###
 clear:
 	del /Q /F /S $(TMP)\*.*	
-	del /Q /F    $(BINARY)\$(__FILE_NAME).*
-	del /Q /F    $(BINARY)\$(__INST_NAME).inf
+	del /Q /F    $(BINARY)\licensefactory.exe
+	del /Q /F    $(BINARY)\$(__FILE_NAME).dll
+	del /Q /F    $(BINARY)\$(__FILE_NAME).hlp
+	del /Q /F    $(BINARY)\$(__FILE_NAME).cnt
+	del /Q /F    $(BINARY)\$(__FILE_NAME).inf
+	del /Q /F    $(BINARY)\$(__FILE_NAME).gid
 ###
 ###	
+### LICENSEFACTORY
+###
+licensefactory: licensefactory.exe
 
 
-
-
-
+licensefactory.exe: licensefactory.cpp 
+	$(BCC32) -P @&&|
+-H                              
+-Hc                             
+-H=$(TMP)\$&.csm      		
+-o$(TMP)\$&.obj 
+-e$@  
+-I$(BCROOT)\include;c:\mstools\include
+-L.\lib;$(BCROOT)\lib 
+| $** oleaut32.lib advapi32.lib
+###
+###
 
