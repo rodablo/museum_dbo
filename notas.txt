@@ -168,3 +168,11 @@ Params y Cols deverian se métodos
 
 el objeto Param deberia siempre representar un elemento único  y los array 
 serian una coleccion de Params (esto solo a nivel de interfaz automation)
+
+
+-------------------------------
+
+SI PASO -1 como arg de params.item el -1 es interpretado como no numerico (ver fuente)
+validar mejor
+
+-----------------------------
