@@ -8,8 +8,8 @@ class TSession
 {
 public:
   /// Session Propiedades
-  STDMETHOD(get_Visible)(VARIANT_BOOL* retv);
-  STDMETHOD(put_Visible)(VARIANT_BOOL Visible);
+//   STDMETHOD(get_Visible)(VARIANT_BOOL* retv);
+//   STDMETHOD(put_Visible)(VARIANT_BOOL Visible);
   STDMETHOD(get_User)(BSTR* retv);
   STDMETHOD(put_User)(BSTR User);
   STDMETHOD(get_Password)(BSTR* retv);
@@ -46,8 +46,8 @@ public:
   ~TSession();
 
 protected:
-  void     DoLogon(bool fNonBlocking);
-  void     ShowWindow(int nCmdShow);
+  void     _Logon(bool fNonBlocking);
+  //void     ShowWindow(int nCmdShow);
   HRESULT  IDispatchSEH();
   
 protected:
