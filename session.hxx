@@ -30,6 +30,11 @@ public:
   STDMETHOD(CreateCursor)(ICURSOR** ppCursor);
   STDMETHOD(get_CursorCount)(long* retv);
 
+  HRESULT __stdcall Dummy1() {}
+  HRESULT __stdcall Dummy2() {}  
+  HRESULT __stdcall Dummy3() {}  
+  HRESULT __stdcall Dummy4() {}
+
   // IISession
   /// IUnknown
   ULONG __stdcall CursorAddRef() { ++m_cCursorRef; return AddRef(); }
