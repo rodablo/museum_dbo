@@ -1,0 +1,103 @@
+REGEDIT4
+
+;;;
+;;; SESSION
+;;;
+[HKEY_CLASSES_ROOT\DBO2.Session]
+@="DBO 2.0 (Session)"
+
+[HKEY_CLASSES_ROOT\DBO2.Session\Clsid]
+@="{CA43D187-EF82-11cf-B8C6-00A02454EEC8}"
+
+;;;
+;;; CLSID
+;;;
+[HKEY_CLASSES_ROOT\CLSID\{CA43D187-EF82-11cf-B8C6-00A02454EEC8}]
+@="DBO 2.0 (Session)"
+
+[HKEY_CLASSES_ROOT\CLSID\{CA43D187-EF82-11cf-B8C6-00A02454EEC8}\InProcServer32]
+@="dbo20.dll"
+
+[HKEY_CLASSES_ROOT\CLSID\{CA43D187-EF82-11cf-B8C6-00A02454EEC8}\ProgID]
+@="DBO2.Session"
+
+[HKEY_CLASSES_ROOT\CLSID\{CA43D187-EF82-11cf-B8C6-00A02454EEC8}\Programmable]
+@=""
+
+[HKEY_CLASSES_ROOT\CLSID\{CA43D187-EF82-11cf-B8C6-00A02454EEC8}\TypeLib]
+@="{CA43D188-EF82-11cf-B8C6-00A02454EEC8}"
+
+[HKEY_CLASSES_ROOT\CLSID\{CA43D187-EF82-11cf-B8C6-00A02454EEC8}\Version]
+@="2.0"
+
+[HKEY_CLASSES_ROOT\CLSID\{CA43D187-EF82-11cf-B8C6-00A02454EEC8}\VersionIndependentProgID]
+@="DBO2.Session"
+
+;;;
+;;; TYPELIB
+;;;
+[HKEY_CLASSES_ROOT\TypeLib\{CA43D188-EF82-11cf-B8C6-00A02454EEC8}]
+@=""
+
+[HKEY_CLASSES_ROOT\TypeLib\{CA43D188-EF82-11cf-B8C6-00A02454EEC8}\2.0]
+@="DBO 2.0"
+
+[HKEY_CLASSES_ROOT\TypeLib\{CA43D188-EF82-11cf-B8C6-00A02454EEC8}\2.0\0]
+
+[HKEY_CLASSES_ROOT\TypeLib\{CA43D188-EF82-11cf-B8C6-00A02454EEC8}\2.0\0\win32]
+@="dbo20.dll"
+
+[HKEY_CLASSES_ROOT\TypeLib\{CA43D188-EF82-11cf-B8C6-00A02454EEC8}\2.0\FLAGS]
+@="0"
+
+[HKEY_CLASSES_ROOT\TypeLib\{CA43D188-EF82-11cf-B8C6-00A02454EEC8}\2.0\HELPDIR]
+@=""
+
+;;;
+;;; LICENSE
+;;;
+[HKEY_LOCAL_MACHINE\SOFTWARE\Rodablo\DBO2]
+"License"=hex:49,36,25,31,29,a1,35,2a,1a,25,9a,71,58,06,67,e4,df,7d,7c,20,9a,\
+  2a,b3,ce,07,26,61,cc,b8,4f,ae,73,78,8b,e9,cb,54,2f,da,86,ef,86,70,e5,b2,d0,\
+  3a,14,05,5c,f6,5d,04,0d,6e,01,7f,54,49,9c,78,30,6c,1a,22,e2,95,bf,80,da,69,\
+  d7,c4,0e,04,a2,cc,70,f7,40,0a,54,4e,cf,42,24,42,49,7f,e7,a9,d7,e1,5f,66,e6,\
+  6e,db,d2,50,28,84,98,f9,04,52,fa,f0,65,6f,a0,5d,0a,a7,b5,bb,6c,7a,96,4c,6d,\
+  cd,ba,44,4e,37,ca,eb,38,0d,29,18,e7,ed,29,fe,6b,a7,71,21,e4,88,05,14,82,15,\
+  3c,85,c0,cb,ef,e6,66,62,cf,47,a0,14,e8,88,68,e4,61,fa,49,a2,e7,cc,1d,32,de,\
+  8b,8f,5a,3d,7e,04,28,61,4f,0d,45,d7,76,fd,fc,ca,e6,b5,df,64,f6,16,ca,26,5b,\
+  1b,8d,c1,d5,d7,6a,31,1e,c5,ee,78,19,e9,6e,e7,a9,7f,36,01,2a,b0,80,01,8e,f5,\
+  3c,ba,f4,2e,57,15,a7,9e,94,e9,8e,9f,1a,7a,6c,f2,42,b0,ca,d7,61,be,58,6b,48,\
+  f9,22,78,94,c6,8a,6f,1e,26,95,35,65,ae,d7,53,d9,1a,d6,15,87,31,3f,66,e5,d0,\
+  10,89,15,6b,3e,42,ff,14,c8,f3,59,71,4c,6e,3d,6f,65,0b,22,94,68,ea,99,39,01,\
+  2a,f0,cb,53,b7,d4,2f,6d,9a,a3,20,3b,a0,e8,39,d1,51,32,f4,31,62,b3,de,60,19,\
+  2e,1f,ef,5c,90,43,fe,93,bd,b0,70,1e,4c,86,41,44,ef,2f,f9,b8,8c,3c,6f,5e,0f,\
+  b3,bf,2a,32,13,c5,90,f6,7f,ba,fd,df,ed,3a,7f,64,49,61,18,c6,ff,de,bf,ab,db,\
+  bc,37,e3,e7,59,73,d2,17,b2,ba,32,a3,4b,1a,fa,49,7c,54,15,20,e6,25,2d,73,fc,\
+  b6,94,c7,5c,34,ad,47,cf,85,d0,dc,11,ca,46,f8,47,df,1b,b9,19,4a,a7,45,19,38,\
+  ce,2c,3a,c8,8d,12,ff,19,76,bc,60,df,04,5d,5d,b8,d9,58,71,1e,0a,6a,eb,03,18,\
+  14,8d,1b,64,85,95,8f,a2,37,ed,bd,5a,15,2f,59,8c,77,a1,4e,cf,44,2d,a9,c1,43,\
+  ab,85,49,b0,7f,c6,cb,44,d2,7f,f4,99,37,d2,04,ae,fa,34,96,d5,4a,0f,a5,de,7d,\
+  a7,e0,e7,5d,64,94,13,6a,6b,66,80,b7,03,0b,3f,85,d4,8c,9d,7e,8b,df,d5,bb,28,\
+  c1,2d,db,23,67,e3,ad,e8,fc,49,3b,a1,9e,04,2a,ad,0c,8b,51,ca,9d,36,7d,be,ee,\
+  09,ff,68,f0,de,9f,d5,ff,db,43,37,37,c6,e4,33,c0,4d,46,d6,17,f0,ed,8d,9e,7c,\
+  74,9d,ad,89,13,a0,51,2a,19,be,04,0d,03,ac,38,c8,13,89,8d,94,4c,a0,74,32,d1,\
+  fe,f0,01,11,ca,3a,90,24,d1,d9,dd,c3,6a,c8,92,3c,fd,97,6e,99,56,4e,23,bf,4c,\
+  26,13,46,47,4e,4c,1c,0c,36,0d,bd,7c,3b,8c,d1,b7,dd,20,bb,71,0b,52,c7,08,c5,\
+  45,d8,ea,bc,11,40,4e,77,7a,4b,24,d7,30,b3,b2,d3,61,d8,fa,27,cf,7d,a2,07,5e,\
+  24,56,eb,e8,35,c3,e5,b4,2c,9f,7a,fd,8b,55,b9,86,71,f5,ae,37,25,8d,f8,4a,ec,\
+  a3,8f,68,63,92,5c,71,d0,ed,0d,7d,e9,25,8c,16,c1,4c,0b,54,84,4c,e0,ce,14,c4,\
+  fa,78,d6,c7,69,6d,1a,4b,6d,87,10,2c,4c,8d,07,b4,42,79,a4,56,98,64,99,a6,df,\
+  8a,a5,af,eb,03,10,1a,6c,7b,ee,17,09,57,31,99,d1,7a,b6,04,b7,d0,f2,2f,97,92,\
+  97,a4,d0,4f,48,4b,1c,df,97,07,2b,32,59,b6,f1,41,9d,c6,91,68,b5,09,2e,a3,71,\
+  af,51,71,9d,e9,9c,dd,2f,98,e8,02,85,68,78,e0,39,2f,6e,4a,8d,97,9c,4f,1f,f5,\
+  6f,a3,98,3c,d1,18,70,85,75,1a,03,75,81,63,e3,fe,b6,ff,0b,6a,52,85,59,f7,a4,\
+  96,6e,d1,85,72,c7,a6,5c,4e,de,60,f3,0d,b8,4d,ef,c6,16,01,c6,65,94,31,fd,10,\
+  82,3c,01,92,93,04,eb,97,35,1f,e7,6c,e4,2b,2b,57,ed,a5,9f,ef,aa,ed,c3,fc,66,\
+  e5,34,db,aa,fe,53,17,87,06,81,a3,a0,61,d9,8f,f0,fe,46,6d,c0,93,8d,bc,05,07,\
+  65,a2,5e,af,83,81,94,b4,24,cc,db,e6,24,f6,3d,fc,b2,3c,dc,60,8f,47,fb,19,58,\
+  da,3a,4e,ec,cd,a2,7e,e3,8c,56,e8,df,34,34,e5,66,80,ec,66,b9,56,a1,b4,d5,2c,\
+  67,43,e9,5a,75,86,4c,75,7d,40,bb,fd,4b,f0,4e,d4,39,be,cc,a9,7d,b7,26,2a,1e,\
+  8a,fd,eb,58,b7,d0,83,77,28,08,26,df,cb,97,dc,cb,8f,66,ec,02,3b,ff,8a,37,4c,\
+  ee,6e,f2,c7,60,2d,56,2e,47,d6,fb
+
+
