@@ -3,7 +3,7 @@
 
 __VERSION_MAJOR = 2
 __VERSION_MINOR = 1
-__VERSION_BUILD = 64
+__VERSION_BUILD = 66
 __VERSION       = $(__VERSION_MAJOR).$(__VERSION_MINOR).$(__VERSION_BUILD)
 
 !if $d(ALTERNATE)
@@ -21,24 +21,26 @@ __INST_NAME   = dbo-$(__VERSION)
 ###
 ### TOOLS...
 ###
-IMPLIB  = Implib
-BCC32   = Bcc32 
-BCC32I  = Bcc32i 
-TLINK32 = TLink32
+BCROOT  = k:\Borland\bc501
+IMPLIB  = $(BCROOT)\bin\Implib
+BCC32   = $(BCROOT)\bin\Bcc32 
+BCC32I  = $(BCROOT)\bin\Bcc32i 
+TLINK32 = $(BCROOT)\bin\TLink32
 TLIB    = TLib
-BRC32   = Brc32
+BRC32   = $(BCROOT)\bin\Brc32
 TASM32  = Tasm32
-MC      = c:\mstools\bin\mc.exe  
-MIDL    = c:\mstools\bin\midl.exe
+MC      = k:\mstools\bin\mc.exe  
+MIDL    = k:\mstools\bin\midl.exe
 IS      = "c:\Program Files\InstallShield\InstallShield Express BC++ 5.02 Edition\isx.exe"
-ZIP     = c:
+ZIP     = "c:\Program Files\WinZip\WINZIP32.EXE"
+ZIPSE   = "c:\Program Files\WinZip Self-Extractor\Winzipse.exe"
 
 ###
 ### Paths
 ###
 TMP       = c:\temp\object
 BINARY    = c:\z\bin
-SOURCE    = d:\work
+SOURCE    = c:\z\work
 TMP2      = $(TMP)\\
 EMPTY     = 
 
@@ -68,7 +70,7 @@ LINKOBJS = \
 ### LINK
 ###
 $(__FILE_NAME).dll: $(.path.obj)\dbomc.hxx $(.path.obj)\dboidl.hxx $(.path.obj)\dboidl.obj $(LINKOBJS:ZZ=$(EMPTY)) dbo.res dbo.def makefile
-   $(TLINK32) -Tpd -aa -L.\LIB;C:\BC5\LIB;C:\ORANT\OCI73\LIB\BORLAND; -v -c -n -V4.0 -w-dup -x @&&|
+   $(TLINK32) -Tpd -aa -L.\LIB;$(BCROOT)\LIB;.\OCI73\LIB\BORLAND; -v -c -n -V4.0 -w-dup -x @&&|
 .\lib\c0d32dyn.obj+
 $(TMP)\dboidl.obj+
 $(LINKOBJS:ZZ=$(TMP2)), $(BINARY)\$(__FILE_NAME).dll, $(TMP)\$(__FILE_NAME).map,+
@@ -101,7 +103,7 @@ $(TMP)\dboidl.hxx: dboidl.idl # Ver multiples targets en el make
 /D __ALTERNATE__=$(__ALTERNATE__)
 /D __BASE_NAME=$(__BASE_NAME) 
 /D __FILE_NAME=$(__FILE_NAME) 
-/I c:\mstools\include /tlb $*.tlb /iid $*.c /h $< dboidl.idl
+/I k:\mstools\include /tlb $*.tlb /iid $*.c /h $< dboidl.idl
 |
 
 $(TMP)\dboidl.obj: $(TMP)\dboidl.c
@@ -112,16 +114,16 @@ $(TMP)\dboidl.obj: $(TMP)\dboidl.c
 ### CPP's & opciones
 ###
 .cpp.obj:
-    BCC32 -c +&&|
+    $(BCC32) -c +&&|
 -y                                 #
 -H                                 #
 -Hc                                #
 -H=$(TMP)\$(__FILE_NAME).csm       #   
 -H"PCH.HXX"
 -I$(TMP) 
--IC:\BC5\INCLUDE
--IC:\MSTOOLS\INCLUDE
--IC:\ORANT\OCI73\INCLUDE 
+-I$(BCROOT)\INCLUDE
+-IK:\MSTOOLS\INCLUDE
+-I.\OCI73\INCLUDE 
 -DINC_OLE2;STRICT;_DEBUG 
 -D__ALTERNATE=$(__ALTERNATE)
 -D__DBO2_BUILD_NUMBER__=$(__VERSION_BUILD)
@@ -169,7 +171,7 @@ $(TMP)\dboidl.obj: $(TMP)\dboidl.c
 #$(.path.res)\
 dbo.res: dbo.rc $(TMP)\dboidl.hxx $(TMP)\dbomc.hxx $(TMP)\versioninfo.rc
     $(BRC32) -R @&&|
-    -I$(.path.obj);C:\BC5\INCLUDE; 
+    -I$(.path.obj);$(BCROOT)\INCLUDE; 
     -DINC_OLE2;STRICT;_DEBUG;  
     -FO$@ dbo.rc               
 |
@@ -223,7 +225,7 @@ $(__FILE_NAME).cnt: $(SOURCE)\contents.cnt
 	copy $(SOURCE)\contents.cnt $(BINARY)\$(__FILE_NAME).cnt
 
 $(__FILE_NAME).hlp: $(TMP)\help.hpj $(SOURCE)\caratula.rtf $(SOURCE)\topicos.rtf
-	HCW /C /E /M $(TMP)\help.hpj 
+	k:\mstools\bin\HCW /C /E /M $(TMP)\help.hpj 
 ###
 ###
 ### ESTO GENERA EL .HPJ
@@ -276,7 +278,7 @@ install: $(TMP)\$(__FILE_NAME).exe
 ### SE
 ###
 $(TMP)\$(__FILE_NAME).exe: $(TMP)\$(__FILE_NAME).zip
-	winzipse $(TMP)\$(__FILE_NAME).zip @&&|
+	$(ZIPSE) $(TMP)\$(__FILE_NAME).zip @&&|
 -i $(SOURCE)\dbo21.ico
 -ishield3
 -win32	
@@ -288,7 +290,8 @@ $(TMP)\$(__FILE_NAME).exe: $(TMP)\$(__FILE_NAME).zip
 ### ZIP
 ###
 $(TMP)\$(__FILE_NAME).zip: $(TMP)\$(__FILE_NAME)\650mb\Disk1\_setup.1
-	PKZIP -ex $(TMP)\$(__FILE_NAME).zip $(TMP)\$(__FILE_NAME)\650mb\Disk1\*.*
+#	PKZIP -ex $(TMP)\$(__FILE_NAME).zip $(TMP)\$(__FILE_NAME)\650mb\Disk1\*.*
+	$(ZIP) -min -a -ex $< $(TMP)\$(__FILE_NAME)\650mb\Disk1\*.*
 ###
 ###
 ### IS
@@ -479,7 +482,7 @@ Group1Files=2
 Group1Name=Dll
 Group1Dir=<INSTALLDIR>
 Group1File1=C:\z\bin\dbo21.dll
-Group1File2=D:\work\license.reg
+Group1File2=$(SOURCE)\license.reg
 Group2Size=50643
 Group2Files=2
 Group2Name=Help
@@ -505,7 +508,7 @@ Type1ComponentList=1 2
 DestinationLocationDir=<WINDISK>\Archivos de programa\RODABLO\DBO $(__VERSION)
 SelectProgramFolderName=Dbo21
 SplashScreen=1
-SplashScreenBmp=D:\work\is\splash.bmp
+SplashScreenBmp=$(SOURCE)\is\splash.bmp
 DestinationLocation=1
 BeginFileTransfer=1
 ProgressBar=1
