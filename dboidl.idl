@@ -81,41 +81,40 @@ library DBO2
    helpstring("varios"), helpcontext(IDH_NUEVO), 
    dllname("dbo20.dll")
   ] 
-module Informacion
-{ 
-  [helpstring("texto explicativo."), entry(100)] 
-    BSTR LicenseInformation(); 
-  [helpstring("texto explicativo."), entry(101)] 
-    int  BuildNumber(); 
-}; 
-  
-#if __VISUAL5__
+    module Informacion
+    { 
+      [helpstring("texto explicativo."), entry(100)] 
+	BSTR LicenseInformation(); 
+      [helpstring("texto explicativo."), entry(101)] 
+	int  BuildNumber(); 
+    }; 
+
 /**
 *** dboVARENUM
 ***/
   typedef
     [
      uuid("ca43d191-ef82-11cf-b8c6-00a02454eec8"),
+     public,
      helpcontext(IDH_NUEVO),
      helpstring("texto explicativo.")
     ]
-    enum _dboVarType
+    enum  dboVarType
     {
       //oVNull         = VT_EMPTY,
       //oVEmpty        = VT_NULL,
-      dboVInteger      = VT_I2,
-      dboVLong         = VT_I4,
-      dboVFloat        = VT_R4,
-      dboVDouble       = VT_R8,
-      dboVDate         = VT_DATE,
-      dboVString       = VT_BSTR,
-      dboVDispatch     = VT_DISPATCH,
-      dboVError        = VT_ERROR,
-      dboVByte         = VT_UI1/*VT_BYTE*/,
-      dboVCursor       = 500
+      dboVInteger = VT_I2,
+      dboVLong    = VT_I4,
+      dboVFloat   = VT_R4,
+      dboVDouble  = VT_R8,
+      dboVDate    = VT_DATE,
+      dboVString  = VT_BSTR,
+      //dboVDispatch     = VT_DISPATCH,
+      //dboVError        = VT_ERROR,
+      //dboVByte         = VT_UI1/*VT_BYTE*/,
+      //dboVCursor       = 500
     }
   dboVarType;
-#endif
 
 /**
 *** Param
@@ -130,47 +129,47 @@ module Informacion
   ]
     interface Param : IDispatch
     {
-    [id(DISPID_Name), propget, helpcontext(IDH_NUEVO),
-    helpstring("texto explicativo.")]
-      HRESULT Name
-      ([out, retval] BSTR* retv);
+      [id(DISPID_Name), propget, helpcontext(IDH_NUEVO),
+      helpstring("texto explicativo.")]
+	HRESULT Name
+	([out, retval] BSTR* retv);
 
-    [id(14), propget, helpcontext(IDH_NUEVO),
-    helpstring("texto explicativo.")]
-      HRESULT Number
-      ([out, retval] short* retv);
+      [id(14), propget, helpcontext(IDH_NUEVO),
+      helpstring("texto explicativo.")]
+	HRESULT Number
+	([out, retval] short* retv);
 
-    [id(10), propget]
-      HRESULT IsNull
-      ([in, optional] VARIANT Index, [out, retval] VARIANT_BOOL* retv);
+      [id(10), propget]
+	HRESULT IsNull
+	([in, optional] VARIANT Index, [out, retval] VARIANT_BOOL* retv);
 
-    [id(11), propget, helpcontext(IDH_NUEVO),
-    helpstring("texto explicativo.")]
-      HRESULT Length
-      ([in, optional] VARIANT Index, [out, retval] short* retv);
+      [id(11), propget, helpcontext(IDH_NUEVO),
+      helpstring("texto explicativo.")]
+	HRESULT Length
+	([in, optional] VARIANT Index, [out, retval] short* retv);
 
-    [id(12), propget, helpcontext(IDH_NUEVO),
-    helpstring("texto explicativo.")]
-      HRESULT RC
-      ([in, optional] VARIANT Index, [out, retval] short* retv);
+      [id(12), propget, helpcontext(IDH_NUEVO),
+      helpstring("texto explicativo.")]
+	HRESULT RC
+	([in, optional] VARIANT Index, [out, retval] short* retv);
 
-    [id(DISPID_VALUE), propget, helpcontext(IDH_NUEVO),
-    helpstring("texto explicativo.")]
-      HRESULT Value
-      ([in, optional] VARIANT Index, [out, retval] VARIANT* retv);
+      [id(DISPID_VALUE), propget, helpcontext(IDH_NUEVO),
+      helpstring("texto explicativo.")]
+	HRESULT Value
+	([in, optional] VARIANT Index, [out, retval] VARIANT* retv);
 
-    [id(DISPID_VALUE), propput]
-      HRESULT Value
-      ([in, optional] VARIANT Index, [in] VARIANT Value);
+      [id(DISPID_VALUE), propput]
+	HRESULT Value
+	([in, optional] VARIANT Index, [in] VARIANT Value);
     
-    [id(13), propget, helpcontext(IDH_NUEVO),
-    helpstring("texto explicativo.")]
-      HRESULT Strict
-      ([out, retval] VARIANT_BOOL* retv);
+      [id(13), propget, helpcontext(IDH_NUEVO),
+      helpstring("texto explicativo.")]
+	HRESULT Strict
+	([out, retval] VARIANT_BOOL* retv);
 
-    [id(13), propput]
-      HRESULT Strict
-      ([in] VARIANT_BOOL Strict);
+      [id(13), propput]
+	HRESULT Strict
+	([in] VARIANT_BOOL Strict);
     };
 
 /**
@@ -189,67 +188,67 @@ module Informacion
       //import "oaidl.idl";
       //dbsize, type , astype, ¿externaltype?, internaltype
       // PROPIEDADES
-    [id(DISPID_Name), propget, helpcontext(IDH_NUEVO),
-    helpstring("texto explicativo.")]
-      HRESULT Name
-      ([out, retval] BSTR* retv);
+      [id(DISPID_Name), propget, helpcontext(IDH_NUEVO),
+      helpstring("texto explicativo.")]
+	HRESULT Name
+	([out, retval] BSTR* retv);
 
-    [id(14), propget, helpcontext(IDH_NUEVO),
-    helpstring("texto explicativo.")]
-      HRESULT Position
-      ([out, retval] short* retv);
+      [id(14), propget, helpcontext(IDH_NUEVO),
+      helpstring("texto explicativo.")]
+	HRESULT Position
+	([out, retval] short* retv);
 
-    [id(15), propget, helpcontext(IDH_NUEVO),
-    helpstring("texto explicativo.")]
-      HRESULT DisplaySize
-      ([out, retval] long* retv);
+      [id(15), propget, helpcontext(IDH_NUEVO),
+      helpstring("texto explicativo.")]
+	HRESULT DisplaySize
+	([out, retval] long* retv);
     
-    [id(16), propget, helpcontext(IDH_NUEVO),
-    helpstring("texto explicativo.")]
-      HRESULT Precision
-      ([out, retval] short* retv);
+      [id(16), propget, helpcontext(IDH_NUEVO),
+      helpstring("texto explicativo.")]
+	HRESULT Precision
+	([out, retval] short* retv);
     
-     [id(17), propget, helpcontext(IDH_NUEVO),
-     helpstring("texto explicativo.")]
-       HRESULT Scale
-       ([out, retval] short* retv);
+      [id(17), propget, helpcontext(IDH_NUEVO),
+      helpstring("texto explicativo.")]
+	HRESULT Scale
+	([out, retval] short* retv);
     
-     [id(18), propget, helpcontext(IDH_NUEVO),
-     helpstring("texto explicativo.")]
-       HRESULT IsNullOk
-       ([out, retval] VARIANT_BOOL* retv);
+      [id(18), propget, helpcontext(IDH_NUEVO),
+      helpstring("texto explicativo.")]
+	HRESULT IsNullOk
+	([out, retval] VARIANT_BOOL* retv);
 
-    [id(20), propget, helpcontext(IDH_CURSOR_COUNT),
+      [id(20), propget, helpcontext(IDH_CURSOR_COUNT),
       helpstring("Numero de rows leidas en el ultimo fetch.")]
 	HRESULT RowCount
 	([out, retval] long* retval);
 
     // acceso a rows
 
-    [id(10), propget, helpcontext(IDH_NUEVO),
-    helpstring("texto explicativo.")]
-      HRESULT IsNull
-            ([in] long Index, [out, retval] VARIANT_BOOL* retv);
+      [id(10), propget, helpcontext(IDH_NUEVO),
+      helpstring("texto explicativo.")]
+	HRESULT IsNull
+	([in] long Index, [out, retval] VARIANT_BOOL* retv);
 
-    [id(11), propget, helpcontext(IDH_NUEVO),
-    helpstring("texto explicativo.")]
-      HRESULT Length
-      ([in] long Index, [out, retval] short* retv);
+      [id(11), propget, helpcontext(IDH_NUEVO),
+      helpstring("texto explicativo.")]
+	HRESULT Length
+	([in] long Index, [out, retval] short* retv);
 
-    [id(12), propget, helpcontext(IDH_NUEVO),
-    helpstring("texto explicativo.")]
-      HRESULT RC
-      ([in] long Index, [out, retval] short* retv);
+      [id(12), propget, helpcontext(IDH_NUEVO),
+      helpstring("texto explicativo.")]
+	HRESULT RC
+	([in] long Index, [out, retval] short* retv);
 
-    [id(DISPID_VALUE), propget, helpcontext(IDH_NUEVO),
-    helpstring("texto explicativo.")]
-      HRESULT Ref
-      ([out, retval] VARIANT* retv);
+      [id(DISPID_VALUE), propget, helpcontext(IDH_NUEVO),
+      helpstring("texto explicativo.")]
+	HRESULT Ref
+	([out, retval] VARIANT* retv);
 
-    [id(13), propget, helpcontext(IDH_NUEVO),
-    helpstring("Return a VARIANT with a copy of the data array.")]
-      HRESULT Copy
-      ([out, retval] VARIANT* retv);
+      [id(13), propget, helpcontext(IDH_NUEVO),
+      helpstring("Return a VARIANT with a copy of the data array.")]
+	HRESULT Copy
+	([out, retval] VARIANT* retv);
     };
 
 /**
@@ -277,9 +276,9 @@ module Informacion
 	([in] VARIANT Index,
 	 [out, retval] Param** Param);
 
-//    [id(DISPID_NEWENUM), propget, restricted]    // Must be propget.
-//      HRESULT _NewEnum
-//	([out, retval] IUnknown** ppIUnknown);
+      [id(DISPID_NEWENUM), propget, restricted]    // Must be propget.
+	HRESULT _NewEnum
+      	([out, retval] IUnknown** ppIUnknown);
     }
 
 /**
@@ -308,9 +307,9 @@ module Informacion
 	([in] VARIANT Index,
 	 [out, retval] Column** Column);
 
-//    [id(DISPID_NEWENUM), propget, restricted]    // Must be propget.
-//      HRESULT _NewEnum
-//	([out, retval] IUnknown** ppIUnknown);
+      [id(DISPID_NEWENUM), propget, restricted]    // Must be propget.
+	HRESULT _NewEnum
+      	([out, retval] IUnknown** ppIUnknown);
     }
 
 /**
@@ -384,69 +383,74 @@ module Informacion
 	([out, retval] Columns** ppColumns);
 
       /// METODOS
-      [id(110), helpcontext(IDH_NUEVO),
-      helpstring("texto explicativo.")]
-	HRESULT ParseSQL([in] BSTR Sql);
+	[id(110), helpcontext(IDH_NUEVO),
+	helpstring("texto explicativo.")]
+	  HRESULT ParseSQL([in] BSTR Sql);
 
-      [id(111), helpcontext(IDH_NUEVO),
-      helpstring("texto explicativo.")]
- 	HRESULT DefineColumns();
+	[id(111), helpcontext(IDH_NUEVO),
+	helpstring("texto explicativo.")]
+	  HRESULT DefineColumns();
 #if __VISUAL5__
-      [id(112), helpcontext(IDH_NUEVO),
-      helpstring("texto explicativo.")]
- 	HRESULT DefineColumnAs([in] short Position, [in] dboVarType AsType);
+	[id(112), helpcontext(IDH_NUEVO),
+	helpstring("texto explicativo.")]
+	  HRESULT DefineColumnAs([in] short Position, [in] dboVarType AsType);
 #else
 #endif
-      [id(113), helpcontext(IDH_NUEVO),
-      helpstring("texto explicativo.")]
- 	HRESULT Bind
- 	([in] VARIANT Wich, 
- 	 [in] dboVarType AsType,
- 	 [in, optional] VARIANT StringLength,
-	 [in, optional] VARIANT Value,
-	 [out, retval] Param** retv);
+	[id(113), helpcontext(IDH_NUEVO),
+	helpstring("texto explicativo.")]
+	  HRESULT Bind
+	  ([in] VARIANT Wich, 
+	   [in] dboVarType AsType,
+	   [in, optional] VARIANT StringLength,
+	   [out, retval] Param** retv);
 
-      [id(114), helpcontext(IDH_NUEVO),
-      helpstring("texto explicativo.")]
-  	HRESULT BindArray
-  	([in] BSTR Wich, 
-	 [in] short ArraySize, 
-  	 [in] dboVarType AsType, 
- 	 [in, optional] VARIANT StringLength,
- 	 [out, retval] Param** retv);
+	[id(114), helpcontext(IDH_NUEVO),
+	helpstring("texto explicativo.")]
+	  HRESULT BindArray
+	  ([in] BSTR Wich, 
+	   [in] short ArraySize, 
+	   [in] dboVarType AsType, 
+	   [in, optional] VARIANT StringLength,
+	   [out, retval] Param** retv);
 
-      [id(115), helpcontext(IDH_CURSOR_FETCH),
-      helpstring("texto explicativo.")]
-	HRESULT Fetch
-	([out, retval] VARIANT_BOOL* retval);
+	[id(118), helpcontext(IDH_NUEVO),
+	helpstring("texto explicativo.")]
+	  HRESULT BindCursor
+	  ([in] BSTR Wich, 
+	   [out, retval] Cursor** retv);
 
-      [id(116), helpcontext(IDH_CURSOR_EJECUTAR),
-      helpstring("texto explicativo.")]
-	HRESULT Execute([in, optional] VARIANT N);
+	[id(115), helpcontext(IDH_CURSOR_FETCH),
+	helpstring("texto explicativo.")]
+	  HRESULT Fetch
+	  ([out, retval] VARIANT_BOOL* retval);
 
-      [id(117), helpcontext(IDH_NUEVO),
-      helpstring("texto explicativo.")]
-	HRESULT BindParam
-	([in]           VARIANT Wich, 
-	 [in, optional] VARIANT Value, 
-	 [in, optional] VARIANT AsType,
-	 [in, optional] VARIANT Length);
+	[id(116), helpcontext(IDH_CURSOR_EJECUTAR),
+	helpstring("texto explicativo.")]
+	  HRESULT Execute([in, optional] VARIANT N, [in, optional] VARIANT Offset);
+
+	[id(117), helpcontext(IDH_NUEVO),
+	helpstring("texto explicativo.")]
+	  HRESULT BindParam
+	  ([in]           VARIANT Wich, 
+	   [in, optional] VARIANT Value, 
+	   [in, optional] VARIANT AsType,
+	   [in, optional] VARIANT Length);
     }
 
-// #if ~__COMPAT00__ && 0
-//   typedef
-//     [
-//      uuid("ca43d18c-ef82-11cf-b8c6-00a02454eec8"),
-//      helpcontext(IDH_NUEVO),
-//      helpstring("Session Options.")
-//     ]
-//     enum _eSessionMode
-//     {
-//       sessionModeAutoCommit = 0,
-//       sessionOptBlockingMode
-//     }
-//   eSessionMode;
-// #endif
+  // #if ~__COMPAT00__ && 0
+  //   typedef
+  //     [
+  //      uuid("ca43d18c-ef82-11cf-b8c6-00a02454eec8"),
+  //      helpcontext(IDH_NUEVO),
+  //      helpstring("Session Options.")
+  //     ]
+  //     enum _eSessionMode
+  //     {
+  //       sessionModeAutoCommit = 0,
+  //       sessionOptBlockingMode
+  //     }
+  //   eSessionMode;
+  // #endif
 
 /**
 *** IID__Session
@@ -523,29 +527,29 @@ module Informacion
 	([out, retval] long* retval);
 
       /// METODOS
-      [id(110), helpcontext(IDH_SESSION_LOGON),
-      helpstring("Establece la conexion con el DBMS.")]
-	HRESULT Logon([in, defaultvalue(FALSE)] VARIANT_BOOL NonBlocking);
+	[id(110), helpcontext(IDH_SESSION_LOGON),
+	helpstring("Establece la conexion con el DBMS.")]
+	  HRESULT Logon([in, defaultvalue(FALSE)] VARIANT_BOOL NonBlocking);
 
-      [id(111), helpcontext(IDH_SESSION_LOGOFF),
-      helpstring("Cierra la conexion con el DBMS.")]
-	HRESULT Logoff();
+	[id(111), helpcontext(IDH_SESSION_LOGOFF),
+	helpstring("Cierra la conexion con el DBMS.")]
+	  HRESULT Logoff();
 
-      [id(112), helpcontext(IDH_SESSION_COMMIT),
-      helpstring("Commit.")]
-	HRESULT Commit();
+	[id(112), helpcontext(IDH_SESSION_COMMIT),
+	helpstring("Commit.")]
+	  HRESULT Commit();
 
-      [id(113), helpcontext(IDH_SESSION_ROLLBACK),
-      helpstring("Rollback...")]
-	HRESULT Rollback();
+	[id(113), helpcontext(IDH_SESSION_ROLLBACK),
+	helpstring("Rollback...")]
+	  HRESULT Rollback();
     
-      [id(114), helpcontext(IDH_SESSION_BREAK),
-      helpstring("Break.")]
-	HRESULT Break();
+	[id(114), helpcontext(IDH_SESSION_BREAK),
+	helpstring("Break.")]
+	  HRESULT Break();
         
-      [id(115), helpcontext(IDH_SESSION_CREATESQL),
-      helpstring("Crea un instancia de Cursor.")]
-	HRESULT CreateCursor([out, retval] ICURSOR** retval);
+	[id(115), helpcontext(IDH_SESSION_CREATESQL),
+	helpstring("Crea un instancia de Cursor.")]
+	  HRESULT CreateCursor([out, retval] ICURSOR** retval);
     }
 
   /**
@@ -554,8 +558,7 @@ module Informacion
   [
    uuid("ca43d187-ef82-11cf-b8c6-00a02454eec8"),
    helpcontext(IDH_SESSION),
-   helpstring("Session.")/*,
-   licensed*/
+   helpstring("Session.")/*, licensed*/
   ]
     coclass SESSION
     {
