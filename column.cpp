@@ -287,6 +287,37 @@ TColumn::get_IsNullOk(VARIANT_BOOL* retv)
 }
 
 HRESULT __stdcall 
+TColumn::get_HasNulls(VARIANT_BOOL* retv)
+{
+  //
+  *retv = VARIANT_FALSE;
+  //
+  return NOERROR;
+}
+
+HRESULT __stdcall 
+TColumn::get_HasErrors(VARIANT_BOOL* retv)
+{
+  //
+  *retv = VARIANT_FALSE;
+  //
+  return NOERROR;
+}
+
+HRESULT __stdcall 
+TColumn::put_NVL(VARIANT Value)
+{
+  return NOERROR;
+}
+
+HRESULT __stdcall 
+TColumn::get_NVL(VARIANT* retv)
+{
+  ::VariantClear(retv);
+  return NOERROR;
+}
+
+HRESULT __stdcall 
 TColumn::get_RowCount(long* retv)
 {
   return m_IICursor.get_RowCount(retv);
