@@ -140,3 +140,15 @@ en el caso de rebindeo es necesario un InternalReparse y loop->Bind()
 
 si las clases IXXX no tienen destructores virtuales, los derivados no se 
 llaman (pero la mem se libera)
+
+--------------------------------
+
+revisar a ver que pasa si asignas "" a un param
+
+-------------------------------
+
+imsat 318-8300
+
+-------------------------------
+
+atencion los inserts generan 1403 (¿mover EOF?)

@@ -1,7 +1,7 @@
 .AUTODEPEND
 .NOSWAP
 
-__DBO2_BUILD_NUMBER__  = 54
+__DBO2_BUILD_NUMBER__  = 56
 __DBO2_BUILD_NUMBER_S_ = "banana"
 
 ###
@@ -41,19 +41,20 @@ LINKOBJS = \
         ZZcursor.obj ZZcursor2.obj ZZcursor3.obj \
         ZZcolumns.obj ZZparams.obj \
         ZZcolumn.obj ZZcolumn_bstr.obj ZZcolumn_date.obj \
-        ZZparam_g.obj ZZparam_bind.obj ZZparam.obj ZZparam_bstr.obj ZZparam_date.obj 
+        ZZparam_g.obj ZZparam_bind.obj ZZparam_bind_array.obj \
+	ZZparam.obj ZZparam_bstr.obj ZZparam_date.obj 
 ###
 ###
 ### LINK
 ###
 dbo20.dll: $(.path.obj)\dbomc.hxx $(.path.obj)\dboidl.hxx $(.path.obj)\dboidl.obj $(LINKOBJS:ZZ=$(EMPTY)) dbo.res dbo.def makefile
    $(TLINK32) -Tpd -aa -L.\LIB;C:\BC5\LIB;C:\ORANT\OCI73\LIB\BORLAND; -v -c -n -V4.0 -w-dup -x @&&|
-c0d32dyn.obj+
+.\lib\c0d32dyn.obj+
 $(TMP)\dboidl.obj+
 $(LINKOBJS:ZZ=$(TMP2)), $(BINARY)\dbo20.dll, $(TMP)\dbo20.map,+
 #cg32.lib+
 cw32.lib+
-#C:\BC5\LIB\cw32mt.lib+
+#cw32mt.lib+
 #C:\BC5\LIB\bidsf.lib+
 oleaut32.lib advapi32.lib ole2w32.lib import32.lib+
 ociw32.lib, dbo.def, $(TMP)\dbo.res
