@@ -8,8 +8,6 @@
 /**
 *** CONFIG
 ***/
-//#define __COMPAT00__ 0
-
 #define __VISUAL5__ 1
 
 #if __VISUAL5__ 
@@ -22,10 +20,12 @@ cpp_quote("#define __VISUAL5__ 0")
 cpp_quote("#define __LIB_LCID__      0")
 #define __LIB_VER_MAJOR__ 2
 cpp_quote("#define __LIB_VER_MAJOR__ 2")
-#define __LIB_VER_MINOR__ 0
-cpp_quote("#define __LIB_VER_MINOR__ 0")
+#define __LIB_VER_MINOR__ 1
+cpp_quote("#define __LIB_VER_MINOR__ 1")
 
-  ///
+cpp_quote("#define __LIBID__ LIBID_DBO21")
+
+///
 #if __COMPAT00__
 #define SESSION  Session
 #define ISESSION IDboLogon
@@ -60,30 +60,29 @@ cpp_quote("#define __LIB_VER_MINOR__ 0")
 #define DISPID_Name -800
 
 /**
-*** LIBID_DBO2
+*** LIBID_DBO21
 ***/
   [
-   uuid("ca43d188-ef82-11cf-b8c6-00a02454eec8"),
-   helpfile("dbo2.hlp"),
+   uuid("ca43d288-ef82-11cf-b8c6-00a02454eec8"),
+   helpfile("dbo21.hlp"),
    helpcontext(IDH_CONTENIDO),
-   helpstring("DBO 2.0"),
+   helpstring("DBO 2.1"),
    lcid(0),
-   version(2.0)
+   version(2.1)
   ]
-library DBO2
+library DBO21
 {
   /// OLE2
   importlib("stdole32.tlb");
-
  
 /**
 *** dboVARENUM
 ***/
   typedef
     [
-     uuid("ca43d191-ef82-11cf-b8c6-00a02454eec8"),
+     uuid("ca43d291-ef82-11cf-b8c6-00a02454eec8"),
      public,
-     helpcontext(IDH_NUEVO),
+     helpcontext(IDH_DBOVARENUM),
      helpstring("texto explicativo.")
     ]
     enum  dboVarType
@@ -107,8 +106,8 @@ library DBO2
 *** Param
 ***/
   [
-   uuid("ca43d190-ef82-11cf-b8c6-00a02454eec8"),
-   helpcontext(IDH_NUEVO),
+   uuid("ca43d290-ef82-11cf-b8c6-00a02454eec8"),
+   helpcontext(IDH_PARAM),
    helpstring("Column collection."),
    object,
    pointer_default(unique),
@@ -116,31 +115,31 @@ library DBO2
   ]
     interface Param : IDispatch
     {
-      [id(DISPID_Name), propget, helpcontext(IDH_NUEVO),
+      [id(DISPID_Name), propget, helpcontext(IDH_PARAM_NAME),
       helpstring("texto explicativo.")]
 	HRESULT Name
 	([out, retval] BSTR* retv);
 
-      [id(14), propget, helpcontext(IDH_NUEVO),
+      [id(14), propget, helpcontext(IDH_PARAM_NUMBER),
       helpstring("texto explicativo.")]
 	HRESULT Number
 	([out, retval] short* retv);
 
-      [id(10), propget]
+      [id(10), propget, helpcontext(IDH_PARAM_ISNULL)]
 	HRESULT IsNull
 	([in, optional] VARIANT Index, [out, retval] VARIANT_BOOL* retv);
 
-      [id(11), propget, helpcontext(IDH_NUEVO),
+      [id(11), propget, helpcontext(IDH_PARAM_LENGTH),
       helpstring("texto explicativo.")]
 	HRESULT Length
 	([in, optional] VARIANT Index, [out, retval] short* retv);
 
-      [id(12), propget, helpcontext(IDH_NUEVO),
+      [id(12), propget, helpcontext(IDH_PARAM_RC),
       helpstring("texto explicativo.")]
 	HRESULT RC
 	([in, optional] VARIANT Index, [out, retval] short* retv);
 
-      [id(DISPID_VALUE), propget, helpcontext(IDH_NUEVO),
+      [id(DISPID_VALUE), propget, helpcontext(IDH_PARAM_VALUE),
       helpstring("texto explicativo.")]
 	HRESULT Value
 	([in, optional] VARIANT Index, [out, retval] VARIANT* retv);
@@ -149,7 +148,7 @@ library DBO2
 	HRESULT Value
 	([in, optional] VARIANT Index, [in] VARIANT Value);
 
-      [id(13), propget, helpcontext(IDH_NUEVO),
+      [id(13), propget, helpcontext(IDH_PARAM_STRICT),
       helpstring("texto explicativo.")]
 	HRESULT Strict
 	([out, retval] VARIANT_BOOL* retv);
@@ -159,7 +158,7 @@ library DBO2
 	([in] VARIANT_BOOL Strict);
       
 
-      [id(15), propget, helpcontext(IDH_NUEVO),
+      [id(15), propget, helpcontext(IDH_PARAM_NVL),
       helpstring("texto explicativo.")]
 	HRESULT NVL
 	([in, optional] VARIANT Index, [in, optional] VARIANT NullVaLue,
@@ -179,8 +178,8 @@ library DBO2
 *** Column
 ***/
   [
-   uuid("ca43d18c-ef82-11cf-b8c6-00a02454eec8"),
-   helpcontext(IDH_NUEVO),
+   uuid("ca43d28c-ef82-11cf-b8c6-00a02454eec8"),
+   helpcontext(IDH_COLUMN),
    helpstring("Column collection."),
    object,
    pointer_default(unique),
@@ -188,67 +187,66 @@ library DBO2
   ]
     interface Column : IDispatch
     {
-      //import "oaidl.idl";
       //dbsize, type , astype, ¿externaltype?, internaltype
       // PROPIEDADES
-      [id(DISPID_Name), propget, helpcontext(IDH_NUEVO),
+      [id(DISPID_Name), propget, helpcontext(IDH_COLUMN_NAME),
       helpstring("texto explicativo.")]
 	HRESULT Name
 	([out, retval] BSTR* retv);
 
-      [id(14), propget, helpcontext(IDH_NUEVO),
+      [id(14), propget, helpcontext(IDH_COLUMN_POSITION),
       helpstring("texto explicativo.")]
 	HRESULT Position
 	([out, retval] short* retv);
 
-      [id(15), propget, helpcontext(IDH_NUEVO),
+      [id(15), propget, helpcontext(IDH_COLUMN_DISPLAYSIZE),
       helpstring("texto explicativo.")]
 	HRESULT DisplaySize
 	([out, retval] long* retv);
     
-      [id(16), propget, helpcontext(IDH_NUEVO),
+      [id(16), propget, helpcontext(IDH_COLUMN_PRECISION),
       helpstring("texto explicativo.")]
 	HRESULT Precision
 	([out, retval] short* retv);
     
-      [id(17), propget, helpcontext(IDH_NUEVO),
+      [id(17), propget, helpcontext(IDH_COLUMN_SCALE),
       helpstring("texto explicativo.")]
 	HRESULT Scale
 	([out, retval] short* retv);
     
-      [id(18), propget, helpcontext(IDH_NUEVO),
+      [id(18), propget, helpcontext(IDH_COLUMN_ISNULLOK),
       helpstring("texto explicativo.")]
 	HRESULT IsNullOk
 	([out, retval] VARIANT_BOOL* retv);
 
-      [id(20), propget, helpcontext(IDH_CURSOR_COUNT),
+      [id(20), propget, helpcontext(IDH_COLUMN_ROWCOUNT),
       helpstring("Numero de rows leidas en el ultimo fetch.")]
 	HRESULT RowCount
 	([out, retval] long* retval);
 
     // acceso a rows
 
-      [id(10), propget, helpcontext(IDH_NUEVO),
+      [id(10), propget, helpcontext(IDH_COLUMN_ISNULL),
       helpstring("texto explicativo.")]
 	HRESULT IsNull
 	([in] long Index, [out, retval] VARIANT_BOOL* retv);
 
-      [id(11), propget, helpcontext(IDH_NUEVO),
+      [id(11), propget, helpcontext(IDH_COLUMN_LENGTH),
       helpstring("texto explicativo.")]
 	HRESULT Length
 	([in] long Index, [out, retval] short* retv);
 
-      [id(12), propget, helpcontext(IDH_NUEVO),
+      [id(12), propget, helpcontext(IDH_COLUMN_RC),
       helpstring("texto explicativo.")]
 	HRESULT RC
 	([in] long Index, [out, retval] short* retv);
 
-      [id(DISPID_VALUE), propget, helpcontext(IDH_NUEVO),
+      [id(DISPID_VALUE), propget, helpcontext(IDH_COLUMN_REF),
       helpstring("texto explicativo.")]
 	HRESULT Ref
 	([out, retval] VARIANT* retv);
 
-      [id(13), propget, helpcontext(IDH_NUEVO),
+      [id(13), propget, helpcontext(IDH_COLUMN_COPY),
       helpstring("Return a VARIANT with a copy of the data array.")]
 	HRESULT Copy
 	([out, retval] VARIANT* retv);
@@ -267,8 +265,8 @@ library DBO2
 *** Params
 ***/
   [
-   uuid("ca43d18f-ef82-11cf-b8c6-00a02454eec8"),
-   helpcontext(IDH_NUEVO),
+   uuid("ca43d28f-ef82-11cf-b8c6-00a02454eec8"),
+   helpcontext(IDH_PARAMS),
    helpstring("Colección de Param."),
    object,
    pointer_default(unique),
@@ -277,13 +275,13 @@ library DBO2
     interface Params : IDispatch
     {
       // PROPIEDADES
-      [propget, helpcontext(IDH_NUEVO),
+      [propget, helpcontext(IDH_PARAMS_COUNT),
       helpstring("texto explicativo.")]
         HRESULT Count
 	([out, retval] long* retv);
 
-      [id(DISPID_VALUE), propget, 
-      helpcontext(IDH_NUEVO), helpstring("texto explicativo.")]
+      [id(DISPID_VALUE), propget, helpcontext(IDH_PARAMS_ITEM), 
+      helpstring("texto explicativo.")]
         HRESULT Item
 	([in] VARIANT Index,
 	 [out, retval] Param** Param);
@@ -297,8 +295,8 @@ library DBO2
 *** Columns
 ***/
   [
-   uuid("ca43d18e-ef82-11cf-b8c6-00a02454eec8"),
-   helpcontext(IDH_NUEVO),
+   uuid("ca43d28e-ef82-11cf-b8c6-00a02454eec8"),
+   helpcontext(IDH_COLUMNS),
    helpstring("Colección de Column."),
    object,
    pointer_default(unique),
@@ -308,13 +306,13 @@ library DBO2
     {
       //import "oaidl.idl";
       // PROPIEDADES
-      [propget, helpcontext(IDH_NUEVO),
-      helpstring("texto explicativo.")]
+      [propget, helpcontext(IDH_COLUMNS_COUNT),
+       helpstring("texto explicativo.")]
         HRESULT Count
 	([out, retval] long* retv);
 
-      [id(DISPID_VALUE), propget, 
-      helpcontext(IDH_NUEVO), helpstring("texto explicativo.")]
+      [id(DISPID_VALUE), propget, helpcontext(IDH_COLUMNS_ITEM), 
+       helpstring("texto explicativo.")]
         HRESULT Item
 	([in] VARIANT Index,
 	 [out, retval] Column** Column);
@@ -328,7 +326,7 @@ library DBO2
 *** IID_ICursor
 ***/
   [
-   uuid("ca43d18a-ef82-11cf-b8c6-00a02454eec8"),
+   uuid("ca43d28a-ef82-11cf-b8c6-00a02454eec8"),
    helpcontext(IDH_CURSOR),
    helpstring("Cursor."),
    object,
@@ -337,30 +335,28 @@ library DBO2
   ]
     interface ICURSOR : IDispatch
     {
-      //import "oaidl.idl";
-
       /// PROPIEDADES
       [id(10), propget, helpcontext(IDH_CURSOR_EOF),
       helpstring("El ultimo fetch contiene el ultima row.")]
 	HRESULT EOF
 	([out, retval] VARIANT_BOOL* retval);
 
-      [id(11), propget, helpcontext(IDH_CURSOR_COUNT),
+      [id(11), propget, helpcontext(IDH_CURSOR_ROWCOUNT),
       helpstring("Numero de rows leidas en el ultimo fetch.")]
 	HRESULT RowCount
 	([out, retval] long* retval);
 
-      [id(12), propget, helpcontext(IDH_CURSOR_COUNTACUMULADO),
+      [id(12), propget, helpcontext(IDH_CURSOR_RPC),
       helpstring("Row Processing Count.")]
 	HRESULT RPC
 	([out, retval] long* retval);      
 
-      [id(13), propget, helpcontext(IDH_NUEVO),
+      [id(13), propget, helpcontext(IDH_CURSOR_RC),
       helpstring("texto explicativo.")]
 	HRESULT RC
 	([out, retval] short* retv);
 
-      [id(14), propput, helpcontext(IDH_CURSOR_FILASXFETCH),
+      [id(14), propput, helpcontext(IDH_CURSOR_ROWXFETCH),
       helpstring("Numero de Filas leidas por Fetch.")]
 	HRESULT RowsXFetch
 	([in] long Max);
@@ -369,12 +365,12 @@ library DBO2
 	HRESULT RowsXFetch
 	([out, retval] long* Max);
 
-      [id(15), propget, helpcontext(IDH_NUEVO),
+      [id(15), propget, helpcontext(IDH_CURSOR_ISDIRTY),
       helpstring("texto explicativo.")]
 	HRESULT IsDirty
 	([out, retval] VARIANT_BOOL* retv);
 
-      [id(16), propget, helpcontext(IDH_NUEVO),
+      [id(16), propget, helpcontext(IDH_CURSOR_STRICT),
       helpstring("texto explicativo.")]
 	HRESULT Strict
 	([out, retval] VARIANT_BOOL* retv);
@@ -384,31 +380,31 @@ library DBO2
 	([in] VARIANT_BOOL Strict);
       
       // COLLECCIONES
-      [propget, id(DISPID_EVALUATE), helpcontext(IDH_NUEVO),
+      [propget, id(DISPID_EVALUATE), helpcontext(IDH_CURSOR_PARAMS),
       helpstring("texto explicativo.")]
 	HRESULT Params
 	([out, retval] Params** ppParams);
 
-      [propget, id(DISPID_VALUE), helpcontext(IDH_NUEVO),
+      [propget, id(DISPID_VALUE), helpcontext(IDH_CURSOR_COLS),
       helpstring("texto explicativo.")]
 	HRESULT Cols
 	([out, retval] Columns** ppColumns);
 
       /// METODOS
-	[id(110), helpcontext(IDH_NUEVO),
+	[id(110), helpcontext(IDH_CURSOR_PARSESQL),
 	helpstring("texto explicativo.")]
 	  HRESULT ParseSQL([in] BSTR Sql);
 
-	[id(111), helpcontext(IDH_NUEVO),
+	[id(111), helpcontext(IDH_CURSOR_DEFINECOLUMNS),
 	helpstring("texto explicativo.")]
 	  HRESULT DefineColumns();
-#if __VISUAL5__
+#if 0
 	[id(112), helpcontext(IDH_NUEVO), restricted,
 	helpstring("texto explicativo.")]
 	  HRESULT DefineColumnAs([in] short Position, [in] dboVarType AsType);
 #else
 #endif
-	[id(113), helpcontext(IDH_NUEVO),
+	[id(113), helpcontext(IDH_CURSOR_BIND),
 	helpstring("texto explicativo.")]
 	  HRESULT Bind
 	  ([in] VARIANT Wich, 
@@ -416,7 +412,7 @@ library DBO2
 	   [in, optional] VARIANT StringLength,
 	   [out, retval] Param** retv);
 
-	[id(114), helpcontext(IDH_NUEVO),
+	[id(114), helpcontext(IDH_CURSOR_BINDARRAY),
 	helpstring("texto explicativo.")]
 	  HRESULT BindArray
 	  ([in] BSTR Wich, 
@@ -425,28 +421,20 @@ library DBO2
 	   [in, optional] VARIANT StringLength,
 	   [out, retval] Param** retv);
 
+	[id(118), helpcontext(IDH_CURSOR_BINDCURSOR), restricted,
+	helpstring("texto explicativo.")]
+	  HRESULT BindCursor
+	  ([in] BSTR Wich, 
+	   [out, retval] Cursor** retv);
+
 	[id(115), helpcontext(IDH_CURSOR_FETCH),
 	helpstring("texto explicativo.")]
 	  HRESULT Fetch
 	  ([out, retval] VARIANT_BOOL* retval);
 
-	[id(116), helpcontext(IDH_CURSOR_EJECUTAR),
+	[id(116), helpcontext(IDH_CURSOR_EXECUTE),
 	helpstring("texto explicativo.")]
 	  HRESULT Execute([in, optional] VARIANT N, [in, optional] VARIANT Offset);
-
-	[id(117), helpcontext(IDH_NUEVO),
-	helpstring("texto explicativo.")]
-	  HRESULT BindParam
-	  ([in]           VARIANT Wich, 
-	   [in, optional] VARIANT Value, 
-	   [in, optional] VARIANT AsType,
-	   [in, optional] VARIANT Length);
-
-	[id(118), helpcontext(IDH_NUEVO), restricted,
-	helpstring("texto explicativo.")]
-	  HRESULT BindCursor
-	  ([in] BSTR Wich, 
-	   [out, retval] Cursor** retv);
 
 	[restricted]
 	  HRESULT Dummy1();
@@ -456,29 +444,13 @@ library DBO2
 	  HRESULT Dummy3();
 	[restricted]
 	  HRESULT Dummy4();
-
     }
-
-  // #if ~__COMPAT00__ && 0
-  //   typedef
-  //     [
-  //      uuid("ca43d18c-ef82-11cf-b8c6-00a02454eec8"),
-  //      helpcontext(IDH_NUEVO),
-  //      helpstring("Session Options.")
-  //     ]
-  //     enum _eSessionMode
-  //     {
-  //       sessionModeAutoCommit = 0,
-  //       sessionOptBlockingMode
-  //     }
-  //   eSessionMode;
-  // #endif
 
 /**
 *** IID__Session
 ***/
   [
-   uuid("ca43d18b-ef82-11cf-b8c6-00a02454eec8"),
+   uuid("ca43d28b-ef82-11cf-b8c6-00a02454eec8"),
    helpcontext(IDH_SESSION),
    helpstring("Session."),
    object,
@@ -488,14 +460,6 @@ library DBO2
   ]
     interface ISESSION : IDispatch
     {
-      [id(10), propget, helpcontext(IDH_SESSION_VISIBLE),
-      helpstring("Activa/Desactiva la Ventana de diagnosticos.")]
-	HRESULT Visible
-	([out, retval] VARIANT_BOOL* retv);
-      [id(10), propput]
-	HRESULT Visible
-	([in] VARIANT_BOOL Visible);
-
       [id(11), propget, helpcontext(IDH_SESSION_USER),
       helpstring("User.")]
 	HRESULT User
@@ -520,17 +484,17 @@ library DBO2
 	HRESULT Alias
 	([in] BSTR Alias);
 
-      [id(14), propget, helpcontext(IDH_SESSION_ISLOGON),
+      [id(14), propget, helpcontext(IDH_SESSION_ISLOGGED),
       helpstring("texto explicativo.")]
 	HRESULT IsLogged
 	([out, retval] VARIANT_BOOL* retv);
 
-      [id(15), propput, helpcontext(IDH_SESSION),
+      [id(15), propput, helpcontext(IDH_SESSION_AUTOCOMMIT),
       helpstring("texto explicativo.")]
 	HRESULT AutoCommit
 	([in] VARIANT_BOOL AutoCommit);
 
-      [id(16), propget, helpcontext(IDH_SESSION),
+      [id(16), propget, helpcontext(IDH_SESSION_NONBLOCKINGMODE),
       helpstring("texto explicativo.")]
 	HRESULT NonBlockingMode
 	([out, retval] VARIANT_BOOL* retv);
@@ -538,12 +502,12 @@ library DBO2
 	HRESULT NonBlockingMode
 	([in] VARIANT_BOOL Blocking);
 
-      [id(17), propget, helpcontext(IDH_SESSION),
+      [id(17), propget, helpcontext(IDH_SESSION_RC),
       helpstring("texto explicativo.")]
 	HRESULT RC
 	([out, retval] short* retv);
 
-      [id(18), propget, helpcontext(IDH_CURSOR_COUNT),
+      [id(18), propget, helpcontext(IDH_SESSION_CURSORCOUNT),
       helpstring("...")]
 	HRESULT CursorCount
 	([out, retval] long* retval);
@@ -569,7 +533,7 @@ library DBO2
 	helpstring("Break.")]
 	  HRESULT Break();
         
-	[id(115), helpcontext(IDH_SESSION_CREATESQL),
+	[id(115), helpcontext(IDH_SESSION_CREATECURSOR),
 	helpstring("Crea un instancia de Cursor.")]
 	  HRESULT CreateCursor([out, retval] ICURSOR** retval);
 	[restricted]
@@ -586,15 +550,17 @@ library DBO2
   *** Varios
   ***/
   [
-   uuid("ca43d199-ef82-11cf-b8c6-00a02454eec8"),  
-   helpstring("Auxiliares"), helpcontext(IDH_NUEVO), 
-   dllname("dbo20.dll")
+   uuid("ca43d299-ef82-11cf-b8c6-00a02454eec8"),  
+   helpstring("Auxiliar"), helpcontext(IDH_AUXILIAR), 
+   dllname("dbo21.dll")
   ] 
-    module Auxiliares
+    module Auxiliar
     { 
-      [helpstring("texto explicativo."), entry(100)] 
+      [entry(100), helpcontext(IDH_LICENSEINFORMATION),
+       helpstring("texto explicativo.")] 
 	BSTR LicenseInformation(); 
-      [helpstring("texto explicativo."), entry(101)] 
+      [entry(101), helpcontext(IDH_BUILDNUMBER),
+       helpstring("texto explicativo.")] 
 	int  BuildNumber(); 
     }; 
 
@@ -603,7 +569,7 @@ library DBO2
   *** CLSID_Session
   ***/
   [
-   uuid("ca43d187-ef82-11cf-b8c6-00a02454eec8"),
+   uuid("ca43d287-ef82-11cf-b8c6-00a02454eec8"),
    helpcontext(IDH_SESSION),
    helpstring("Session.")/*, licensed*/
   ]
