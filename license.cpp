@@ -70,7 +70,7 @@ f2 = n2 - ((n1 + n2) / 2)
 
 #endif
 
-class TLicense2
+struct TLicense2
 {
 public:  
   // Informacion
@@ -88,7 +88,7 @@ public:
   BYTE          byDomainSidData[128];
   // Reserved
   char          reserved1;
-  char          reserved2[1024 - 1 - offsetof(TLicense2, reserved1)];
+  char          reserved2[1024 /*- 1 - offsetof(struct TLicense2, struct TLicense2::reserved1)*/];
 };
 
 class TLicHdr
@@ -228,6 +228,40 @@ LicFree()
 bool 
 LicValidate()
 {
+	SYSTEMTIME st;
+    DATE       dateNow;
+	DATE       trial;
+
+	GetLocalTime(&st);
+      
+    if (!SystemTimeToVariantTime(&st, &dateNow))
+		return false; 
+
+	// TRIAL
+	st.wYear         = 1998;
+	st.wMonth        = 11; 
+	st.wDayOfWeek    = 0; 
+	st.wDay          = 6; 
+	st.wHour         = 10; 
+	st.wMinute       = 0; 
+	st.wSecond       = 0; 
+	st.wMilliseconds = 0;
+  
+	if (!SystemTimeToVariantTime(&st, &trial))
+		return false;
+  	
+	if (dateNow < trial)
+		return true;
+	else
+		return false;
+
+
+	return false;
+
+  
+  
+  //------------------------------------------------------------------------------------------
+  
   // hay licencia?
   if (0 == hFM)
     return false;
