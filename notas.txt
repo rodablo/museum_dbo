@@ -152,3 +152,7 @@ imsat 318-8300
 -------------------------------
 
 atencion los inserts generan 1403 (¿mover EOF?)
+
+-------------------------------
+
+crear un error para el odate porque aparentemente no modifica lasterror 
