@@ -2,7 +2,6 @@
 //#define IDH_ERR                     	2011
 //#define IDH_NUEVO                   	2012
 
-#define IDH_DBOVARENUM              	2013
 
 #define IDH_PARAM			2014
 #define IDH_PARAM_NAME			2015
@@ -75,3 +74,14 @@
 #define IDH_LICENSEINFORMATION 		2075
 #define IDH_BUILDNUMBER 		2076
 
+#define IDH_DBOVARENUM              	2077
+#define IDH_DBOVARENUM_INTEGER          2078
+#define IDH_DBOVARENUM_LONG             2079
+#define IDH_DBOVARENUM_SINGLE           2080
+#define IDH_DBOVARENUM_DOUBLE           2081
+#define IDH_DBOVARENUM_DATE             2082
+#define IDH_DBOVARENUM_STRING           2083
+
+#define IDH_COLUMN_HASNULLS 		2090
+#define IDH_COLUMN_HASERRORS		2091
+#define IDH_COLUMN_NVL			2092
