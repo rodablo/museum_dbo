@@ -70,7 +70,8 @@ TMP       	= $(OUT)\tmp
 __VER       	= $(__VER_MAJOR).$(__VER_MINOR).$(__VER_RELEASE)
 __CODE_NAME   	= DBO
 __BASE_NAME   	= $(__CODE_NAME)$(__VER_MAJOR)$(__VER_MINOR)
-__FILE_NAME   	= dbo-$(__VER_MAJOR)-$(__VER_MINOR)-$(__VER_RELEASE)
+__FILE_NAME   	= dbo-$(__VER_MAJOR)-$(__VER_MINOR)
+#-$(__VER_RELEASE)
 __PROGID     	= $(__BASE_NAME)
 __UUID_CLSID 	= ca43d387-ef82-11cf-b8c6-00a02454eec8
 __UUID_LIBID 	= ca43d388-ef82-11cf-b8c6-00a02454eec8
@@ -114,8 +115,11 @@ $(OUT)\$(__CAB_FNAME): $(CABFILES)
 ###
 ### SELF EXTRACTOR
 ###
-toto: $(OUT)\$(__FILE_NAME).exe
+exe: $(OUT)\$(__FILE_NAME).exe
 $(OUT)\$(__FILE_NAME).exe: $(TMP)\$(__FILE_NAME).zip #makefile
+	$(TCLSH) makefile.tcl --create-zipse $(ZIPSE) $(OUT) $(TMP) $(TMP)\$(__FILE_NAME).zip $(SRC)\dbo21.ico $(__INF_FNAME) $(__FILE_NAME) $(__VER_MAJOR) $(__VER_MINOR) $(__VER_RELEASE) $(__CODE_NAME) "$(__LEGAL_STR)"
+########
+!IF 0
 	$(ZIPSE) $(TMP)\$(__FILE_NAME).zip -t <<atmp @<<btmp
 $(__CODE_NAME) $(__VER)
 $(__LEGAL_STR)
@@ -130,8 +134,8 @@ $(__LEGAL_STR)
 <<NOKEEP
 	move $(TMP)\$(__FILE_NAME).exe $(OUT)\$(__FILE_NAME).exe 
 #copy $(TMP)\$(__FILE_NAME).exe $(BINARY)\$(__FILE_NAME).exe
-#del  /Q /F $(TMP)\$(__FILE_NAME).exe
-
+	del  /Q /F $(OUT)\$(__FILE_NAME).exe
+!ENDIF
 ###
 ### ZIP
 ###
@@ -146,16 +150,15 @@ $(OUT)\$(__CNT_FNAME)
 $(OUT)\$(__INF_FNAME)
 <<NOKEEP
 
-
 ###
-### inf
+### INF
 ###
 $(OUT)\$(__INF_FNAME): dll
 	$(TCLSH) makefile.tcl --process-dboinf $@ <<
 ;;;
 ;;; $(__FILE_NAME).inf
 ;;;
-;;; Instalación/Desinstalacíon para el $(__CODE_NAME) $(__VERSION) build: __VER_BUILD
+;;; Instalación/Desinstalacíon para el $(__CODE_NAME) $(__VER) build: __VER_BUILD
 ;;;
 ;;; $(__LEGAL_STR)
 ;;;
@@ -259,8 +262,8 @@ VER_BUILD	= __VER_BUILD
 VER		= $(__VER)
 ;;; Dirs 
 PROGRAMFILESDIR = "Archivos de programa"
-DESTINATION	= "Archivos de programa\$(__CODE_NAME) $(__VER)"
-DIR_NAME	= "$(__CODE_NAME) $(__VER)"
+;;; DESTINATION	= "Archivos de programa\$(__CODE_NAME) $(__VER)"
+DIR_NAME	= "$(__CODE_NAME) $(__VER_MAJOR).$(__VER_MINOR)"
 ;;; RegKeys 
 APPUNINSTALLKEY = "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
 ;;; Varios
@@ -290,7 +293,47 @@ OBJS 		= \
         $(TMP)\param_g.obj $(TMP)\param_bind.obj $(TMP)\param_bind_array.obj \
 	$(TMP)\dboidl.obj
 
-$(OUT)\$(__DLL_FNAME): workdirs $(OBJS) dbo.def $(TMP)\dbo.res 
+$(OUT)\$(__DLL_FNAME): workdirs $(OBJS) dbo.def $(SRC)\dbo.rc
+### VERSIONINFO RESOURCE
+	$(TCLSH) makefile.tcl --process-versioninfo $(TMP)\versioninfo.rc <<
+VS_VERSION_INFO VERSIONINFO 
+  FILEVERSION     $(__VER_MAJOR),$(__VER_MINOR),$(__VER_RELEASE),__VER_BUILD
+  PRODUCTVERSION  $(__VER_MAJOR),$(__VER_MINOR),$(__VER_RELEASE),__VER_BUILD
+  FILEFLAGSMASK   VS_FF_DEBUG | VS_FF_PRERELEASE
+!IF "1" == "$(__NODEBUG)" 
+  FILEFLAGS       VS_FF_PRERELEASE 
+!ELSE
+  FILEFLAGS       VS_FF_DEBUG | VS_FF_PRERELEASE 
+!ENDIF
+  FILEOS          VOS_NT_WINDOWS32 //VOS_WINDOWS32
+  FILETYPE        VFT_DLL
+  FILESUBTYPE     0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "00000000"
+    BEGIN
+      VALUE "CompanyName", "RODABLO.COM\0"
+      VALUE "FileDescription", "$(__CODE_NAME) $(__VER)\0"
+      VALUE "FileVersion", "$(__VER)\0"
+      VALUE "OriginalFilename", "$(__FILE_NAME).dll\0"
+      VALUE "InternalName","$(__FILE_NAME)\0"
+      VALUE "LegalCopyright", "$(__LEGAL_STR)\0"
+      VALUE "ProductName", "$(__CODE_NAME) $(__VER)\0"
+      VALUE "ProductVersion", "$(__VER)\0"
+      VALUE "Build", "__VER_BUILD\0"
+    END	             
+  END
+  BLOCK "VarFileInfo"
+  BEGIN                                // Language | Translation
+    VALUE "Translation", 0x000, 0x000  // 
+  END
+END
+<<NOKEEP 
+### RC
+	$(RC) /r /I$(TMP) /I$(VC)\INCLUDE /DINC_OLE2;STRICT \
+		/Fo $(TMP)\dbo.res $(SRC)\dbo.rc
+### LINK
 	$(LINK) @<<
 /NOLOGO
 /DLL
@@ -362,56 +405,22 @@ $(TMP)\config.h: workdirs
 
 ###
 ### message resource win32
+### usa $(TMP)\dbomc.hxx para todo 
 ###
-$(TMP)\MSG00000.bin $(TMP)\dbomc.rc $(TMP)\dbomc.hxx: workdirs dbomc.mc 
+### $(TMP)\MSG00000.bin $(TMP)\dbomc.rc $(TMP)\dbomc.hxx: workdirs dbomc.mc 
+mc_target: $(TMP)\dbomc.hxx
+$(TMP)\dbomc.hxx: workdirs dbomc.mc 
+	echo *** mc
 	$(MC) /o /s /e hxx /h $(TMP)\ /r $(TMP)\ dbomc.mc
-
-###
-### versioninfo resource
-###
-# debe ser == que la del linker menos el res
-$(TMP)\versioninfo.rc: workdirs $(OBJS) dbo.def
-	$(TCLSH) makefile.tcl --process-versioninfo $@ <<
-VS_VERSION_INFO VERSIONINFO 
-  FILEVERSION     $(__VER_MAJOR),$(__VER_MINOR),$(__VER_RELEASE),__VER_BUILD
-  PRODUCTVERSION  $(__VER_MAJOR),$(__VER_MINOR),$(__VER_RELEASE),__VER_BUILD
-  FILEFLAGSMASK   VS_FF_DEBUG | VS_FF_PRERELEASE
-!IF "1" == "$(__NODEBUG)" 
-  FILEFLAGS       VS_FF_PRERELEASE 
-!ELSE
-  FILEFLAGS       VS_FF_DEBUG | VS_FF_PRERELEASE 
-!ENDIF
-  FILEOS          VOS_NT_WINDOWS32 //VOS_WINDOWS32
-  FILETYPE        VFT_DLL
-  FILESUBTYPE     0
-BEGIN
-  BLOCK "StringFileInfo"
-  BEGIN
-    BLOCK "00000000"
-    BEGIN
-      VALUE "CompanyName", "RODABLO.COM\0"
-      VALUE "FileDescription", "$(__CODE_NAME) $(__VER)\0"
-      VALUE "FileVersion", "$(__VER)\0"
-      VALUE "OriginalFilename", "$(__FILE_NAME).dll\0"
-      VALUE "InternalName","$(__FILE_NAME)\0"
-      VALUE "LegalCopyright", "$(__LEGAL_STR)\0"
-      VALUE "ProductName", "$(__CODE_NAME) $(__VER)\0"
-      VALUE "ProductVersion", "$(__VER)\0"
-      VALUE "Build", "__VER_BUILD\0"
-    END	             
-  END
-  BLOCK "VarFileInfo"
-  BEGIN                                // Language | Translation
-    VALUE "Translation", 0x000, 0x000  // 
-  END
-END
-<<NOKEEP 
 
 ###
 ### idl
 ###
-$(TMP)\dboidl.hxx $(TMP)\dboidl.tlb $(TMP)\dboidl.c: workdirs dboidl.idl
-    $(MIDL) @<<
+#$(TMP)\dboidl.hxx $(TMP)\dboidl.tlb $(TMP)\dboidl.c: workdirs dboidl.idl
+idl_target: $(TMP)\dboidl.hxx
+$(TMP)\dboidl.hxx: workdirs dboidl.idl
+	echo *** idl
+	$(MIDL) @<<
 /nologo
 /ms_ext 
 /char unsigned  
@@ -424,7 +433,8 @@ $(TMP)\dboidl.hxx $(TMP)\dboidl.tlb $(TMP)\dboidl.c: workdirs dboidl.idl
 dboidl.idl
 <<NOKEEP
 
-$(TMP)\dboidl.obj: $(TMP)\dboidl.c
+#$(TMP)\dboidl.obj: $(TMP)\dboidl.c
+$(TMP)\dboidl.obj: idl_target
 	$(CC) /c /nologo /TC /MT /O2 /Gs /GD /EHa /Fo$@ $(TMP)\dboidl.c
 ###
 ### workdir
@@ -441,7 +451,7 @@ $(OUT)\$(__CNT_FNAME): contents.cnt
 	$(TCLSH) makefile.tcl --process-contents.cnt \
 			$@ $(SRC)\contents.cnt $(__HLP_FNAME)
 
-$(OUT)\$(__HLP_FNAME): $(OUT)\$(__CNT_FNAME) caratula.rtf topicos.rtf hlpsym.h
+$(OUT)\$(__HLP_FNAME): $(OUT)\$(__CNT_FNAME) $(SRC)\caratula.rtf $(SRC)\topicos.rtf $(SRC)\hlpsym.h
     $(HCW) /C /E /M <<$(__FILE_NAME).hpj
 ;  creado por el makefile no modificar.
 [OPTIONS]
@@ -527,8 +537,8 @@ debug_makefile: $(TMP)\makefile.dll
 $<
 <<NOKEEP
 
-{$(SRC)}.rc{$(TMP)}.res:
-	$(RC) /r /I$(TMP) /I$(VC)\INCLUDE /DINC_OLE2;STRICT /Fo $@ $<
+#{$(SRC)}.rc{$(TMP)}.res:
+#	$(RC) /r /I$(TMP) /I$(VC)\INCLUDE /DINC_OLE2;STRICT /Fo $@ $<
 
 
 ###
@@ -549,14 +559,16 @@ debug_unreg:
 ###
 ### DEPENDENCIAS
 ###
-dboidl.idl:	$(TMP)\config.h hlpsym.h
-dbo.hxx:	$(TMP)\config.h $(TMP)\dboidl.hxx $(TMP)\dbomc.hxx dispatch.hxx connectable.hxx
-$(OBJS):	dbo.hxx pch.hxx
-dbo.rc:		workdirs $(TMP)\dboidl.tlb $(TMP)\dbomc.rc $(TMP)\versioninfo.rc 
-column.cpp column_bstr.cpp column_date.cpp column_piecewise.cpp: column.hxx
-column.hxx: icolumn.hxx
-cursor.cpp cursor2.cpp cursor3.cpp: cursor.hxx
-cursor.hxx: icursor.hxx
+$(SRC)\dboidl.idl:	$(TMP)\config.h $(TMP)\hlpsym.h
+$(SRC)\dbo.hxx:	$(TMP)\config.h idl_target mc_target $(SRC)\dispatch.hxx \
+	$(SRC)\connectable.hxx
+$(OBJS):	$(SRC)\dbo.hxx $(SRC)\pch.hxx
+$(SRC)\dbo.rc:	workdirs idl_target mc_target $(SRC)\dbo21.ico
+$(SRC)\column.cpp $(SRC)\column_bstr.cpp $(SRC)\column_date.cpp \
+	$(SRC)\column_piecewise.cpp: $(SRC)\column.hxx
+$(SRC)\column.hxx: $(SRC)\icolumn.hxx
+$(SRC)\cursor.cpp $(SRC)\cursor2.cpp $(SRC)\cursor3.cpp: $(SRC)\cursor.hxx
+$(SRC)\cursor.hxx: $(SRC)\icursor.hxx
 
 
 
