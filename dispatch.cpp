@@ -21,7 +21,7 @@ LoadTypeInfo(const IID& rIID, LPTYPEINFO& rpTI) // este argumento podria  volar
       // pesimismo inicial
       rpTI = 0;
       // Carga el type Lib.
-      if (FAILED(LoadRegTypeLib(LIBID_DBO2,
+      if (FAILED(LoadRegTypeLib(__LIBID__,
 				__LIB_VER_MAJOR__, __LIB_VER_MINOR__, 
       				__LIB_LCID__, &g_pTLib)) &&
 	  // Si no esta registrada, intenta con el path, si OK queda registrada
@@ -193,7 +193,7 @@ IDispatchSEH(LPEXCEPTION_POINTERS& rpEP,
     }
   /// Aqui transfiero la informacion al automation
   // crea el string SOURCE
-  rExcepInfo.bstrSource = WIDE("DBO11...").SysAllocString();
+  rExcepInfo.bstrSource = WIDE("DBO21").SysAllocString();
   // otro retorno informal (revisar si el GetScode no strola nada)
   rExcepInfo.scode = GetScode(hrret);
   // notifica a los que acceden por Invoke
