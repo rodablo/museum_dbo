@@ -85,10 +85,10 @@ public:
   STDMETHOD(Fetch)(VARIANT_BOOL* retv);
   STDMETHOD(Execute)(VARIANT N, VARIANT Start);
 
-  HRESULT __stdcall Dummy1() {}
-  HRESULT __stdcall Dummy2() {}  
-  HRESULT __stdcall Dummy3() {}  
-  HRESULT __stdcall Dummy4() {}
+  HRESULT __stdcall Dummy1() {return 0;}
+  HRESULT __stdcall Dummy2() {return 0;}  
+  HRESULT __stdcall Dummy3() {return 0;}  
+  HRESULT __stdcall Dummy4() {return 0;}
 
   // IICursor
   operator Cda_Def*()                {return &m_cda;}  //operator Lda_Def*() {return  m_IISession;}
