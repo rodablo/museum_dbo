@@ -55,10 +55,10 @@ public:
   virtual HRESULT __stdcall get_Strict(VARIANT_BOOL* retv);
   virtual HRESULT __stdcall get_NVL(VARIANT Index, VARIANT NullVaLue, VARIANT* retv);
 
-  virtual HRESULT __stdcall Dummy1() {}
-  virtual HRESULT __stdcall Dummy2() {}  
-  virtual HRESULT __stdcall Dummy3() {}  
-  virtual HRESULT __stdcall Dummy4() {}
+  virtual HRESULT __stdcall Dummy1() {return 0;}
+  virtual HRESULT __stdcall Dummy2() {return 0;}  
+  virtual HRESULT __stdcall Dummy3() {return 0;}  
+  virtual HRESULT __stdcall Dummy4() {return 0;}
 
   // IIParam
   virtual operator Cda_Def*() { return m_IICursor; }

@@ -30,10 +30,10 @@ public:
   STDMETHOD(CreateCursor)(Cursor** ppCursor);
   STDMETHOD(get_CursorCount)(long* retv);
 
-  HRESULT __stdcall Dummy1() {}
-  HRESULT __stdcall Dummy2() {}  
-  HRESULT __stdcall Dummy3() {}  
-  HRESULT __stdcall Dummy4() {}
+  HRESULT __stdcall Dummy1() {return 0;}
+  HRESULT __stdcall Dummy2() {return 0;}  
+  HRESULT __stdcall Dummy3() {return 0;}  
+  HRESULT __stdcall Dummy4() {return 0;}
 
   // IISession
   /// IUnknown
