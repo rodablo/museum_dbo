@@ -25,7 +25,7 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hInst = 0;
 ULONG     g_cLock = 0;
 ULONG     g_cObj  = 0;
-char      g_szModuleName[] = "dbo21.dll"; // inicializar desde GetModuleName()
+char      g_szModuleName[] = __DLL_NAME_S; // inicializar desde GetModuleName()
 
 extern void __stdcall LicLoad();
 extern void __stdcall LicFree();
@@ -98,7 +98,7 @@ DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppvObj)
     //if (a())
     //  return CLASS_E_CLASSNOTAVAILABLE;
     // valida la clase
-    if (!IsEqualCLSID(rclsid, CLSIDSESSION))
+    if (!IsEqualCLSID(rclsid, CLSID_Session))
       return CLASS_E_CLASSNOTAVAILABLE;
     // crea el classfactory
     //TSessionCF* pSCF = new TSessionCF;
