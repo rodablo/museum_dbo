@@ -11,16 +11,18 @@
 *** Param Abstract Factory
 ***/
 void 
-CreateParam(IICursor& cursor, VARIANT& Wich, AP<IIParam>& rapParam)
+CreateNumericParam(IICursor& cursor, sword Wich, AP<IIParam>& rapParam)
 {
-  // 
-  rapParam = new TGParam(cursor, Wich);
+  rapParam = new TGParam(cursor);
+  static_cast<TGParam*>(rapParam.get())->m_swNumber = Wich;
 }
 
 void
-CreateParam(IICursor& cursor, string& Wich, AP<IIParam>& rapParam)
+CreateStringParam(IICursor& cursor, string& Wich, AP<IIParam>& rapParam)
 {
-  rapParam = new TGParam(cursor, Wich);
+  rapParam = new TGParam(cursor);
+  static_cast<TGParam*>(rapParam.get())->m_swNumber = -1;
+  static_cast<TGParam*>(rapParam.get())->m_sName = Wich;
 }
 
 // bool
@@ -52,12 +54,14 @@ CreateParam(IICursor& cursor, string& Wich, AP<IIParam>& rapParam)
 long
 TGParam::m_lUniqueIDGenerator = 10000;
 
-TGParam::TGParam(IICursor& rIICursor, VARIANT& Wich)
+TGParam::TGParam(IICursor& rIICursor)
   :  m_IICursor(rIICursor)
 {
+  // 
+  _fStrict = true;
   // determina tipo de parametro (Numerico o Alfa) por el VT_ del indice
-  m_swNumber = -1;
-  switch (V_VT(&Wich)) // (pasar esto al constructor de TScalarParam, unificando los constructores)
+  //  m_swNumber = Wich;//-1;
+  /*  switch (V_VT(&Wich)) // (pasar esto al constructor de TScalarParam, unificando los constructores)
     {
     case VT_UI1:// Byte
       m_swNumber = (sword)V_UI1(&Wich); break;
@@ -74,21 +78,23 @@ TGParam::TGParam(IICursor& rIICursor, VARIANT& Wich)
       break;
     default:
       RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_NAME_TYPE_MISMATCH_I, V_VT(&Wich));
-    }
+    }*/
   // asigna numero unico
   m_lUniqueID = m_lUniqueIDGenerator++;
 }
 
-TGParam::TGParam(IICursor& rIICursor, string& Wich)
+/*TGParam::TGParam(IICursor& rIICursor, string& Wich)
   :  m_IICursor(rIICursor)
 {
+  // 
+  _fStrict = true;
   // es alfa
   m_swNumber = -1;
   // 
   m_sName = Wich;
   // asigna numero unico
   m_lUniqueID = m_lUniqueIDGenerator++;
-}
+}*/
 
 TGParam::~TGParam()
 {
@@ -183,6 +189,19 @@ TGParam::put_Value(VARIANT Index, VARIANT Value)
   __AUTO_EXCEPT;
 }  
 
+HRESULT __stdcall 
+TGParam::put_Strict(VARIANT_BOOL Strict)
+{  
+  _fStrict = (VARIANT_TRUE == Strict);
+  return NOERROR;
+}
+
+HRESULT __stdcall 
+TGParam::get_Strict(VARIANT_BOOL* retv)
+{  
+  *retv = IsStrict() ? VARIANT_TRUE : VARIANT_FALSE;
+  return NOERROR;
+}
 /**
 *** TGParam
 ***/
@@ -193,14 +212,6 @@ TGParam::PreWork()
   //     _apBind->PreWork();
   // not bind error
 }
-
-// void 
-// TGParam::Bind()
-// {
-// }
-
-
-
 
 /*
 HRESULT __stdcall 
@@ -304,160 +315,6 @@ TBind::TBind(TGParam& Param)
 {
 }
 
-#if 0
-/**
-*** TArrayBind
-***/
-TArrayBind::TArrayBind(TGParam* pParam, short arraySize)
-  :  TBind(pParam)
-{
-  //
-  m_nE = arraySize;
-  m_pR = 0;
-  m_bindType = 0;
-  //  m_sizeOfElement = 0;
-  // primero aloco
-  AP<sb2>  apIndp(new sb2[m_nE]);  
-  AP<ub2>  apLen(new ub2[m_nE]);  
-  AP<ub2>  apRC(new ub2[m_nE]);   
-  // no hubo problemas 
-  m_pIndp = apIndp.release();
-  m_pLen  = apLen.release();
-  m_pRC   = apRC.release();
-}
-
-TArrayBind::~TArrayBind()
-{
-  delete [] m_pIndp;
-  delete [] m_pLen;
-  delete [] m_pRC;
-  delete [] m_pR;
-}
-
-int
-TArrayBind::ValidateIndex(VARIANT Index)
-{
-  // index es obligatorio
-  if (VT_ERROR == V_VT(&Index))
-    RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_NEED_INDEX_IN_ARRAYS);
-  // 
-  short index;
-  if (!GetShortFromVariant(index, Index))
-    RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_INDEX_TYPE_MISMATCH_I, V_VT(&Index));
-  // validate elements
-  if (0 == index || m_nE < index)
-    RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_INDEX_OUT_OF_RANGE_L,(long)index); 
-  //
-  return index;
-}
-
-void 
-TArrayBind::get_Length(VARIANT Index, short* retv)
-{
-  // 
-  *retv = m_pLen[ValidateIndex(Index) - 1]; 
-}
-
-void
-TArrayBind::get_RC(VARIANT Index, short* retv)
-{
-  // 
-  *retv = m_pRC[ValidateIndex(Index) - 1]; 
-}
-
-void
-TArrayBind::get_IsNull(VARIANT Index, VARIANT_BOOL* retv)
-{
-  //
-  *retv = 0 > m_pIndp[ValidateIndex(Index) - 1] ? VARIANT_TRUE : VARIANT_FALSE; 
-}
-
-void
-TArrayBind::Bind()
-{
-  CHECK_OCI(obndra(m_pParam->m_IICursor.GetCDA(),
-		   (text*)m_pParam->m_sName.c_str(), -1,
-		   m_pR+sizeof(ub4)/*m_pR*/, *(ub4*)m_pR/*-1*/, m_bindType, -1,
-		   m_pIndp, m_pLen, m_pRC,
-		   m_maxSize, &m_curSize,
- 		   (text*)0, -1, -1));
-}
-
-/**
-*** TNumberArrayBind
-***/
-TNumberArrayBind::TNumberArrayBind(TGParam* pParam,
-				   VARTYPE vt, short arraySize, VARIANT& Value)
-  :  TArrayBind(pParam, arraySize)
-{
-  /* 1. determina el tamaño y tipo externo del elemento
-     2. aloca el buffer (incluyendo el espacio para el tamaño)
-     3. inicializo con value
-  */
-  // determina el tamaño y tipo externo del elemento
-  m_sizeOfE = 0;
-  switch (vt)
-    {
-    case VT_UI1:// Byte 
-      m_sizeOfE = sizeof(unsigned char); 
-      m_bindType = SQLT_INT;
-      break;
-    case VT_I2: // Integer
-      m_sizeOfE = sizeof(short);
-      m_bindType = SQLT_INT;
-      break;
-    case VT_I4: // Long     
-      m_sizeOfE = sizeof(long);
-      m_bindType = SQLT_INT;
-      break;
-    case VT_R4: // Float
-      m_sizeOfE = sizeof(float);
-      m_bindType = SQLT_FLT;
-      break;
-    case VT_R8: // Double
-      m_sizeOfE = sizeof(double);
-      m_bindType = SQLT_FLT;
-      break;
-    }
-  // aloca e inicializa los punteros
-  size_t sizeOfA = m_sizeOfE * m_nE;
-  AP<ub1> apR(new ub1[sizeOfA /*+ sizeof(ub4)*/]);
-  m_pR = apR.get();
-  //  m_pV = m_pR + sizeof(ub4); 
-  //*(ub4*)m_pR = sizeOfA;
-  m_sizeOfR = sizeOfA;
-
-  m_maxSize = m_nE;//sizeOfA;
-
-  m_pLen[0] = m_pLen[1] = m_sizeOfE;//8;
-  // inicializa
-
-  // libera el seguro
-  apR.release();
-}
-
-TNumberArrayBind::~TNumberArrayBind()
-{
-}
-
-void 
-TNumberArrayBind::PreWork()
-{
-  //for_each()
-}
-
-void
-TNumberArrayBind::put_Value(VARIANT Index, VARIANT Value)
-{
-  //validar y sacar el valor
-}
-
-void
-TNumberArrayBind::get_Value(VARIANT Index, VARIANT* retv)
-{
-}
-
-#endif
 
 
 

@@ -22,7 +22,8 @@ public:
   virtual long UniqueID() const { return m_lUniqueID; }
   virtual void PreWork() {}   
   virtual void PosWork() {} 
-  virtual void BindArray(dboVarType AsType, short ArraySize, VARIANT StringLength) {}
+  virtual void Bind(dboVarType AsType, VARIANT& StringLength, VARIANT& Value) {}
+  virtual void BindArray(dboVarType AsType, short ArraySize, VARIANT& StringLength) {}
   virtual void ClearBind(){} 
   //TParam
   HRESULT IDispatchSEH();
@@ -61,11 +62,15 @@ public:
   virtual HRESULT __stdcall get_IsNull(VARIANT Index, VARIANT_BOOL* retv);
   virtual HRESULT __stdcall put_Value(VARIANT Index, VARIANT Value);
   virtual HRESULT __stdcall get_Value(VARIANT Index, VARIANT* retv);
+  virtual HRESULT __stdcall put_Strict(VARIANT_BOOL Strict){return  NOERROR;}
+  virtual HRESULT __stdcall get_Strict(VARIANT_BOOL* retv){return NOERROR; }
+
   // IIParam
   virtual sword   Number()   { return m_swNumber; }
   virtual string& Name()     { return m_sName;}       
   virtual void    _Bind(); 
   // TScalarParam
+  virtual bool     IsAlfaN()  {return -1 == m_swNumber;}
   bool            IsNumeric(){ return -1 == m_swNumber; }
   void            Build(VARTYPE Vt, VARIANT& Value); // es publico pero solo lo ven en TScalarParam
 
@@ -133,6 +138,7 @@ public:
   virtual void get_IsNull(VARIANT& Index, VARIANT_BOOL* retv) = 0;
   virtual void put_Value(VARIANT& Index, VARIANT& Value) = 0;
   virtual void get_Value(VARIANT& Index, VARIANT* retv) = 0;
+
   //
 //   virtual void Bind() = 0;
   virtual void PreWork() = 0;
@@ -206,7 +212,8 @@ protected:
 class TGParam 
   :  public TIDISPATCH<IIParam, &IID_Param>
 {
-  friend TArrayBind;
+  friend void CreateNumericParam(IICursor& cursor, sword Wich, AP<IIParam>& rapParam);
+  friend void CreateStringParam(IICursor& cursor, string& Wich, AP<IIParam>& rapParam);
 public:
   // IUnknown
   ULONG __stdcall AddRef() { ++m_cRef; return m_IICursor.AddRef(); }
@@ -219,22 +226,27 @@ public:
   virtual HRESULT __stdcall get_IsNull(VARIANT Index, VARIANT_BOOL* retv);
   virtual HRESULT __stdcall put_Value(VARIANT Index, VARIANT Value);
   virtual HRESULT __stdcall get_Value(VARIANT Index, VARIANT* retv);
+  virtual HRESULT __stdcall put_Strict(VARIANT_BOOL Strict);
+  virtual HRESULT __stdcall get_Strict(VARIANT_BOOL* retv);
   // IIParam
-  virtual operator Cda_Def*() {return m_IICursor;} 
+  virtual operator Cda_Def*() { return m_IICursor; }
   virtual long     UniqueID() const { return m_lUniqueID; }
-  virtual void     PreWork();
-  virtual void     PosWork()  {} 
+  virtual bool     IsAlfaN()  {return -1 == m_swNumber;}
+  virtual void     PreWork(); 
+  virtual void     PosWork()  { }
   virtual sword    Number()   { return m_swNumber; }
-  virtual string&  Name()     { return m_sName; }       
+  virtual string&  Name()     { return m_sName; }
   // este método esta por el momento, volarlo de IIParam
-  virtual void     _Bind()    { ::Beep(440,4000); } 
-  virtual void     BindArray(dboVarType AsType, short ArraySize, VARIANT StringLength);
+  virtual void     _Bind()    { ::Beep(440, 4000); }
+  virtual void     Bind(dboVarType AsType, VARIANT& StringLength, VARIANT& Value);
+  virtual void     BindArray(dboVarType AsType, short ArraySize, VARIANT& StringLength);
   virtual void     ClearBind(){} 
+  virtual bool     IsStrict() { return _fStrict || m_IICursor.IsStrict(); }
   // TGParam
   HRESULT IDispatchSEH();
+  void    SetDirtyFlag()      { m_IICursor.SetDirtyFlag(); }
   //
-  TGParam(IICursor& rIICursor, VARIANT& Wich);
-  TGParam(IICursor& rIICursor, string&  Wich);
+  TGParam(IICursor& rIICursor);
   virtual ~TGParam();
 
 protected:
@@ -243,6 +255,7 @@ protected:
   long        m_lUniqueID;
   sword       m_swNumber;
   string      m_sName;
+  bool        _fStrict;
   //
   AP<TBind>   _apBind;
 };
