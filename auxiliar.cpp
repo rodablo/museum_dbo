@@ -20,7 +20,7 @@ BuildNumber()
 /**
 *** MALLOC & FREE
 ***/
-/*
+#if 0
 extern "C" 
 {
   void* _RTLENTRY _EXPFUNC malloc(size_t size) {
@@ -35,7 +35,7 @@ extern "C"
     ::HeapFree(::GetProcessHeap(), /*HEAP_NO_SERIALIZE*/0, block);
   }
 }
-*/
+#endif 
 /**
 *** ODATE
 ***/
