@@ -106,6 +106,7 @@ class TTABind
 public:
   void put_Value(VARIANT& Index, VARIANT& Value);
   void get_Value(VARIANT& Index, VARIANT* retv);  
+  void get_NVL(VARIANT& Index, VARIANT& NullVaLue, VARIANT* retv);
 
   void PreWork();
 
@@ -217,6 +218,44 @@ TTABind<vt, vT, sqlt, sqlT>::get_Value(VARIANT& Index, VARIANT* retv)
     }
 }
 
+template <VARTYPE vt, class vT, sword sqlt, class sqlT>
+void
+TTABind<vt, vT, sqlt, sqlT>::get_NVL(VARIANT& Index, VARIANT& NullVaLue, VARIANT* retv)
+{
+  //
+  CHECK_HRESULT(VariantClear(retv));
+  //
+  size_t pos = ValidateIndex(Index);
+  //
+  retv->vt = vt;
+  //
+  if (IsNull(pos))
+    {
+      if (VT_ERROR == V_VT(&NullVaLue))
+	// asigna 0
+	*reinterpret_cast<vT*>(&retv->lVal) = (vT)0;
+      else if (_Param.IsStrict() && vt == V_VT(&NullVaLue))
+	// asigna nullvalue
+	*reinterpret_cast<vT*>(&retv->lVal) = *reinterpret_cast<vT*>(&NullVaLue.lVal);
+      else if (!_Param.IsStrict())
+	{
+	  // convierte (si es necesario) y copia
+	  VARIANT v;
+	  VariantInit(&v); 
+	  CHECK_HRESULT(VariantChangeType(&v, &NullVaLue, 0, vt));
+	  //
+	  *reinterpret_cast<vT*>(&retv->lVal) = *reinterpret_cast<vT*>(&v.lVal);
+	  // libera lo que fuese
+	  VariantClear(&v);
+	}
+      else	
+	RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_NVL_TYPE_MISMATCH_I_I, (long)vt, (long)V_VT(&NullVaLue));
+    }
+  else
+    // asigna (eventualmente usando operador de conversion)
+    *reinterpret_cast<vT*>(&retv->lVal) = _ap[pos];
+}
+
 /**
 *** TStringABind
 ***/
@@ -226,6 +265,7 @@ class TStringABind
 public:
   void put_Value(VARIANT& Index, VARIANT& Value);
   void get_Value(VARIANT& Index, VARIANT* retv);  
+  void get_NVL(VARIANT& Index, VARIANT& NullVaLue, VARIANT* retv);
 
   void PreWork(){}
 
@@ -341,6 +381,43 @@ TStringABind::get_Value(VARIANT& Index, VARIANT* retv)
       V_VT(retv)   = VT_BSTR;
       V_BSTR(retv) = WIDE( _p + (pos * _length) ).SysAllocString();
     }
+}
+
+void 
+TStringABind::get_NVL(VARIANT& Index, VARIANT& NullVaLue, VARIANT* retv)
+{
+  //
+  CHECK_HRESULT(VariantClear(retv));
+  //
+  size_t pos = ValidateIndex(Index);
+  //
+  V_VT(retv) = VT_BSTR;
+  //
+  if (IsNull(pos))
+    {
+      if (VT_ERROR == V_VT(&NullVaLue))
+	// asigna 0
+	V_BSTR(retv) = 0;
+      else if (_Param.IsStrict() && VT_BSTR == V_VT(&NullVaLue))
+	// asigna nullvalue
+	V_BSTR(retv) = SysAllocString(V_BSTR(&NullVaLue));
+      else if (!_Param.IsStrict())
+	{
+	  //
+	  VARIANT v;
+	  VariantInit(&v); 
+	  CHECK_HRESULT(VariantChangeType(&v, &NullVaLue, 0, VT_BSTR));
+	  // verifica el length
+	  V_BSTR(retv) = SysAllocString(V_BSTR(&v));  
+	  // libera el variant (si genero la excepcion esto no se desaloco)
+	  VariantClear(&v);
+	}
+      else	
+	RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_NVL_TYPE_MISMATCH_I_I, 
+		       (long)VT_BSTR, (long)V_VT(&NullVaLue));
+    }
+  else
+    V_BSTR(retv) = WIDE( _p + (pos * _length) ).SysAllocString();
 }
 
 /**

@@ -52,7 +52,7 @@ TSBind::get_Length(VARIANT& Index, short* retv)
 void
 TSBind::get_RC(VARIANT& Index, short* retv)
 {
-  RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_PROP_ONLY_IN_ARRAYS_S, "Length");
+  RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_PROP_ONLY_IN_ARRAYS_S, "RC");
 }
 
 void
@@ -75,7 +75,7 @@ class TTSBind
 public:
   void put_Value(VARIANT& Index, VARIANT& Value);
   void get_Value(VARIANT& Index, VARIANT* retv);  
-
+  void get_NVL(VARIANT& Index, VARIANT& NullVaLue, VARIANT* retv);
   //  void PreWork();
 
   TTSBind(TGParam& param);
@@ -160,6 +160,45 @@ TTSBind<vt, vT, sqlt, sqlT>::get_Value(VARIANT& Index, VARIANT* retv)
     }
 }
 
+template <VARTYPE vt, class vT, sword sqlt, class sqlT>
+void
+TTSBind<vt, vT, sqlt, sqlT>::get_NVL(VARIANT& Index, VARIANT& NullVaLue, VARIANT* retv)
+{
+  // no puede tener indice si no es array
+  if (VT_ERROR != V_VT(&Index))
+    RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_INDEX_ONLY_IN_ARRAYS);
+  //
+  CHECK_HRESULT(VariantClear(retv));
+  // establece tipo
+  retv->vt = vt;
+  // 
+  if (IsNull())
+    {
+      if (VT_ERROR == V_VT(&NullVaLue))
+	// asigna 0
+	*reinterpret_cast<vT*>(&retv->lVal) = (vT)0;
+      else if (_Param.IsStrict() && vt == V_VT(&NullVaLue))
+	// asigna nullvalue
+	*reinterpret_cast<vT*>(&retv->lVal) = *reinterpret_cast<vT*>(&NullVaLue.lVal);
+      else if (!_Param.IsStrict())
+	{
+	  // convierte (si es necesario) y copia
+	  VARIANT v;
+	  VariantInit(&v); 
+	  CHECK_HRESULT(VariantChangeType(&v, &NullVaLue, 0, vt));
+	  //
+	  *reinterpret_cast<vT*>(&retv->lVal) = *reinterpret_cast<vT*>(&v.lVal);
+	  // libera lo que fuese
+	  VariantClear(&v);
+	}
+      else	
+	RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_NVL_TYPE_MISMATCH_I_I, (long)vt, (long)V_VT(&NullVaLue));
+    }
+  else
+    // asigna valor
+    *reinterpret_cast<vT*>(&retv->lVal) = _data; 
+}
+
 /**
 *** TStringSBind
 ***/
@@ -169,6 +208,7 @@ class TStringSBind
 public:
   void put_Value(VARIANT& Index, VARIANT& Value);
   void get_Value(VARIANT& Index, VARIANT* retv);  
+  void get_NVL(VARIANT& Index, VARIANT& NullVaLue, VARIANT* retv);
 
   TStringSBind(TGParam& param, size_t length);
   virtual ~TStringSBind();
@@ -271,6 +311,47 @@ TStringSBind::get_Value(VARIANT& Index, VARIANT* retv)
     }
 }
 
+void 
+TStringSBind::get_NVL(VARIANT& Index, VARIANT& NullVaLue, VARIANT* retv)
+{
+  // no puede tener indice si no es array
+  if (VT_ERROR != V_VT(&Index))
+    RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_INDEX_ONLY_IN_ARRAYS);
+  //
+  CHECK_HRESULT(VariantClear(retv));
+  //
+  V_VT(retv) = VT_BSTR;
+  //
+  if (IsNull())
+    {	
+      if (VT_ERROR == V_VT(&NullVaLue))
+	// asigna 0
+	V_BSTR(retv) = 0;
+      else if (_Param.IsStrict() && VT_BSTR == V_VT(&NullVaLue))
+	// asigna nullvalue
+	V_BSTR(retv) = SysAllocString(V_BSTR(&NullVaLue));
+      else if (!_Param.IsStrict())
+	{
+	  //
+	  VARIANT v;
+	  VariantInit(&v); 
+	  CHECK_HRESULT(VariantChangeType(&v, &NullVaLue, 0, VT_BSTR));
+	  // verifica el length
+	  V_BSTR(retv) = SysAllocString(V_BSTR(&v));  
+	  // libera el variant (si genero la excepcion esto no se desaloco)
+	  VariantClear(&v);
+	}
+      else	
+	RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_NVL_TYPE_MISMATCH_I_I, 
+		       (long)VT_BSTR, (long)V_VT(&NullVaLue));
+    }
+  else
+    V_BSTR(retv) = WIDE(_data).SysAllocString();
+}
+
+/**
+***
+***/
 void
 TGParam::Bind(dboVarType AsType, VARIANT& StringLength)
 {
