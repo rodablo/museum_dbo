@@ -89,12 +89,24 @@ library DBO21
     {
       //oVNull         = VT_EMPTY,
       //oVEmpty        = VT_NULL,
-      dboVInteger = VT_I2,
-      dboVLong    = VT_I4,
-      dboVSingle  = VT_R4,
-      dboVDouble  = VT_R8,
-      dboVDate    = VT_DATE,
-      dboVString  = VT_BSTR,
+      [helpcontext(IDH_DBOVARENUM_INTEGER), helpstring("texto explicativo.")] 
+       dboVInteger = VT_I2,
+
+      [helpcontext(IDH_DBOVARENUM_LONG), helpstring("texto explicativo.")]
+       dboVLong    = VT_I4,
+
+      [helpcontext(IDH_DBOVARENUM_SINGLE), helpstring("texto explicativo.")]
+       dboVSingle  = VT_R4,
+
+      [helpcontext(IDH_DBOVARENUM_DOUBLE), helpstring("texto explicativo.")]
+       dboVDouble  = VT_R8,
+
+      [helpcontext(IDH_DBOVARENUM_DATE), helpstring("texto explicativo.")]
+       dboVDate    = VT_DATE,
+
+      [helpcontext(IDH_DBOVARENUM_STRING), helpstring("texto explicativo.")]
+       dboVString  = VT_BSTR,
+
       //dboVDispatch     = VT_DISPATCH,
       //dboVError        = VT_ERROR,
       //dboVByte         = VT_UI1/*VT_BYTE*/,
@@ -223,6 +235,24 @@ library DBO21
       helpstring("Numero de rows leidas en el ultimo fetch.")]
 	HRESULT RowCount
 	([out, retval] long* retval);
+
+      [id(21), propget, helpcontext(IDH_COLUMN_HASNULLS),
+      helpstring("texto explicativo.")]
+	HRESULT HasNulls
+	([out, retval] VARIANT_BOOL* retv);
+
+      [id(22), propget, helpcontext(IDH_COLUMN_HASERRORS),
+      helpstring("texto explicativo.")]
+	HRESULT HasErrors
+	([out, retval] VARIANT_BOOL* retv);
+
+      [id(23), propget, helpcontext(IDH_COLUMN_NVL),
+      helpstring("texto explicativo.")]
+	HRESULT NVL
+	([out, retval] VARIANT* retv);
+      [id(23), propput]
+	HRESULT NVL
+	([in] VARIANT Value);
 
     // acceso a rows
 
@@ -536,6 +566,7 @@ library DBO21
 	[id(115), helpcontext(IDH_SESSION_CREATECURSOR),
 	helpstring("Crea un instancia de Cursor.")]
 	  HRESULT CreateCursor([out, retval] ICURSOR** retval);
+
 	[restricted]
 	  HRESULT Dummy1();
 	[restricted]
