@@ -23,8 +23,6 @@ public:
   virtual void Open(TCursor* pC);
   virtual void ParseSQL(TCursor* pC, string& sSql);
   virtual void DefineColumns(TCursor* pC);
-  virtual void BindParam(TCursor* pC, VARIANT& Wich, VARIANT& Value, 
-			 VARIANT& AsType, VARIANT& Length);
   virtual void Bind(TCursor* pC, VARIANT& Wich, 
 		    dboVarType AsType, VARIANT& StringLength, Param** retv);
   virtual void BindArray(TCursor* pC, BSTR Wich, short ArraySize, 
@@ -71,7 +69,6 @@ public:
   STDMETHOD(get_IsDirty)(VARIANT_BOOL* retv);
   virtual HRESULT __stdcall put_Strict(VARIANT_BOOL Strict);
   virtual HRESULT __stdcall get_Strict(VARIANT_BOOL* retv);
-
   /// Params
   STDMETHOD(get_Params)(Params** ppParams);
   /// Columns
@@ -87,8 +84,6 @@ public:
   HRESULT __stdcall BindCursor(BSTR Wich, Cursor** retv);
   STDMETHOD(Fetch)(VARIANT_BOOL* retv);
   STDMETHOD(Execute)(VARIANT N, VARIANT Start);
-  // chau orden
-  STDMETHOD(BindParam)(VARIANT Wich, VARIANT Value, VARIANT AsType, VARIANT Length);
 
   HRESULT __stdcall Dummy1() {}
   HRESULT __stdcall Dummy2() {}  
@@ -116,7 +111,6 @@ public:
   // TCursor
   HRESULT  IDispatchSEH();
 
-  void _BindParam(VARIANT& Wich, VARIANT& Value, VARIANT& AsType, VARIANT& Length);
   void _Bind(VARIANT& Wich, dboVarType AsType, VARIANT& StringLength, Param** retv);
   void _BindArray(BSTR Wich, short ArraySize, 
 		  dboVarType AsType, VARIANT& StringLength, Param** retv);

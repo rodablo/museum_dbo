@@ -233,17 +233,6 @@ TCursor::DefineColumnAs(short Position, dboVarType AsType)
 }
 
 HRESULT __stdcall
-TCursor::BindParam(VARIANT Wich, VARIANT Value, VARIANT AsType, VARIANT Length)
-{
-  try {
-    // lo pasa al autómata
-    _pState->BindParam(this, Wich, Value, AsType, Length);
-  }
-  __AUTO_EXCEPT;
-}
-
-
-HRESULT __stdcall
 TCursor::Bind(VARIANT Wich, 
 	      dboVarType AsType, VARIANT StringLength, Param** retv)
 {

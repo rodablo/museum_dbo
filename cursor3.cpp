@@ -34,12 +34,6 @@ ECursor::DefineColumns(TCursor* pC)
 }
 
 void 
-ECursor::BindParam(TCursor* pC, VARIANT& Wich, VARIANT& Value, VARIANT& AsType, VARIANT& Length)
-{
-  RAISE_INTERNAL(DBO_E_RUNTIME_UNSPECTED_METHOD, "BindParam");
-}
-
-void 
 ECursor::Bind(TCursor* pC, VARIANT& Wich, 
 	      dboVarType AsType, VARIANT& StringLength, Param** retv)
 {
@@ -93,7 +87,6 @@ class EDeferredParse : public ECursor
 {
 public:
   void DefineColumns(TCursor* pC);
-  void BindParam(TCursor* pC, VARIANT& Wich, VARIANT& Value, VARIANT& AsType, VARIANT& Length);
   void Bind(TCursor* pC, VARIANT& Wich, 
 	    dboVarType AsType, VARIANT& StringLength, Param** retv);
   void BindArray(TCursor* pC, BSTR Wich, 
@@ -111,7 +104,6 @@ class EQryParsed : public ECursor
 public:
   //virtual void ParseSQL(TCursor* pC, string& sSql);
   void DefineColumns(TCursor* pC);
-  void BindParam(TCursor* pC, VARIANT& Wich, VARIANT& Value, VARIANT& AsType, VARIANT& Length);
   void Bind(TCursor* pC, VARIANT& Wich, 
 	    dboVarType AsType, VARIANT& StringLength, Param** retv);
   void BindArray(TCursor* pC, BSTR Wich, 
@@ -153,7 +145,6 @@ class EPLParsed : public ECursor
 {
 public:
   //void ParseSQL(TCursor* pC, string& sSql);
-  void BindParam(TCursor* pC, VARIANT& Wich, VARIANT& Value, VARIANT& AsType, VARIANT& Length);
   void Bind(TCursor* pC, VARIANT& Wich, 
 	    dboVarType AsType, VARIANT& StringLength, Param** retv);
   void BindArray(TCursor* pC, BSTR Wich, short ArraySize,
@@ -258,32 +249,6 @@ EOpen::ParseSQL(TCursor* pC, string& sSql)
       break;
     }
 }
-
-/**
-*** BINDPARAM
-***/
-void
-EDeferredParse::BindParam(TCursor* pC, VARIANT& Wich, VARIANT& Value, 
-			  VARIANT& AsType, VARIANT& Length)
-{
-  //
-  pC->_BindParam(Wich, Value, AsType, Length);
-  //
-  UpdateState(pC);
-}
-
-void
-EQryParsed::BindParam(TCursor* pC, VARIANT& Wich, VARIANT& Value, VARIANT& AsType, VARIANT& Length)
-{
-  pC->_BindParam(Wich, Value, AsType, Length);
-}
-
-void
-EPLParsed::BindParam(TCursor* pC, VARIANT& Wich, VARIANT& Value, VARIANT& AsType, VARIANT& Length)
-{
-  pC->_BindParam(Wich, Value, AsType, Length);
-}
-
 
 /**
 *** BIND
