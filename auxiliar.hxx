@@ -63,6 +63,9 @@ public:
   AP& operator= (AP<T>& other) { reset(other.release()); return *this; }
   AP& operator= (const AP<T>& other) { reset(const_cast<AP<T>&>(other).release()); return *this; }
   //
+  int operator< (const AP<T>& other) const {return 0;}
+  int operator== (const AP<T>& other) const {return 0;}
+  //
   T&   operator[] (const size_t pos) const { return the_p[pos]; }
   T&   operator*  ()        const { return *the_p;   }
   T*   operator-> ()        const { return the_p;    }
@@ -97,7 +100,7 @@ private:
 
 private:
   ANSI(ANSI& other) {}
-  operator = (ANSI& src) {}
+  void  operator = (ANSI& src) {}
   void* operator new(size_t size)   {return 0;}; // no new, no delete...
   void* operator new[](size_t size) {return 0;};
   void  operator delete(void* ptr)  {}
@@ -138,7 +141,7 @@ private:
 
 private:
   WIDE(WIDE& other) {}
-  operator = (WIDE& src) {}
+  void  operator = (WIDE& src) {}
   void* operator new(size_t size)   {return 0;}; // no new, no delete...
   void* operator new[](size_t size) {return 0;};
   void  operator delete(void* ptr)  {}
