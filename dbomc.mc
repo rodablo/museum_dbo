@@ -301,6 +301,14 @@ Propiedad <%1> Solo válida en parámetros tipo Array.
 MessageId=
 Severity=Error
 Facility=RUNTIME
+SymbolicName=DBO_E_RUNTIME_PARAM_NVL_TYPE_MISMATCH_I_I
+Language=Neutral
+NullVaLue DEBE! ser de tipo variant <%1!d!>, se encontró <%2!d!>.
+.
+
+MessageId=
+Severity=Error
+Facility=RUNTIME
 SymbolicName=DBO_E_RUNTIME_UNSPECTED_PROPERTY
 Language=Neutral
 Invocación a la propiedad <%1> inesperada.
