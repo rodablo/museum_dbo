@@ -7,6 +7,9 @@
 // typelib
 1 typelib dboidl.tlb
 
+// icono
+1 icon dbo21.ico
+
 // mc
 #include "c:\temp\object\dbomc.rc"
 //
