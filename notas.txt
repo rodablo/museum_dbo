@@ -156,3 +156,15 @@ atencion los inserts generan 1403 (¿mover EOF?)
 -------------------------------
 
 crear un error para el odate porque aparentemente no modifica lasterror 
+
+------------------------------
+
+En una futora version cuando Param no sea parte de Cursor las columnas 
+en realidad tampoco deberian serlo.
+
+------------------------------
+
+Params y Cols deverian se métodos
+
+el objeto Param deberia siempre representar un elemento único  y los array 
+serian una coleccion de Params (esto solo a nivel de interfaz automation)
