@@ -113,7 +113,7 @@ ODATE::operator = (const DATE& date)
   SYSTEMTIME st;
   // Convierte 
   if (!VariantTimeToSystemTime(date, &st))
-    RAISE_LASTERROR_();//INTERNAL(1);
+    RAISE_INTERNAL(DBO_E_RUNTIME_DATE_ERROR);
   // Extrae 
   _Century = (ub1)((st.wYear / 100) + 100);
   _Year    = (ub1)((st.wYear % 100) + 100);
@@ -141,7 +141,7 @@ ODATE::operator DATE ()
   st.wMilliseconds = 0;
   // DoIt
   if (!SystemTimeToVariantTime(&st, &date))
-    RAISE_LASTERROR_();
+    RAISE_INTERNAL(DBO_E_RUNTIME_DATE_ERROR);
   //
   return date;
 }
