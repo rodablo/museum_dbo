@@ -119,7 +119,7 @@ TTSBind<vt, vT, sqlt, sqlT>::put_Value(VARIANT& Index, VARIANT& Value)
 	  if (vt != V_VT(&Value))
 	    RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_VALUE_TYPE_MISMATCH_I_I, (int)vt, (int)V_VT(&Value));
 	  // asigna
-	  _data = *reinterpret_cast<sqlT*>(&Value.lVal);
+	  _data = *reinterpret_cast<vT*>(&Value.lVal);
 	}
       else
 	{
@@ -127,8 +127,9 @@ TTSBind<vt, vT, sqlt, sqlT>::put_Value(VARIANT& Index, VARIANT& Value)
 	  VARIANT v;
 	  VariantInit(&v); 
 	  CHECK_HRESULT(VariantChangeType(&v, &Value, 0, vt));
-	  // asigna
-	  _data = *reinterpret_cast<sqlT*>(&v.lVal);
+	  // asigna (primero castea la expresion al tipo del template
+	  //_data = *(vT*)&v.lVal;	
+	  _data = *reinterpret_cast<vT*>(&v.lVal);
 	  // libera lo que fuese
 	  VariantClear(&v);
 	}
