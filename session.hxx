@@ -7,6 +7,9 @@ class TSession
   :  public TIDISPATCH<IISession, &IID__Session>
 {
 public:
+  /// redefine 
+  STDMETHODIMP QueryInterface(REFIID riid, LPVOID* ppvObj);
+
   /// Session Propiedades
 //   STDMETHOD(get_Visible)(VARIANT_BOOL* retv);
 //   STDMETHOD(put_Visible)(VARIANT_BOOL Visible);
@@ -27,7 +30,7 @@ public:
   STDMETHOD(Commit)();
   STDMETHOD(Rollback)();
   STDMETHOD(Break)();
-  STDMETHOD(CreateCursor)(Cursor** ppCursor);
+  STDMETHOD(CreateCursor)(_Cursor** ppCursor);
   STDMETHOD(get_CursorCount)(long* retv);
 
   HRESULT __stdcall Dummy1() {return 0;}
