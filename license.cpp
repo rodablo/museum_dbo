@@ -304,7 +304,7 @@ LicValidate()
      if (!fLicValida && 0 != pL->szDomainName[0])
        {
 	 NET_API_STATUS      nas;
-	 // obtain the PDC computer name of the supplied domain name
+	 // obtain the PDC computer name of the supplied domain name (vet GetAnyDC
 	 nas = NetGetDCName(NULL, WIDE(pL->szDomainName), (LPBYTE*)&pDC);
 	 //nas = NetGetDCName(NULL, TString(pL->szDomainName), (LPBYTE*)&pDC);
 	 if(nas != NERR_Success) 
@@ -409,7 +409,7 @@ CreateLic2()
 
   // TRIAL
   st.wYear         = 1998;
-  st.wMonth        = 10; 
+  st.wMonth        = 11; 
   st.wDayOfWeek    = 0; 
   st.wDay          = 6; 
   st.wHour         = 10; 
