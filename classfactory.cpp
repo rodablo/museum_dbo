@@ -229,7 +229,7 @@ TSessionCF::Release()
 STDMETHODIMP
 TSessionCF::CreateInstance(LPUNKNOWN pUnkOuter, REFIID riid, LPVOID* ppvObj)
 {
-  try {
+  __try {
     // pesimismo inicial
     *ppvObj = 0;
     // No soporta agregacion
