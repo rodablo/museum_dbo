@@ -52,7 +52,7 @@ ECursor* EQryEOF_TheInstance();
 *** Cursor
 ***/
 class TCursor
-  :  public TIDISPATCH<IICursor, &IIDCURSOR>
+  :  public TIDISPATCH<IICursor, &IID_Cursor>
 {
   friend class EClosed; friend class EOpen; friend class EDeferredParse; friend class EQryParsed; 
   friend class EQryExecuted; friend class EQryFetched; friend class EQryEOF;
