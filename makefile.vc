@@ -1,0 +1,564 @@
+###
+### BEGIN AREA EDITABLE
+###
+__LICENSED	= 1
+__NODEBUG 	= 0
+###
+__VER_MAJOR   	= 2
+__VER_MINOR   	= 2
+__VER_RELEASE 	= 1
+###
+### END DEL AREA EDITABLE
+###
+
+#!CMDSWITCHES 
+#.SILENT:
+.SUFFIXES : .hxx
+
+!IF "x86" == "$(PROCESSOR_ARCHITECTURE)"
+MACHINE		= IX86
+!ELSE
+MACHINE		= ALPHA
+!ENDIF
+###
+### TOOLS
+###
+!IF "ROJO" == "$(COMPUTERNAME)"
+VC        	= C:\VC
+VB		= C:\ARCHIV~1\MICROS~2\VB98\VB6.EXE
+WINDBG		= C:\ARCHIV~1\Debuggers\bin\windbg.exe
+SHAREDIDE 	= C:\ARCHIV~1\devstudio\sharedide
+TCL       	= C:\ARCHIV~1\Tcl
+#OCI		= C:\Oracle\Ora81\OCI
+OCI		= .\oci73
+ZIP     	= C:\ARCHIV~1\WINZIP\WINZIP32.EXE
+ZIPSE   	= C:\ARCHIV~1\WINZIP~1\WINZIPSE.EXE
+
+!else
+VC        	= C:\VC
+SHAREDIDE 	= C:\ARCHIV~1\devstudio\sharedide
+TCL       	= C:\ARCHIV~1\Tcl
+OCI		= .
+!endif
+###
+TCLSH 	  	= $(TCL)\bin\tclsh83.exe
+WISH      	= $(TCL)\bin\wish83.exe
+CC        	= $(VC)\bin\cl.exe
+LINK      	= $(VC)\bin\link.exe 
+RC        	= $(SHAREDIDE)\bin\rc.exe
+MC        	= $(VC)\bin\mc.exe  
+MIDL      	= $(VC)\bin\midl.exe
+HCW      	= $(VC)\bin\hcw.exe
+CABSIGN		= $(VC)\"CAB&SIGN"\cabarc.exe
+#"
+###
+### PATH'S
+###
+!IF "1" == "$(__NODEBUG)" 
+BUILD_MODE	= release
+!ELSE
+BUILD_MODE	= debug
+!ENDIF
+BUILD_ROOT	= C:\Z\WORK
+SRC		= $(BUILD_ROOT)
+OUT		= $(BUILD_ROOT)\$(BUILD_MODE)
+TMP       	= $(OUT)\tmp
+
+###
+### ...
+###
+__VER       	= $(__VER_MAJOR).$(__VER_MINOR).$(__VER_RELEASE)
+__CODE_NAME   	= DBO
+__BASE_NAME   	= $(__CODE_NAME)$(__VER_MAJOR)$(__VER_MINOR)
+__FILE_NAME   	= dbo-$(__VER_MAJOR)-$(__VER_MINOR)-$(__VER_RELEASE)
+__PROGID     	= $(__BASE_NAME)
+__UUID_CLSID 	= ca43d387-ef82-11cf-b8c6-00a02454eec8
+__UUID_LIBID 	= ca43d388-ef82-11cf-b8c6-00a02454eec8
+__DLL_FNAME	= $(__FILE_NAME).dll
+__HLP_FNAME	= $(__FILE_NAME).hlp
+__CNT_FNAME	= $(__FILE_NAME).cnt
+__INF_FNAME	= $(__FILE_NAME).inf
+__CAB_FNAME	= $(__FILE_NAME).cab
+__LEGAL_STR	= Copyright (c) 1996-2001 RODABLO.COM.
+
+
+
+###
+### TARGETS
+###
+all:		cab
+cab:		$(OUT)\$(__CAB_FNAME)
+inf:		$(OUT)\$(__INF_FNAME)
+dll: 		$(OUT)\$(__DLL_FNAME)
+hlp:		$(OUT)\$(__HLP_FNAME) $(OUT)\$(__CNT_FNAME)
+workdirs: 	$(OUT) $(TMP)
+makefileCmd:	$(TMP)\makefile.dll
+run:		debug_reg debug_run debug_unreg
+
+
+###
+### EXPLICITAS
+###
+
+###
+### cab
+###
+CABFILES	= \
+	$(OUT)\$(__DLL_FNAME) \
+	$(OUT)\$(__HLP_FNAME) $(OUT)\$(__CNT_FNAME) $(OUT)\$(__INF_FNAME)
+
+$(OUT)\$(__CAB_FNAME): $(CABFILES)
+	$(CABSIGN) -s 6144 N $@ $(CABFILES)
+	copy /B extract.exe+$@ $(OUT)\$(__FILE_NAME).exe
+
+###
+### SELF EXTRACTOR
+###
+toto: $(OUT)\$(__FILE_NAME).exe
+$(OUT)\$(__FILE_NAME).exe: $(TMP)\$(__FILE_NAME).zip #makefile
+	$(ZIPSE) $(TMP)\$(__FILE_NAME).zip -t <<atmp @<<btmp
+$(__CODE_NAME) $(__VER)
+$(__LEGAL_STR)
+<<NOKEEP 
+-win32
+-i $(SRC)\dbo21.ico
+-st "Instalar $(__CODE_NAME) $(__VER)"
+-setup
+-le
+-o
+-c "rundll32 setupapi,InstallHinfSection DI 132 .\$(__INF_FNAME)"
+<<NOKEEP
+	move $(TMP)\$(__FILE_NAME).exe $(OUT)\$(__FILE_NAME).exe 
+#copy $(TMP)\$(__FILE_NAME).exe $(BINARY)\$(__FILE_NAME).exe
+#del  /Q /F $(TMP)\$(__FILE_NAME).exe
+
+###
+### ZIP
+###
+zip: $(TMP)\$(__FILE_NAME).zip
+$(TMP)\$(__FILE_NAME).zip: $(CABFILES)
+#	tdstrp32 $(OUT)\$(__FILE_NAME).dll
+	if exist $@ del /F $@ 
+	$(ZIP) -min -a -ex $@ @<<
+$(OUT)\$(__DLL_FNAME)
+$(OUT)\$(__HLP_FNAME)
+$(OUT)\$(__CNT_FNAME)
+$(OUT)\$(__INF_FNAME)
+<<NOKEEP
+
+
+###
+### inf
+###
+$(OUT)\$(__INF_FNAME): dll
+	$(TCLSH) makefile.tcl --process-dboinf $@ <<
+;;;
+;;; $(__FILE_NAME).inf
+;;;
+;;; Instalación/Desinstalacíon para el $(__CODE_NAME) $(__VERSION) build: __VER_BUILD
+;;;
+;;; $(__LEGAL_STR)
+;;;
+[version]
+Signature	= "$$Windows NT$$"
+Provider	= "RODABLO.COM."
+AdvancedINF	= 2.5
+
+;;;
+;;; DIRS
+;;;
+[DestinationDirs]
+InfDirFiles = 17                       			; 17 - \Windows\INF directory
+AppDirFiles = 24, %PROGRAMFILESDIR%\%DIR_NAME%\  	; 24 - LDID_APPS\Program Files\
+
+;;; Repite DefaultInstall para que le alcance la opcion -c al  selfextractor 
+;;;
+[DI]
+Copyfiles = AppDirFiles, InfDirFiles
+AddReg    = AddRegSection
+
+[DefaultInstall]
+Copyfiles = AppDirFiles, InfDirFiles
+AddReg    = AddRegSection
+
+[Uninstall]
+DelFiles = AppDirFiles, InfDirFiles
+DelReg   = DelRegSection
+
+;;;
+;;; FILES
+;;;
+[AppDirFiles]
+%FILE_NAME%.dll
+%FILE_NAME%.hlp
+%FILE_NAME%.cnt
+
+[InfDirFiles]
+%FILE_NAME%.inf
+
+;;;
+;;; REGISTRY
+;;;
+[AddRegSection]
+;;; Registra el servidor
+HKCR,%PROGID%.Session,,,%LONG_DISP_NAME%
+HKCR,%PROGID%.Session\Clsid,,,%CLSID%
+
+HKCR,CLSID\%CLSID%,,,%LONG_DISP_NAME%
+HKCR,CLSID\%CLSID%\InProcServer32,,,%24%\%PROGRAMFILESDIR%\%DIR_NAME%\%FILE_NAME%.dll
+HKCR,CLSID\%CLSID%\ProgId,,,%PROGID%.Session
+HKCR,CLSID\%CLSID%\Programmable,,,
+HKCR,CLSID\%CLSID%\TypeLib,,,%LIBID%
+HKCR,CLSID\%CLSID%\Version,,,%PROGID%.Session
+HKCR,CLSID\%CLSID%\VersionIndependentProgID,,,%PROGID%.Session
+
+HKCR,TypeLib\%LIBID%\%VER_MAJOR%.%VER_MINOR%,,,%LONG_DISP_NAME%
+HKCR,TypeLib\%LIBID%\%VER_MAJOR%.%VER_MINOR%\FLAGS,,,0
+HKCR,TypeLib\%LIBID%\%VER_MAJOR%.%VER_MINOR%\HELPDIR,,,%24%\%PROGRAMFILESDIR%\%DIR_NAME%\%FILE_NAME%.hlp
+HKCR,TypeLib\%LIBID%\%VER_MAJOR%.%VER_MINOR%\0\win32,,,%24%\%PROGRAMFILESDIR%\%DIR_NAME%\%FILE_NAME%.dll
+
+;;; Registra la desinstalación
+HKLM,%APPUNINSTALLKEY%\%FILE_NAME%,"DisplayName",,"%LONG_DISP_NAME%"
+HKLM,%APPUNINSTALLKEY%\%FILE_NAME%,"UninstallString",,"RunDll32 advpack.dll,LaunchINFSection %17%\%FILE_NAME%.inf, Uninstall"
+
+;;; Registra la licencia
+
+[DelRegSection]
+;;; Remueve el servidor
+HKCR,%PROGID%.Session
+HKCR,CLSID\%CLSID%
+HKCR,TypeLib\%LIBID%
+HKCR,Interface\%CLSID%
+;;; Remueve la desinstalación
+HKLM,%APPUNINSTALLKEY%\%FILE_NAME%
+
+;;; Remueve la licencia
+
+;;;
+;;; Source file information
+;;;
+[SourceDisksNames.x86]
+1 = %DiskId%,,,""
+
+[SourceDisksFiles]
+%FILE_NAME%.dll = 1 
+%FILE_NAME%.hlp = 1
+%FILE_NAME%.cnt = 1
+%FILE_NAME%.inf = 1
+
+;;;
+;;; STRINGS 
+;;; Este area hace de vínculo con el makefile
+;;;
+[Strings]
+;;; Versiones
+VER_MAJOR	= $(__VER_MAJOR)
+VER_MINOR	= $(__VER_MINOR)
+VER_RELEASE	= $(__VER_RELEASE)
+VER_BUILD	= __VER_BUILD
+VER		= $(__VER)
+;;; Dirs 
+PROGRAMFILESDIR = "Archivos de programa"
+DESTINATION	= "Archivos de programa\$(__CODE_NAME) $(__VER)"
+DIR_NAME	= "$(__CODE_NAME) $(__VER)"
+;;; RegKeys 
+APPUNINSTALLKEY = "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
+;;; Varios
+DISKID          = "$(__CODE_NAME) $(__VER_MAJOR).$(__VER_MINOR).$(__VER_RELEASE).__VER_BUILD - Disco de instalacíon"
+LONG_DISP_NAME 	= "$(__CODE_NAME) $(__VER_MAJOR).$(__VER_MINOR).$(__VER_RELEASE) Build: __VER_BUILD"       
+FILE_NAME       = "$(__FILE_NAME)"
+BASE_NAME       = $(__BASE_NAME)
+;;; INF_VERSION
+
+;;; OLE
+PROGID		= $(__PROGID)
+CLSID	        = {$(__UUID_CLSID)}
+LIBID	        = {$(__UUID_LIBID)}
+<<NOKEEP
+
+###
+### dll
+###
+OBJS 		= \
+	$(TMP)\dll.obj $(TMP)\license.obj $(TMP)\auxiliar.obj \
+	$(TMP)\classfactory.obj $(TMP)\dispatch.obj $(TMP)\connectable.obj\
+	$(TMP)\session.obj \
+        $(TMP)\cursor.obj $(TMP)\cursor2.obj $(TMP)\cursor3.obj \
+        $(TMP)\columns.obj $(TMP)\params.obj \
+        $(TMP)\column.obj $(TMP)\column_bstr.obj $(TMP)\column_date.obj \
+	$(TMP)\column_piecewise.obj \
+        $(TMP)\param_g.obj $(TMP)\param_bind.obj $(TMP)\param_bind_array.obj \
+	$(TMP)\dboidl.obj
+
+$(OUT)\$(__DLL_FNAME): workdirs $(OBJS) dbo.def $(TMP)\dbo.res 
+	$(LINK) @<<
+/NOLOGO
+/DLL
+/VERSION:$(__VER_MAJOR).$(__VER_MINOR)
+/MACHINE:$(MACHINE)
+/INCREMENTAL:NO
+/LIBPATH:$(VC)\lib
+/OUT:$(OUT)\$(__DLL_FNAME)
+/DEF:dbo.def 
+!IF "1" == "$(__NODEBUG)" 
+/RELEASE
+!ELSE
+/DEBUG
+/PDB:$*.pdb
+!IF "IX86" == "$(MACHINE)"
+!ELSE
+/DEBUGTYPE:CV
+/DEBUGTYPE:COFF
+/DEBUGTYPE:BOTH
+!ENDIF
+!ENDIF
+uuid.lib oleaut32.lib user32.lib 
+advapi32.lib 
+netapi32.lib
+$(OBJS)
+$(OCI)\lib\msvc\ociw32.lib
+$(TMP)\dbo.res
+<<NOKEEP
+	del /F $*.exp $*.lib 
+	@echo $(OUT)\$(__DLL_FNAME) done!
+
+###
+### config.h
+###
+$(TMP)\config.h: workdirs 
+	if exist $@ del /F $@ 
+	type > $@ <<
+#ifndef __CONFIG_H_
+#define __CONFIG_H_
+//
+#define STRINGIFY(V) STRINGIFY2(V)
+#define STRINGIFY2(V) #V
+// VERSION
+#define __LICENSED	$(__LICENSED)
+#define __VER_MAJOR 	$(__VER_MAJOR)
+#define __VER_MINOR 	$(__VER_MINOR)
+#define __VER_RELEASE 	$(__VER_RELEASE)
+#define __VER       	$(__VER)
+// NOMBRES
+#define __CODE_NAME  	$(__CODE_NAME)
+#define __BASE_NAME  	$(__BASE_NAME)
+#define __FILE_NAME  	$(__FILE_NAME)
+#define __DLL_FNAME	$(__DLL_FNAME)
+#define __HLP_FNAME	$(__HLP_FNAME)
+// UUIDs & Cia
+#define __PROGID     	$(__PROGID)
+#define __UUID_CLSID 	"$(__UUID_CLSID)"
+#define __UUID_LIBID 	"$(__UUID_LIBID)"
+//
+#define __LIB_VER_MAJOR $(__VER_MAJOR)
+#define __LIB_VER_MINOR $(__VER_MINOR)
+#define __LIB_VER       $(__VER_MAJOR).$(__VER_MINOR)
+#define __LIB_LCID     	0
+#define __LIBID		LIBID_$(__PROGID)
+//
+#endif//__CONFIG_H_
+<<NOKEEP
+	attrib +R $@
+
+###
+### message resource win32
+###
+$(TMP)\MSG00000.bin $(TMP)\dbomc.rc $(TMP)\dbomc.hxx: workdirs dbomc.mc 
+	$(MC) /o /s /e hxx /h $(TMP)\ /r $(TMP)\ dbomc.mc
+
+###
+### versioninfo resource
+###
+# debe ser == que la del linker menos el res
+$(TMP)\versioninfo.rc: workdirs $(OBJS) dbo.def
+	$(TCLSH) makefile.tcl --process-versioninfo $@ <<
+VS_VERSION_INFO VERSIONINFO 
+  FILEVERSION     $(__VER_MAJOR),$(__VER_MINOR),$(__VER_RELEASE),__VER_BUILD
+  PRODUCTVERSION  $(__VER_MAJOR),$(__VER_MINOR),$(__VER_RELEASE),__VER_BUILD
+  FILEFLAGSMASK   VS_FF_DEBUG | VS_FF_PRERELEASE
+!IF "1" == "$(__NODEBUG)" 
+  FILEFLAGS       VS_FF_PRERELEASE 
+!ELSE
+  FILEFLAGS       VS_FF_DEBUG | VS_FF_PRERELEASE 
+!ENDIF
+  FILEOS          VOS_NT_WINDOWS32 //VOS_WINDOWS32
+  FILETYPE        VFT_DLL
+  FILESUBTYPE     0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "00000000"
+    BEGIN
+      VALUE "CompanyName", "RODABLO.COM\0"
+      VALUE "FileDescription", "$(__CODE_NAME) $(__VER)\0"
+      VALUE "FileVersion", "$(__VER)\0"
+      VALUE "OriginalFilename", "$(__FILE_NAME).dll\0"
+      VALUE "InternalName","$(__FILE_NAME)\0"
+      VALUE "LegalCopyright", "$(__LEGAL_STR)\0"
+      VALUE "ProductName", "$(__CODE_NAME) $(__VER)\0"
+      VALUE "ProductVersion", "$(__VER)\0"
+      VALUE "Build", "__VER_BUILD\0"
+    END	             
+  END
+  BLOCK "VarFileInfo"
+  BEGIN                                // Language | Translation
+    VALUE "Translation", 0x000, 0x000  // 
+  END
+END
+<<NOKEEP 
+
+###
+### idl
+###
+$(TMP)\dboidl.hxx $(TMP)\dboidl.tlb $(TMP)\dboidl.c: workdirs dboidl.idl
+    $(MIDL) @<<
+/nologo
+/ms_ext 
+/char unsigned  
+/win32 
+/I $(TMP)
+/I $(VC)\INCLUDE
+/tlb $*.tlb 
+/iid $*.c 
+/h   $*.hxx 
+dboidl.idl
+<<NOKEEP
+
+$(TMP)\dboidl.obj: $(TMP)\dboidl.c
+	$(CC) /c /nologo /TC /MT /O2 /Gs /GD /EHa /Fo$@ $(TMP)\dboidl.c
+###
+### workdir
+###
+$(TMP): $(OUT)
+	mkdir $(TMP)
+$(OUT):
+	mkdir $(OUT)
+
+###
+### HELP
+###
+$(OUT)\$(__CNT_FNAME): contents.cnt 
+	$(TCLSH) makefile.tcl --process-contents.cnt \
+			$@ $(SRC)\contents.cnt $(__HLP_FNAME)
+
+$(OUT)\$(__HLP_FNAME): $(OUT)\$(__CNT_FNAME) caratula.rtf topicos.rtf hlpsym.h
+    $(HCW) /C /E /M <<$(__FILE_NAME).hpj
+;  creado por el makefile no modificar.
+[OPTIONS]
+HCW=0
+COMPRESS=12 Hall Zeck
+ERRORLOG=$(TMP)\help.err
+LCID=0x2c0a 0x2 0x0 ;Spanish (Argentina)
+REPORT=Yes
+TITLE=$(__CODE_NAME) $(__VER) Introduccón y Referencia
+CNT=$(__CNT_FNAME)
+COPYRIGHT=$(__LEGAL_STR)
+TMPDIR=$(TMP)
+BMROOT=.
+ROOT=.
+HLP=$(OUT)\$(__HLP_FNAME)
+
+[FILES]
+$(SRC)\caratula.rtf
+$(SRC)\topicos.rtf
+
+[MAP]
+#include $(SRC)\hlpsym.h
+
+[WINDOWS]
+main="$(__CODE_NAME) $(__VER) Introducción y Referencia",(316,65,701,868),19460,,(r8454143); Ventana Principal del Help
+ref="Navegador",(87,65,229,129),4,(r14876671),(r12632256),f2
+
+[CONFIG]
+CreateButton(100, "Session", JumpId($(__HLP_FNAME), IDH_SESSION))
+CreateButton(102, "Cursor",  JumpId($(__HLP_FNAME), IDH_CURSOR))
+CreateButton(104, "Param",   JumpId($(__HLP_FNAME), IDH_PARAM))
+CreateButton(106, "Column",  JumpId($(__HLP_FNAME), IDH_COLUMN)) 
+BrowseButtons ()
+<<NOKEEP
+
+###
+### MAKEFILE TCL COMMAND
+###
+$(TMP)\makefile.obj: workdirs makefile.cpp
+	$(CC) /nologo /c /TP /MDd /GX /X /Od /Oy- /Odi /Yd /Zi \
+		/I$(VC)\INCLUDE /I$(TCL)\INCLUDE /Fo$@ makefile.cpp 
+
+$(TMP)\makefile.dll: $(TMP)\makefile.obj
+	$(LINK) /NOLOGO /DLL /DEBUG /LIBPATH:$(VC)\LIB /OUT:$@ /PDB:$*.pdb \
+		$(TMP)\makefile.obj advapi32.lib oleaut32.lib $(TCL)\lib\tclstub83.lib $(TCL)\lib\tcl83.lib
+	del /F $*.exp $*.lib 
+
+debug_makefile: $(TMP)\makefile.dll
+	$(WINDBG) /w "makefile.dll" /l "debug makefile.dll" $(TCLSH) ./test.tcl
+
+#$(TMP)\makefile.dll: workdirs makefile.c
+#	$(CC) /LDd /MDd /Fo$(TMP)\ \
+#		/X /I$(VC)\INCLUDE /I$(TCL)\INCLUDE \
+#		makefile.c $(TCL)\lib\tclstub83.lib $(TCL)\lib\tcl83.lib \
+#		/link /nologo /LIBPATH:$(VC)\LIB /OUT:$(TMP)\
+
+###
+### IMPLICITAS
+###
+{$(SRC)}.cpp{$(TMP)}.obj:
+	$(CC) @<<
+/nologo
+/c
+/TP
+/Fp$(TMP)\$(__FILE_NAME).pch
+/YXpch.hxx			
+/X
+/I$(TMP) 
+/I$(VC)\INCLUDE
+/I$(OCI)\INCLUDE 
+/MT /GX /EHa
+!IF "1" == "$(__NODEBUG)" 
+/O2 /Gs /GD
+!ELSE
+/Od /Oy- /Odi /Yd
+!IF "IX86" == "$(MACHINE)"
+/Zi
+!ELSE
+/Z7
+!ENDIF
+!ENDIF
+/Fo$(TMP)\
+$<
+<<NOKEEP
+
+{$(SRC)}.rc{$(TMP)}.res:
+	$(RC) /r /I$(TMP) /I$(VC)\INCLUDE /DINC_OLE2;STRICT /Fo $@ $<
+
+
+###
+### CICLO DE DEBUG
+###
+debug_reg: dll
+	$(TCLSH) makefile.tcl --debug-reg-server register $(__PROGID) $(__UUID_CLSID) $(__UUID_LIBID) $(__VER_MAJOR) $(__VER_MINOR) $(OUT)\$(__DLL_FNAME)
+
+
+debug_run: dll
+	$(WINDBG) /w "dbo" /l "debug $(__FILE_NAME) build: XXXX" /g $(VB) .\vb\dbo20.vbp
+
+debug_unreg:
+	$(TCLSH) makefile.tcl --debug-reg-server unregister $(__PROGID) $(__UUID_CLSID) $(__UUID_LIBID) $(__VER_MAJOR) $(__VER_MINOR) $(OUT)\$(__DLL_FNAME)
+
+
+
+###
+### DEPENDENCIAS
+###
+dboidl.idl:	$(TMP)\config.h hlpsym.h
+dbo.hxx:	$(TMP)\config.h $(TMP)\dboidl.hxx $(TMP)\dbomc.hxx dispatch.hxx connectable.hxx
+$(OBJS):	dbo.hxx pch.hxx
+dbo.rc:		workdirs $(TMP)\dboidl.tlb $(TMP)\dbomc.rc $(TMP)\versioninfo.rc 
+column.cpp column_bstr.cpp column_date.cpp column_piecewise.cpp: column.hxx
+column.hxx: icolumn.hxx
+cursor.cpp cursor2.cpp cursor3.cpp: cursor.hxx
+cursor.hxx: icursor.hxx
+
+
+
+### NOTAS
+### El target 'release' compila hace el instalador y un snapshot
