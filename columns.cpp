@@ -16,7 +16,7 @@ public:
   /// Columns
   STDMETHOD(get_Count)(long* retv);
   STDMETHOD(get_Item)(VARIANT Index, Column** ppColumn);
-  //STDMETHOD(get__NewEnum)(IUnknown** ppIUnknown);
+  STDMETHOD(get__NewEnum)(IUnknown** ppIUnknown);
   ///
   TColumns(IICursor& iicursor);
   ~TColumns();
@@ -108,14 +108,12 @@ TColumns::get_Item(VARIANT Index, Column** ppColumn)
   
 }
 
-// HRESULT __stdcall
-// TColumns::get__NewEnum(IUnknown** ppIUnknown)
-// {
-//   return NOERROR;
-// }
-
-
-
-
-
+/**
+***
+***/
+HRESULT __stdcall
+TColumns::get__NewEnum(IUnknown** ppIUnknown)
+{
+  return m_IICursor.NewEnumColumns(ppIUnknown);
+}
 

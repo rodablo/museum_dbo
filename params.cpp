@@ -16,7 +16,7 @@ public:
   /// Columns
   STDMETHOD(get_Count)(long* retv);
   STDMETHOD(get_Item)(VARIANT Index, Param** ppParam);
-  //STDMETHOD(get__NewEnum)(IUnknown** ppIUnknown);
+  STDMETHOD(get__NewEnum)(IUnknown** ppIUnknown);
   ///
   TParams(IICursor& iicursor);
   ~TParams();
@@ -99,7 +99,11 @@ TParams::get_Item(VARIANT Index, Param** ppParam)
   __AUTO_EXCEPT;
 }
 
-
+HRESULT __stdcall
+TParams::get__NewEnum(IUnknown** ppIUnknown)
+{
+  return m_IICursor.NewEnumParams(ppIUnknown);
+}
 
 
 
