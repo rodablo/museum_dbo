@@ -335,7 +335,7 @@ TCursor::_BindArray(BSTR Wich, short ArraySize,
 {
   IIParam* pParam;
   //
-  string wich((ANSI(Wich)));
+  string wich = ANSI(Wich);
   // busca a ver si es rebind
   MAP_NAME_2_P_IIPARAM::iterator a = m_mapName2P.find(wich);
   if (a != m_mapName2P.end())
