@@ -244,6 +244,14 @@ Tipo Variant <%1!d!> no válido en argumento Length de un parametro.
 MessageId=
 Severity=Error
 Facility=RUNTIME
+SymbolicName=DBO_E_RUNTIME_LVALUE_NEED_PARETHESIS
+Language=Neutral
+Los argumentos necesitan '(' ')' cuando la expresion se evalua como LValue.
+.
+
+MessageId=
+Severity=Error
+Facility=RUNTIME
 SymbolicName=DBO_E_RUNTIME_PARAM_INDEX_ONLY_IN_ARRAYS
 Language=Neutral
 Index válido solo en parámetros tipo Array.
@@ -337,6 +345,14 @@ SymbolicName=DBO_E_RUNTIME_VARIANT_MISSMATCH_I
 Language=Neutral
 Error Interno convirtiendo Variant.
 VARTYPE <%1!d!>.
+.
+
+MessageId=
+Severity=Error
+Facility=RUNTIME
+SymbolicName=DBO_E_RUNTIME_DATE_ERROR
+Language=Neutral
+Error Interno convirtiendo DATE.
 .
 
 MessageId=
