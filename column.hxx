@@ -46,6 +46,10 @@ public:
   virtual HRESULT __stdcall get_Precision(short* retv);
   virtual HRESULT __stdcall get_Scale(short* retv);
   virtual HRESULT __stdcall get_IsNullOk(VARIANT_BOOL* retv);
+  virtual HRESULT __stdcall get_HasNulls(VARIANT_BOOL* retv);
+  virtual HRESULT __stdcall get_HasErrors(VARIANT_BOOL* retv);
+  virtual HRESULT __stdcall put_NVL(VARIANT Value);
+  virtual HRESULT __stdcall get_NVL(VARIANT* retv);
 
   virtual HRESULT __stdcall get_RowCount(long* retv);
   virtual HRESULT __stdcall get_IsNull(long Index, VARIANT_BOOL* retv);
