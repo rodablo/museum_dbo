@@ -48,6 +48,30 @@ cpp_quote("#define __LIBID__ LIBID_DBO21")
   cpp_quote("#define ICURSOR      Cursor")
 #endif
 
+#if __ALTERNATE
+#define UUID_LIBID   		"-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_VARENUM		"-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_PARAM		"-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_COLUMN		"-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_PARAMS		"-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_COLUMNS		"-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_CURSOR		"-ef82-11cf-b8c6-00a02454eec8"
+#define UUID__SESSION		"-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_AUXILIAR 	   	"-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_CLSID_SESSION 	"-ef82-11cf-b8c6-00a02454eec8"
+#else
+#define UUID_LIBID   		"ca43d288-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_VARENUM		"ca43d291-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_PARAM		"ca43d290-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_COLUMN		"ca43d28c-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_PARAMS		"ca43d28f-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_COLUMNS		"ca43d28e-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_CURSOR		"ca43d28a-ef82-11cf-b8c6-00a02454eec8"
+#define UUID__SESSION		"ca43d28b-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_AUXILIAR 	   	"ca43d299-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_CLSID_SESSION 	"ca43d287-ef82-11cf-b8c6-00a02454eec8"
+#endif
+
 /**
 *** MODIFICACIONES
 ***
@@ -59,11 +83,13 @@ cpp_quote("#define __LIBID__ LIBID_DBO21")
 /// Dispatch ID's
 #define DISPID_Name -800
 
+  //#define dual oleautomation
+  //#define dual dispinterface
 /**
 *** LIBID_DBO21
 ***/
   [
-   uuid("ca43d288-ef82-11cf-b8c6-00a02454eec8"),
+   uuid(UUID_LIBID),
    helpfile("dbo21.hlp"),
    helpcontext(IDH_CONTENIDO),
    helpstring("DBO 2.1"),
@@ -80,7 +106,7 @@ library DBO21
 ***/
   typedef
     [
-     uuid("ca43d291-ef82-11cf-b8c6-00a02454eec8"),
+     uuid(UUID_VARENUM),
      public,
      helpcontext(IDH_DBOVARENUM),
      helpstring("texto explicativo.")
@@ -118,7 +144,7 @@ library DBO21
 *** Param
 ***/
   [
-   uuid("ca43d290-ef82-11cf-b8c6-00a02454eec8"),
+   uuid(UUID_PARAM),
    helpcontext(IDH_PARAM),
    helpstring("Column collection."),
    object,
@@ -190,7 +216,7 @@ library DBO21
 *** Column
 ***/
   [
-   uuid("ca43d28c-ef82-11cf-b8c6-00a02454eec8"),
+   uuid(UUID_COLUMN),
    helpcontext(IDH_COLUMN),
    helpstring("Column collection."),
    object,
@@ -295,7 +321,7 @@ library DBO21
 *** Params
 ***/
   [
-   uuid("ca43d28f-ef82-11cf-b8c6-00a02454eec8"),
+   uuid(UUID_PARAMS),
    helpcontext(IDH_PARAMS),
    helpstring("Colección de Param."),
    object,
@@ -325,7 +351,7 @@ library DBO21
 *** Columns
 ***/
   [
-   uuid("ca43d28e-ef82-11cf-b8c6-00a02454eec8"),
+   uuid(UUID_COLUMNS),
    helpcontext(IDH_COLUMNS),
    helpstring("Colección de Column."),
    object,
@@ -356,7 +382,7 @@ library DBO21
 *** IID_ICursor
 ***/
   [
-   uuid("ca43d28a-ef82-11cf-b8c6-00a02454eec8"),
+   uuid(UUID_CURSOR),
    helpcontext(IDH_CURSOR),
    helpstring("Cursor."),
    object,
@@ -480,7 +506,7 @@ library DBO21
 *** IID__Session
 ***/
   [
-   uuid("ca43d28b-ef82-11cf-b8c6-00a02454eec8"),
+   uuid(UUID__SESSION),
    helpcontext(IDH_SESSION),
    helpstring("Session."),
    object,
@@ -578,10 +604,10 @@ library DBO21
     }
 
   /**
-  *** Varios
+  *** Auxiliar
   ***/
   [
-   uuid("ca43d299-ef82-11cf-b8c6-00a02454eec8"),  
+   uuid(UUID_AUXILIAR),  
    helpstring("Auxiliar"), helpcontext(IDH_AUXILIAR), 
    dllname("dbo21.dll")
   ] 
@@ -600,7 +626,7 @@ library DBO21
   *** CLSID_Session
   ***/
   [
-   uuid("ca43d287-ef82-11cf-b8c6-00a02454eec8"),
+   uuid(UUID_CLSID_SESSION),
    helpcontext(IDH_SESSION),
    helpstring("Session.")/*, licensed*/
   ]
