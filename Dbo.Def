@@ -1,5 +1,5 @@
 EXPORTS
-	DllCanUnloadNow
-	DllGetClassObject
-	LicenseInformation @100
-	BuildNumber        @101
+	DllCanUnloadNow 	PRIVATE
+	DllGetClassObject	PRIVATE
+	LicenseInformation 	@100
+	BuildNumber        	@101
