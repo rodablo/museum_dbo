@@ -60,8 +60,6 @@ TCursor::TCursor(IISession& isession)
 
 TCursor::~TCursor()
 {
-  //  ::Beep(880,200);
-  
   // cierra el cursor
   _pState->Close(this);
 

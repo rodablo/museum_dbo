@@ -18,7 +18,7 @@ CreateSession(IISession*& rpSession)
   // pesimismo inicial
   rpSession = new TSession();
   // unomas y retorna
-  g_cObj++;
+  TServer::TheInstance()->IncrObjectsCount();
 }
 
 /**
@@ -38,20 +38,14 @@ TSession::TSession()
 
 TSession::~TSession()
 {
-  //  ::Beep(440,200);
-
   if (m_fIsLogged)
     ologof(&m_lda);    //   Logoff();
   //
-  //   if (!m_bUserClosing && IsWindow(m_hWnd))
-  //     ::DestroyWindow(m_hWnd);
-
-  m_sUser.resize(0);
+  m_sUser.resize(0);	// ¿para que hice esto?
   m_sPassword.resize(0);
   m_sAlias.resize(0);
-
-  // uno menos
-  g_cObj--;
+  //  lo descuenta aqui 
+  TServer::TheInstance()->DecrObjectsCount();
 }
 
 STDMETHODIMP

@@ -6,7 +6,7 @@ __NODEBUG 	= 0
 ###
 __VER_MAJOR   	= 2
 __VER_MINOR   	= 2
-__VER_RELEASE 	= 4
+__VER_RELEASE 	= 5
 ###
 ### END DEL AREA EDITABLE
 ###
@@ -214,6 +214,7 @@ HKCR,%PROGID%.Session\Clsid,,,%CLSID%
 
 HKCR,CLSID\%CLSID%,,,%LONG_DISP_NAME%
 HKCR,CLSID\%CLSID%\InProcServer32,,,%24%\%PROGRAMFILESDIR%\%DIR_NAME%\%FILE_NAME%.dll
+HKCR,CLSID\%CLSID%\InProcServer32,"ThreadingModel",,"Both"
 HKCR,CLSID\%CLSID%\ProgId,,,%PROGID%.Session
 HKCR,CLSID\%CLSID%\Programmable,,,
 HKCR,CLSID\%CLSID%\TypeLib,,,%LIBID%
@@ -288,7 +289,6 @@ LIBID	        = {$(__UUID_LIBID)}
 ### dll
 ###
 OBJS 		= \
-	$(TMP)\password_change.obj \
 	$(TMP)\dll.obj $(TMP)\license.obj $(TMP)\auxiliar.obj \
 	$(TMP)\classfactory.obj $(TMP)\dispatch.obj $(TMP)\connectable.obj\
 	$(TMP)\session.obj \
@@ -297,6 +297,7 @@ OBJS 		= \
         $(TMP)\column.obj $(TMP)\column_bstr.obj $(TMP)\column_date.obj \
 	$(TMP)\column_piecewise.obj \
         $(TMP)\param_g.obj $(TMP)\param_bind.obj $(TMP)\param_bind_array.obj \
+	$(TMP)\password_change.obj \
 	$(TMP)\dboidl.obj
 
 compile: workdirs $(OBJS) 

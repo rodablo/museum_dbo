@@ -1,41 +1,28 @@
 /**
-*** DBO11(R)1997
-*** rodablo@hotmail.com
+*** DBO2(R)1997-2001
+*** rodablo@rodablo.com
 ***/
 #include "pch.hxx"
 #include <initguid.h>
 #include "dbo.hxx"
 
-/*
-probar de no uncluir el header de TString y ver si se incluye basic_string
-
- */
-
-//basic_string<char, string_char_traits<char>, RWSTD_ALLOC_TYPE(char) > toto;
-
-//#include "c:\mstools\include\aclapi.h"
 /**
-*** PROTOTIPOS
+*** 	TServer
 ***/
-LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+
+
 
 /**
 ***     GLOBALES
 ***/
-HINSTANCE g_hInst = 0;
-ULONG     g_cLock = 0;
-ULONG     g_cObj  = 0;
+TServer*  TServer::m_pTheOnlyInstance = 0;
 char      g_szModuleName[] = STRINGIFY(__DLL_FNAME); // inicializar desde GetModuleName()
 
-extern void __stdcall LicLoad();
-extern void __stdcall LicFree();
 /**
 ***     DLLENTRYPOINT
 ***/
-/*extern "C"*/ BOOL WINAPI 
+BOOL WINAPI 
 DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID /*lpReserved*/)
-//BOOL WINAPI
-//DllEntryPoint(HINSTANCE hInstance, DWORD fdwReason, LPVOID /*lpvReserved*/)
 {
   if (DLL_PROCESS_ATTACH == fdwReason)
     {
@@ -43,27 +30,11 @@ DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID /*lpReserved*/)
       extern void Throw(unsigned int code, _EXCEPTION_POINTERS* pEP);
       _set_se_translator(Throw);
       //	DebugBreak();  //asm { int 0x03 }
-      //      LicLoad();
-      // globlaliza
-      g_hInst = hInstance;
       // bye DLL_THREAD_ATTACH and DLL_THREAD_DETACH
       DisableThreadLibraryCalls(hInstance);
-#if 0
-      // registra la ventana
-      WNDCLASS wc;
-      wc.style        = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
-      wc.lpfnWndProc  = WndProc;
-      wc.cbClsExtra   = 0;
-      wc.cbWndExtra   = 4; // puntero al TSession
-      wc.hInstance    = hInstance;
-      wc.hIcon        = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));
-      wc.hCursor      = LoadCursor(NULL, IDC_ARROW);
-      wc.hbrBackground= (HBRUSH)(COLOR_WINDOW + 1);
-      wc.lpszMenuName = MAKEINTRESOURCE(IDR_MENU);
-      wc.lpszClassName= "DBOWndClass";
+      // crea el ¿Server? x aqui pasa una sola vez asi que no se chequea nada
+      new TServer(hInstance);
       //
-      return RegisterClass(&wc);
-#endif
       return true;
     }
   else if (DLL_PROCESS_DETACH == fdwReason)
@@ -74,8 +45,8 @@ DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID /*lpReserved*/)
 	g_pTLib->Release();
 	g_pTLib = 0;
       }
-      //
-      //LicFree();
+      // destruye la representación del server
+      delete TServer::TheInstance();
       //
       return true;
     }
@@ -126,56 +97,10 @@ DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppvObj)
 STDAPI
 DllCanUnloadNow()
 {
-  return ResultFromScode(((0L == g_cObj && 0L == g_cLock) /*|| a()*/) ? S_OK : S_FALSE);
+  return TServer::TheInstance()->DllCanUnloadNow();
 }
 
-#if 0
-/**
-***
-***/
-LRESULT CALLBACK
-WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-  switch (msg)
-    {
-    case WM_PAINT:
-      break;
 
-    case WM_SIZE:
-      break;
-
-    case WM_COMMAND:
-      {
-        switch(GET_WM_COMMAND_ID(wParam,lParam))
-          {
-          case 101/*IDM_HIDE*/:
-            break;
-
-          case 103/*IDM_EXIT*/:
-            //PostMessage(hwnd, WM_CLOSE, 0, 0L);
-            break;
-          }
-      }
-    break;
-    /*
-                case WM_CLOSE:
-                // Hide the window to release the refcount added by CoLockObjectExternal
-                // (See CLines::ShowWindow)
-                //g_pDataServer->m_bUserClosing = TRUE;
-                //g_pDataServer->ShowWindow(SW_HIDE);
-                //DestroyWindow(hwnd);
-                return 0L;
-
-                case WM_DESTROY:
-                //PostQuitMessage(0);
-                break;
-                */
-    default:
-      return DefWindowProc(hwnd, msg, wParam, lParam);
-    }
-  return NULL;
-}
-#endif
 
 /**
 ***

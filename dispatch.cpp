@@ -52,7 +52,7 @@ RAISE_INTERNAL(DWORD dwExceptionCode, ...)
   va_start(ap, dwExceptionCode);
   // obtiene el mensaje
   dwRet = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_HMODULE,
-                        g_hInst/*GetModuleHandle(g_szModuleName)*/, dwExceptionCode,
+                        *TServer::TheInstance(), dwExceptionCode,
                         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&pDesc, 10, &ap);
   // libera la lista ¿hace falta?
   va_end(ap);

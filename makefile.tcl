@@ -120,7 +120,8 @@ proc debug_reg_server {action progId classId libId verMajor verMinor dll} {
 	    registry set "$key\\TypeLib" "" "\{$libId\}"
 	    registry set "$key\\Version" "" "$verMajor.$verMinor"
 	    registry set "$key\\InProcServer32" "" $dllPath
-	    #registry set "$key\\InProcServer32" "ThreadingModel" "Both"
+	    registry set "$key\\InProcServer32" "ThreadingModel" "Both"
+	    registry set "$key\\Programmable"
 	    #
 	    set key "HKEY_CLASSES_ROOT\\TypeLib\\\{$libId\}"
 	    registry set "$key\\$verMajor.$verMinor" "" "$progId debug reg!"

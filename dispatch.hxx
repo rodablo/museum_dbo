@@ -54,6 +54,28 @@ public:
 //    LPEXCEPTION_POINTERS  m_pEP;    
 //  };
 
+/**
+*** TCriticalSection
+***/
+class TCriticalSection
+{
+public:
+  explicit TCriticalSection() { ::InitializeCriticalSection(&_critical_section); }
+  ~TCriticalSection()         { ::DeleteCriticalSection(&_critical_section); }
+  //
+  void Enter() { ::EnterCriticalSection(&_critical_section); }
+  void Leave() { ::LeaveCriticalSection(&_critical_section); }
+  //
+  class Lock {
+  public:
+    explicit Lock(TCriticalSection& cs) : _cs(cs) { _cs.Enter(); }
+    ~Lock() { _cs.Leave(); }
+  private:
+    TCriticalSection& _cs;
+  };
+private:
+  CRITICAL_SECTION _critical_section;
+};
 
 /**
 ***
@@ -80,7 +102,9 @@ public:
   /// IUnknown
   virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, LPVOID* ppvObj);
   virtual ULONG   STDMETHODCALLTYPE AddRef() { 
-    return ++m_cRef; }
+    TCriticalSection::Lock lock(m_oCs);
+    return ++m_cRef; 
+  }
   virtual ULONG   STDMETHODCALLTYPE Release();
   
   /// IDispatch
@@ -117,7 +141,8 @@ public:
 protected:
 
 protected:
-  ULONG                 m_cRef;             // ref count
+  TCriticalSection 	m_oCs;  
+  volatile ULONG        m_cRef;             // ref count
   const IID&            m_rIID;
   LPTYPEINFO            m_pTI;              // typeinfo
   //excepciones
@@ -162,6 +187,7 @@ template <class IBase, const IID* pIID>
 inline HRESULT STDMETHODCALLTYPE 
 TIDISPATCH<IBase, pIID>::QueryInterface(REFIID riid, LPVOID* ppvObj) 
 {
+  TCriticalSection::Lock lock(m_oCs);
   if (0 == ppvObj)
     return E_INVALIDARG;
 
@@ -185,11 +211,20 @@ template <class IBase, const IID* pIID>
 ULONG STDMETHODCALLTYPE
 TIDISPATCH<IBase, pIID>::Release()
 {
+  // toma el lock
+  m_oCs.Enter();
+  //
   if(0 == --m_cRef)
-    {
+   {
+      // libera el lock antes de suicidarse
+      m_oCs.Leave();
+      // se suicida
       delete this; 
+      //
       return 0L;   // no puede retornar m_cRef porque aqui ya no existe
     }
+  //
+  m_oCs.Leave();
   return m_cRef;
 }
 
@@ -219,7 +254,7 @@ TIDISPATCH<IBase, pIID>::Invoke(DISPID dispidMember, REFIID riid,
 
   /*
     The calling code is responsible for releasing all strings and objects referred to by rgvarg[ ] or placed in *pVarResult. As with other parameters that are passed by value, if the invoked member must maintain access to a string after returning, you should copy the string. Similarly, if the member needs access to a passed-object pointer after returning, it must call the AddRef function on the object. A common example occurs when an object property is changed to refer to a new object, using the DISPATCH_PROPERTYPUTREF flag.
-    */
+  */
 
   HRESULT hr = DispInvoke(this, m_pTI, dispidMember, wFlags,
                           pdispparams, pvarResult, pexcepinfo, puArgErr);

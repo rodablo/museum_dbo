@@ -21,12 +21,14 @@ public:
   STDMETHOD(CreateInstance)(LPUNKNOWN pUnkOuter, REFIID riid, LPVOID* ppvObj);
   STDMETHOD(LockServer)(BOOL fLock);
 private:
-  ULONG m_cRef;
+  TCriticalSection m_oCs;
+  volatile ULONG   m_cRef;
 };
 
 STDMETHODIMP
 TSessionCF::QueryInterface(REFIID riid, void** ppvObj)
 {
+  TCriticalSection::Lock lock(m_oCs);
   *ppvObj = 0;
 
   if (IsEqualIID(riid, IID_IUnknown) ||
@@ -43,17 +45,29 @@ TSessionCF::QueryInterface(REFIID riid, void** ppvObj)
 ULONG STDMETHODCALLTYPE
 TSessionCF::AddRef()
 {
+  TCriticalSection::Lock lock(m_oCs);
   return ++m_cRef;
 }
 
 ULONG STDMETHODCALLTYPE
 TSessionCF::Release()
 {   
+  // toma el lock
+  m_oCs.Enter();
+  //
   if (0 == --m_cRef)
-    {
-      delete this;
-      return 0L;
-    }
+  {
+    // libera el lock antes de suicidarse
+    m_oCs.Leave();
+    // se suicida
+    delete this;
+    //  lo descuenta aqui x que no hay destructor
+    TServer::TheInstance()->DecrObjectsCount();
+    // 
+    return 0L;
+  }
+  //
+  m_oCs.Leave();
   return m_cRef;
 }
 
@@ -96,9 +110,9 @@ STDMETHODIMP
 TSessionCF::LockServer(BOOL fLock)
 {
   if (fLock)
-    g_cLock++;
+    TServer::TheInstance()->Lock();
   else
-    g_cLock--;
+    TServer::TheInstance()->Unlock();
 
   return NOERROR;
 }
@@ -110,5 +124,12 @@ void
 CreateSessionCF(IClassFactory*& rpSCF)
 {
   rpSCF = (IClassFactory*) new TSessionCF;
+  // lo cuenta
+  TServer::TheInstance()->IncrObjectsCount();
 }
+
+
+
+
+
 
