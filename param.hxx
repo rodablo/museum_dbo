@@ -72,7 +72,6 @@ public:
   virtual void     BindArray(dboVarType AsType, short ArraySize, VARIANT& StringLength);
   virtual void     ClearBind(){} 
   virtual bool     IsStrict() { return _fStrict || m_IICursor.IsStrict(); }
-  virtual void     Internal_put_Value(VARIANT& Index, VARIANT& Value);
   // TGParam
   HRESULT IDispatchSEH();
   void    SetDirtyFlag()      { m_IICursor.SetDirtyFlag(); }
