@@ -57,22 +57,22 @@ TSession::~TSession()
 /**
 *** PROPIEDADES
 ***/
-HRESULT __stdcall
-TSession::put_Visible(VARIANT_BOOL Visible)
-{
-  try {
-    m_fVisible = Visible;
-    ShowWindow(Visible ? SW_SHOW : SW_HIDE);
-   }
-  __AUTO_EXCEPT;
-}
+// HRESULT __stdcall
+// TSession::put_Visible(VARIANT_BOOL Visible)
+// {
+//   try {
+//     m_fVisible = Visible;
+//     ShowWindow(Visible ? SW_SHOW : SW_HIDE);
+//    }
+//   __AUTO_EXCEPT;
+// }
 
-HRESULT __stdcall
-TSession::get_Visible(VARIANT_BOOL* retv)
-{
-  *retv = m_fVisible;
-  return NOERROR;
-}
+// HRESULT __stdcall
+// TSession::get_Visible(VARIANT_BOOL* retv)
+// {
+//   *retv = m_fVisible;
+//   return NOERROR;
+// }
 
 HRESULT __stdcall
 TSession::put_User(BSTR User)
@@ -216,7 +216,7 @@ TSession::CreateCursor(ICURSOR** ppCursor)
   try {
     // conecta si es necesaro
     if (!m_fIsLogged)
-      DoLogon(false);
+      _Logon(false);
     // Crea un cursor
     IICursor* pC;
     ::CreateCursor(*this, pC);
@@ -236,7 +236,7 @@ TSession::Logon(VARIANT_BOOL NonBlocking)
   try {
     // previamente conectado
     // CONDITION(DS_E_PRECON, CONECTADO == m_estado);
-    DoLogon(NonBlocking);
+    _Logon(NonBlocking);
   }
   __AUTO_EXCEPT;
 }
@@ -293,7 +293,7 @@ TSession::Break()
 *** IMPLEMENTACION
 ***/
 void 
-TSession::DoLogon(bool fNonBlocking)
+TSession::_Logon(bool fNonBlocking)
 {
   //limpieza
  //  ZeroMemory(&m_lda, sizeof(m_lda));
@@ -307,36 +307,36 @@ TSession::DoLogon(bool fNonBlocking)
   m_fIsLogged = true;
 }
 
-void
-TSession::ShowWindow(int nCmdShow)
-{
-  // Chequea qu so sea in llamado al cuete!
-  if ((!m_fVisible && nCmdShow == SW_HIDE) || (m_fVisible && nCmdShow != SW_HIDE))
-    return;
+// void
+// TSession::ShowWindow(int nCmdShow)
+// {
+//   // Chequea qu so sea in llamado al cuete!
+//   if ((!m_fVisible && nCmdShow == SW_HIDE) || (m_fVisible && nCmdShow != SW_HIDE))
+//     return;
 
-  m_fVisible = (nCmdShow == SW_HIDE) ? FALSE : TRUE;
+//   m_fVisible = (nCmdShow == SW_HIDE) ? FALSE : TRUE;
 
-  // Leer atentamente esto !!!
-  //
-  //
-  // The Automation object shutdown behavior is as follows:
-  // 1. If the object application is visible, it shuts down only in response to an
-  // explicit user command (File/Exit) or it's programmatic equivalent (for example
-  // the Quit method of the Application object).
-  // 2. If the object application is not visible, it goes away when it's last
-  // object is released.
-  //
-  // CoLockObjectExternal can be used to increment the ref count of the application object
-  // when it is visible. This will implement shutdown behavior 1. When the application
-  // goes invisible, CoLockObjectExternal is used to decrement the ref count. This will
-  // implement shutdown behavior 2.
+//   // Leer atentamente esto !!!
+//   //
+//   //
+//   // The Automation object shutdown behavior is as follows:
+//   // 1. If the object application is visible, it shuts down only in response to an
+//   // explicit user command (File/Exit) or it's programmatic equivalent (for example
+//   // the Quit method of the Application object).
+//   // 2. If the object application is not visible, it goes away when it's last
+//   // object is released.
+//   //
+//   // CoLockObjectExternal can be used to increment the ref count of the application object
+//   // when it is visible. This will implement shutdown behavior 1. When the application
+//   // goes invisible, CoLockObjectExternal is used to decrement the ref count. This will
+//   // implement shutdown behavior 2.
 
-  if (m_fVisible)
-    CoLockObjectExternal(this, TRUE /*fLock*/, TRUE/*ignored when fLock==TRUE*/);
-  else
-    CoLockObjectExternal(this, FALSE/*fLock*/, TRUE/*fLastLockReleases*/);
+//   if (m_fVisible)
+//     CoLockObjectExternal(this, TRUE /*fLock*/, TRUE/*ignored when fLock==TRUE*/);
+//   else
+//     CoLockObjectExternal(this, FALSE/*fLock*/, TRUE/*fLastLockReleases*/);
 
-  ::ShowWindow (m_hWnd, nCmdShow);
-}
+//   ::ShowWindow (m_hWnd, nCmdShow);
+// }
 
 
