@@ -582,6 +582,10 @@ cpp_quote("#define DISPID_CURSOR_EVENT_INSERT_PIECE 205")
 	helpstring("Cierra la conexion con el DBMS.")]
 	  HRESULT Logoff();
 
+	[id(116), //helpcontext(IDH_SESSION_LOGOFF),
+	helpstring("Cambia el password de la sesion.")]
+	  HRESULT PasswordChange([in] BSTR NewPassword);
+
 	[id(112), helpcontext(IDH_SESSION_COMMIT),
 	helpstring("Commit.")]
 	  HRESULT Commit();
@@ -624,12 +628,12 @@ cpp_quote("#define DISPID_CURSOR_EVENT_INSERT_PIECE 205")
       [entry(101), helpcontext(IDH_BUILDNUMBER),
        helpstring("texto explicativo.")] 
 	int __stdcall BuildNumber(); 
-      [entry(102), helpcontext(IDH_BUILDNUMBER),
-       helpstring("cambia el password.")] 
-	HRESULT __stdcall PasswordChange([in] BSTR User,
-					 [in] BSTR OldPassword,
-					 [in] BSTR NewPassword,
-					 [in] BSTR Alias);
+//        [entry(102), helpcontext(IDH_BUILDNUMBER),
+//         helpstring("cambia el password.")] 
+//  	HRESULT __stdcall PasswordChange([in] BSTR User,
+//  					 [in] BSTR OldPassword,
+//  					 [in] BSTR NewPassword,
+//  					 [in] BSTR Alias);
     }; 
 
 

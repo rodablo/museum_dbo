@@ -26,6 +26,7 @@ public:
   STDMETHOD(get_RC)(short* retv);
   /// Session Metodos
   STDMETHOD(Logon)(VARIANT_BOOL NonBlocking);
+  STDMETHOD(PasswordChange)(BSTR NewPassword);
   STDMETHOD(Logoff)();
   STDMETHOD(Commit)();
   STDMETHOD(Rollback)();

@@ -5,7 +5,7 @@
 //#include <oci.h>
 #include "pch.hxx"
 #include "dbo.hxx"
-
+#if 0
 typedef sb4 TOci8Ex;
 inline void CHECK_OCI8(sword stat) { if (OCI_SUCCESS != stat) throw TOci8Ex(stat); }
 
@@ -161,3 +161,4 @@ HRESULT __stdcall PasswordChange(/* [in] */ BSTR User,
   return retv;
 }
 
+#endif

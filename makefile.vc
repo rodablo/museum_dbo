@@ -6,7 +6,7 @@ __NODEBUG 	= 0
 ###
 __VER_MAJOR   	= 2
 __VER_MINOR   	= 2
-__VER_RELEASE 	= 1
+__VER_RELEASE 	= 2
 ###
 ### END DEL AREA EDITABLE
 ###
@@ -23,14 +23,14 @@ MACHINE		= ALPHA
 ###
 ### TOOLS
 ###
-!IF "ROJO" == "$(COMPUTERNAME)"
-VC        	= C:\devstudio\VC
-VB		= G:\PROGRA~1\MICROS~1\VB98\VB6.EXE
-WINDBG		= C:\DevStudio\SharedIDE\bin\msdev.exe
+!IF "AZUL" == "$(COMPUTERNAME)"
+VC        	= C:\DS5\VC
+VB		= C:\ARCHIV~1\MICROS~3\VB98\VB6.EXE
+WINDBG		= C:\DS5\SharedIDE\bin\msdev.exe
 #WINDBG		= C:\PROGRA~1\DbgTools\windbg.exe
-SHAREDIDE 	= C:\devstudio\sharedide
-TCL       	= C:\PROGRA~1\Tcl
-OCI		= G:\Oracle\Ora81\OCI
+SHAREDIDE 	= C:\DS5\sharedide
+TCL       	= C:\usr\TclPro14\WIN32-~1
+OCI		= C:\Oracle\Ora81\OCI
 ZIP     	= C:\ARCHIV~1\WINZIP\WINZIP32.EXE
 ZIPSE   	= C:\ARCHIV~1\WINZIP~1\WINZIPSE.EXE
 !ELSE
@@ -50,6 +50,7 @@ MC        	= $(VC)\bin\mc.exe
 MIDL      	= $(VC)\bin\midl.exe
 HCW      	= $(VC)\bin\hcw.exe
 CABSIGN		= $(VC)\"CAB&SIGN"\cabarc.exe
+
 #"
 ###
 ### PATH'S
@@ -59,6 +60,7 @@ BUILD_MODE	= release
 !ELSE
 BUILD_MODE	= debug
 !ENDIF
+PATH		= $(VC)\bin;$(SHAREDIDE)\bin;$(PATH)
 BUILD_ROOT	= C:\Z\DBO
 SRC		= $(BUILD_ROOT)
 OUT		= C:\Z\WORK\$(BUILD_MODE)
@@ -164,7 +166,7 @@ $(OUT)\$(__INF_FNAME): dll
 [version]
 Signature	= "$$Windows NT$$"
 Provider	= "RODABLO.COM."
-AdvancedINF	= 2.5
+AdvancedINF	= 2.5, "You need a newer version of advpack.dll."
 
 ;;;
 ;;; DIRS
@@ -176,10 +178,14 @@ AppDirFiles = 24, %PROGRAMFILESDIR%\%DIR_NAME%\  	; 24 - LDID_APPS\Program Files
 ;;; Repite DefaultInstall para que le alcance la opcion -c al  selfextractor 
 ;;;
 [DI]
+RequiredEngine=Setupapi
+SmartReboot=D
 Copyfiles = AppDirFiles, InfDirFiles
 AddReg    = AddRegSection
 
 [DefaultInstall]
+RequiredEngine=Setupapi
+SmartReboot=D
 Copyfiles = AppDirFiles, InfDirFiles
 AddReg    = AddRegSection
 
