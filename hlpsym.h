@@ -1,36 +1,77 @@
-#define IDH_SESSION                 2000
-#define IDH_CONTENIDO               2010
+#define IDH_CONTENIDO               	2010
+//#define IDH_ERR                     	2011
+//#define IDH_NUEVO                   	2012
 
-#define IDH_SESSION                 2020
-#define IDH_SESSION_USER            2030
-#define IDH_SESSION_PASSWORD        2040
-#define IDH_SESSION_ALIAS           2050
-#define IDH_SESSION_VISIBLE         2060
-#define IDH_SESSION_ISLOGON         2070
-#define IDH_SESSION_LOGON           2080
-#define IDH_SESSION_LOGOFF          2090
-#define IDH_SESSION_CREATESQL       2100
-#define IDH_SESSION_COMMIT          2110
-#define IDH_SESSION_ROLLBACK        2120
-#define IDH_SESSION_BREAK           2121
+#define IDH_DBOVARENUM              	2013
 
-#define IDH_CURSOR                  2130
-#define IDH_CURSOR_EOF              2140
-#define IDH_CURSOR_COUNT            2150
-#define IDH_CURSOR_COUNTACUMULADO   2160
-#define IDH_CURSOR_SQL              2170
-#define IDH_CURSOR_PARAM            2180
-#define IDH_CURSOR_FILASXFETCH      2190
-#define IDH_CURSOR_COL              2200
-#define IDH_CURSOR_COLREF           2210
-#define IDH_CURSOR_COLNOMBREN       2220
-#define IDH_CURSOR_PREPARAR         2230
-#define IDH_CURSOR_FETCH            2240
-#define IDH_CURSOR_EJECUTAR         2250
-#define IDH_CURSOR_AUXILIAR         2260
+#define IDH_PARAM			2014
+#define IDH_PARAM_NAME			2015
+#define IDH_PARAM_NUMBER		2016
+#define IDH_PARAM_ISNULL		2017
+#define IDH_PARAM_LENGTH		2018
+#define IDH_PARAM_RC			2019
+#define IDH_PARAM_VALUE			2020
+#define IDH_PARAM_STRICT		2021
+#define IDH_PARAM_NVL			2022
 
-#define IDH_ERR                     2900
-#define IDH_NUEVO                   2910
+#define IDH_PARAMS			2023
+#define IDH_PARAMS_COUNT		2024
+#define IDH_PARAMS_ITEM			2025
+
+#define IDH_COLUMN			2026
+#define IDH_COLUMN_NAME			2027
+#define IDH_COLUMN_POSITION		2028
+#define IDH_COLUMN_DISPLAYSIZE		2029
+#define IDH_COLUMN_PRECISION		2030
+#define IDH_COLUMN_SCALE		2031
+#define IDH_COLUMN_ISNULLOK		2032
+#define IDH_COLUMN_ROWCOUNT		2033
+#define IDH_COLUMN_ISNULL		2034
+#define IDH_COLUMN_LENGTH		2035
+#define IDH_COLUMN_RC			2036
+#define IDH_COLUMN_REF			2037
+#define IDH_COLUMN_COPY			2038
+
+#define IDH_COLUMNS			2039
+#define IDH_COLUMNS_COUNT		2040
+#define IDH_COLUMNS_ITEM		2041
+
+#define IDH_CURSOR                  	2042
+#define IDH_CURSOR_EOF              	2043
+#define IDH_CURSOR_ROWCOUNT         	2044
+#define IDH_CURSOR_RPC              	2045
+#define IDH_CURSOR_RC               	2046
+#define IDH_CURSOR_ROWXFETCH        	2047
+#define IDH_CURSOR_ISDIRTY          	2048
+#define IDH_CURSOR_STRICT           	2049
+#define IDH_CURSOR_PARAMS           	2050
+#define IDH_CURSOR_COLS             	2051
+#define IDH_CURSOR_PARSESQL         	2052
+#define IDH_CURSOR_DEFINECOLUMNS    	2053
+#define IDH_CURSOR_BIND             	2054
+#define IDH_CURSOR_BINDARRAY        	2055
+#define IDH_CURSOR_BINDCURSOR		2056
+#define IDH_CURSOR_FETCH		2057
+#define IDH_CURSOR_EXECUTE		2058
 
 
+#define IDH_SESSION                 	2059
+#define IDH_SESSION_USER            	2060
+#define IDH_SESSION_PASSWORD        	2061
+#define IDH_SESSION_ALIAS           	2062
+#define IDH_SESSION_ISLOGGED        	2063
+#define IDH_SESSION_AUTOCOMMIT      	2064
+#define IDH_SESSION_NONBLOCKINGMODE 	2065
+#define IDH_SESSION_RC              	2066
+#define IDH_SESSION_CURSORCOUNT     	2067
+#define IDH_SESSION_LOGON           	2068
+#define IDH_SESSION_LOGOFF          	2069
+#define IDH_SESSION_COMMIT		2070
+#define IDH_SESSION_ROLLBACK		2071
+#define IDH_SESSION_BREAK		2072
+#define IDH_SESSION_CREATECURSOR 	2073
+
+#define IDH_AUXILIAR 			2074
+#define IDH_LICENSEINFORMATION 		2075
+#define IDH_BUILDNUMBER 		2076
 
