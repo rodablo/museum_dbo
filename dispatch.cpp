@@ -21,8 +21,8 @@ LoadTypeInfo(const IID& rIID, LPTYPEINFO& rpTI) // este argumento podria  volar
       // pesimismo inicial
       rpTI = 0;
       // Carga el type Lib.
-      if (FAILED(LoadRegTypeLib(__LIBID__,
-				__LIB_VERSION_MAJOR, __LIB_VERSION_MINOR, 
+      if (FAILED(LoadRegTypeLib(__LIBID,
+				__LIB_VER_MAJOR, __LIB_VER_MINOR, 
       				__LIB_LCID, &g_pTLib)) &&
 	  // Si no esta registrada, intenta con el path, si OK queda registrada
 	  FAILED(LoadTypeLib(WIDE(g_szModuleName), &g_pTLib))

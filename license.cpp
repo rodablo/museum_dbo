@@ -4,71 +4,51 @@
 ***/
 #include "pch.hxx"
 #include "dbo.hxx"
-
-#include <wincrypt.h>
+//#include <wincrypt.h>
 #include <lm.h>         // for NetXxx API
 
-#define __RSA__ 0
-
-#if __RSA__
-#include <rsaeuro.h>
-extern "C" 
-{
-#include <rsa.h>
-}
-void RSAExample();
-#endif
-
-#define __CREATELIC__ 0
-/*
-\\RED_DESARROLLO
-
-"DBO2 Developer"
-"DBO2 User"
-
-*/
-
-WINOLEAUTAPI_(INT) SystemTimeToVariantTime(LPSYSTEMTIME lpSystemTime, double* pvtime);
-//WINOLEAUTAPI_(INT) VariantTimeToSystemTime(double vtime, LPSYSTEMTIME lpSystemTime);
-
-#if 0
+/**
+***
+***
 
 n1 = f1 - f2
-
 n2 = f1 + f2
----------------
-n1 + n2 = f1 + f1 - f2 + f2
 
+n1 + n2 = f1 + f1 - f2 + f2
 n1 + n2 = 2 f1
 
 f1 = (n1 + n2) / 2 
-
-f2 = n2 - f1
-
 f2 = n2 - ((n1 + n2) / 2)
-------------------------
+f2 = n2 - f1
+ 
+if (not in build range) 
+  deny now
 
-  if (not in build range)
-    deny now;
+if (have vencimiento && vencio)
+  deny now!
 
-  if (have vencimiento)
-    if (vencio)
-      deny now;
+if (have trial && in trial)
+  grant now
+else if (have domain && in domain)
+  grant now
+else
+  denied
 
-  if (have trial)
-    if (in trial)
-      grant now;
+las licencias de origenes no requieren trial (luego de X) 
+eventualmente un modo de developer limitado podria funcionar sin vencimiento
 
-  if (have domain)
-    if (in domain)
-      grant now;
+***
+***
+***/
 
-  denied;
-
-/*las licencias de origenes no requieren trial (luego de X) 
-  eventualmente un modo de developer limitado podria funcionar sin vencimiento*/
-
-#endif
+class TLicHdr
+{
+public:
+  bool  fCanUseValidateCache;
+  bool  fValidateCache;
+  long  lSessionsC;
+  DWORD dwBlockSize;
+};
 
 struct TLicense2
 {
@@ -86,20 +66,9 @@ public:
   char          szDomainName[256];
   DWORD         dwDomainSidSize;
   BYTE          byDomainSidData[128];
-  // Reserved
-  char          reserved1;
-  char          reserved2[1024 /*- 1 - offsetof(struct TLicense2, struct TLicense2::reserved1)*/];
 };
 
-class TLicHdr
-{
-public:
-  bool  fCanUseValidateCache;
-  bool  fValidateCache;
-  long  lSessionsC;
-  DWORD dwBlockSize;
-};
-
+// globales  
 static char   szFMName[]          = "a1s2d3f4g5";
 static HANDLE hFM                 = 0;
 static char   szRegLicKey[]       = "SOFTWARE\\Rodablo\\DBO2";
@@ -127,250 +96,200 @@ static char   dummie2[] =
 BSTR /*__stdcall*//*__pascal*/
 LicenseInformation()
 {
-  //  return TString("...").RelinquishSysStr();
   return SysAllocString(WIDE("..."));
 }
 
 /**
-*** A(), Inicializa la licencia 
+*** carga la licencia en memoria 
 ***/
 void __stdcall
 LicLoad()
 {
-#if __CREATELIC__  
-  void CreateLic2();
-  CreateLic2();
-#endif
-#if __RSA__
-  //RSAExample();
-#endif
+  // void CreateLic2();
+  // CreateLic2();
   // intenta obtener el handle de la licencia cargada
-  hFM = OpenFileMapping(/*FILE_MAP_READ*/FILE_MAP_WRITE/*PAGE_READWRITE*/, false, szFMName);
+  hFM = OpenFileMapping(/*FILE_MAP_READ*/FILE_MAP_WRITE/*PAGE_READWRITE*/, 
+			false, szFMName);
   // si no existe asume que es el primero y crea nuevo
-  if (0 == hFM)
-    {
-      // lee el bloque de licencia de la registry
-      HKEY   hRegKey = 0;
-      PBYTE  pBlock = 0;
-      PBYTE  pFM; 
-      try 
-	{ // abre el key
-	  if (ERROR_SUCCESS != 
-	      RegOpenKeyEx(HKEY_LOCAL_MACHINE, szRegLicKey, 0, KEY_READ, &hRegKey))
-	    throw 0;
-	  // determina el tamano del bloque
-	  DWORD dwBlockSize;
-	  if (ERROR_SUCCESS != 
-	      RegQueryValueEx(hRegKey, szRegLicValueName, 0, 0, 0, &dwBlockSize))
-	    throw 0;    
-	  // aloca el buffer
-	  pBlock = new BYTE[dwBlockSize];
-	  // lee el bloque
-	  DWORD dwType;
-	  if (ERROR_SUCCESS != 
-	      RegQueryValueEx(hRegKey, szRegLicValueName, 0, &dwType, pBlock, &dwBlockSize))
-	    throw 0;   
-	  // cierra el key
-	  RegCloseKey(hRegKey);	  
-	  hRegKey = 0;
-	  // crea el bloque de mem compartida
-	  hFM = CreateFileMapping((HANDLE)0xFFFFFFFF,            // use paging file
-				  NULL,                         // no security attributes (por ahora)
-				  PAGE_READWRITE,                // read/write access
-				  0,                             // size: high 32-bits
-				  sizeof(TLicHdr) + dwBlockSize, // size: low 32-bits
-				  szFMName);                     // name of map object
-	  if (0 == hFM) 
-	    throw 0; 
-	  // obtiene el puntero al file-mapped shared memory. 
-	  pFM = (PBYTE)MapViewOfFile(hFM, FILE_MAP_WRITE, 0, 0, 0);    
-	  if (0 == pFM)
-	    throw 0;
-	  // inicializa el header
-	  ((TLicHdr*)pFM)->fCanUseValidateCache = false;
-	  ((TLicHdr*)pFM)->fValidateCache = false;
-	  ((TLicHdr*)pFM)->lSessionsC  = 0;	   
-	  ((TLicHdr*)pFM)->dwBlockSize = dwBlockSize;
-	  // copia el bloque
-	  CopyMemory(pFM + sizeof(TLicHdr), pBlock, dwBlockSize);
-	  // libera 
-	  delete [] pBlock;
-	  pBlock = 0;
-	  UnmapViewOfFile(pFM);
-	  pFM = 0;
-	}
-      catch (...)
-	{ 
-	  // algo fallo libera todo
-	  delete [] pBlock;
-	  if (0 != pFM) 
-	    UnmapViewOfFile(pFM);	  
-	  if (0 != hFM) 
-	    { 
-	      CloseHandle(hFM); 
-	      hFM = 0;
-	    }
-	  RegCloseKey(hRegKey);	  
-	}
+  if (0 == hFM) {
+    // lee el bloque de licencia de la registry
+    HKEY   hRegKey = 0;
+    PBYTE  pBlock = 0;
+    PBYTE  pFM; 
+    try	{ // abre el key
+      if (ERROR_SUCCESS != 
+	  RegOpenKeyEx(HKEY_LOCAL_MACHINE, szRegLicKey, 0, KEY_READ, &hRegKey))
+	throw 0;
+      // determina el tamano del bloque
+      DWORD dwBlockSize;
+      if (ERROR_SUCCESS != 
+	  RegQueryValueEx(hRegKey, szRegLicValueName, 0, 0, 0, &dwBlockSize))
+	throw 0;    
+      // aloca el buffer
+      pBlock = new BYTE[dwBlockSize];
+      // lee el bloque
+      DWORD dwType;
+      if (ERROR_SUCCESS != 
+	  RegQueryValueEx(hRegKey, szRegLicValueName, 0, 
+			  &dwType, pBlock, &dwBlockSize))
+	throw 0;   
+      // cierra el key
+      RegCloseKey(hRegKey);	  
+      hRegKey = 0;
+      // crea el bloque de mem compartida
+      hFM = CreateFileMapping((HANDLE)0xFFFFFFFF, 		// use paging file
+			      NULL,               // no security attributes (por ahora)
+			      PAGE_READWRITE,                	// read/write access
+			      0,                             	// size: high 32-bits
+			      sizeof(TLicHdr) + dwBlockSize, 	// size: low 32-bits
+			      szFMName);                     	// name of map object
+      if (0 == hFM) 
+	throw 0; 
+      // obtiene el puntero al file-mapped shared memory. 
+      pFM = (PBYTE)MapViewOfFile(hFM, FILE_MAP_WRITE, 0, 0, 0);    
+      if (0 == pFM)
+	throw 0;
+      // inicializa el header
+      ((TLicHdr*)pFM)->fCanUseValidateCache = false;
+      ((TLicHdr*)pFM)->fValidateCache = false;
+      ((TLicHdr*)pFM)->lSessionsC  = 0;	   
+      ((TLicHdr*)pFM)->dwBlockSize = dwBlockSize;
+      // copia el bloque
+      CopyMemory(pFM + sizeof(TLicHdr), pBlock, dwBlockSize);
+      // libera 
+      delete [] pBlock;
+      pBlock = 0;
+      UnmapViewOfFile(pFM);
+      pFM = 0;
     }
+    catch (...)	{ 
+      // algo fallo libera todo
+      delete [] pBlock;
+      if (0 != pFM) 
+	UnmapViewOfFile(pFM);	  
+      if (0 != hFM) 
+	{ 
+	  CloseHandle(hFM); 
+	  hFM = 0;
+	}
+      RegCloseKey(hRegKey);	  
+    }
+  }
 }
 
 void __stdcall
 LicFree()
 {
-  if (0 != hFM)
-    {
-      CloseHandle(hFM); 
-      hFM = 0;
-    }
+  // libera el view del filemap
+  if (0 != hFM) {
+    CloseHandle(hFM); 
+    hFM = 0;
+  }
 }
 
-bool 
+/**
+*** valida la licencia
+***/ 
+HRESULT 
 LicValidate()
 {
-	SYSTEMTIME st;
-    DATE       dateNow;
-	DATE       trial;
-
-	GetLocalTime(&st);
-      
-    if (!SystemTimeToVariantTime(&st, &dateNow))
-		return false; 
-
-	// TRIAL
-	st.wYear         = 1998;
-	st.wMonth        = 11; 
-	st.wDayOfWeek    = 0; 
-	st.wDay          = 6; 
-	st.wHour         = 10; 
-	st.wMinute       = 0; 
-	st.wSecond       = 0; 
-	st.wMilliseconds = 0;
-  
-	if (!SystemTimeToVariantTime(&st, &trial))
-		return false;
-  	
-	if (dateNow < trial)
-		return true;
-	else
-		return false;
-
-
-	return false;
-
-  
-  
-  //------------------------------------------------------------------------------------------
-  
   // hay licencia?
   if (0 == hFM)
-    return false;
+    return DBO_E_RUNTIME_LIC_NOT_LOADED;
   //
-  bool       fLicValida = false;
-  PBYTE      pFM        = 0;
-  PBYTE      pTempLic   = 0;
-
-  LPWSTR              pDC   = 0;
-  PUSER_MODALS_INFO_2 pUmi2 = 0;
-
+  HRESULT    resultado = DBO_E_RUNTIME_LIC_ERROR;
+  PBYTE      pFM       = 0;
+  PBYTE      pTempLic  = 0;
+  // para descifrar
   HCRYPTPROV hProv = 0;
   HCRYPTKEY  hKey  = 0;
   HCRYPTHASH hHash = 0;
-
+  // para el dominio
+  LPWSTR              pDC   = 0;
+  PUSER_MODALS_INFO_2 pUmi2 = 0;
   //
-  try
-    {
-      // obtiene el puntero a la licencia
-      pFM = (PBYTE)MapViewOfFile(hFM,FILE_MAP_WRITE/* FILE_MAP_READ*/, 0, 0, 0);
-      if (0 == pFM)
-	throw 0;
-      // decifra
-      // Get handle to the default provider.
-      if(!CryptAcquireContext(&hProv, 0, 0, /*PROV_DSS*/PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) 
-	throw 0;
-      // Crea hash, hashea el password, y deriva el key
-      if(!CryptCreateHash(hProv, CALG_MD5, 0, 0, &hHash)) 
-	throw 0;
-      if(!CryptHashData(hHash, (PBYTE)szPassword, sizeof(szPassword)/*strlen(szPassword)*/, 0)) 
-	throw 0;
-      if(!CryptDeriveKey(hProv, CALG_RC2, hHash, 0, &hKey)) 
-	throw 0;
-      // Destruye el hash.
-      CryptDestroyHash(hHash);
-      hHash = 0;
-      // aloca bufer para version decifrada, y copia el buffer
-      DWORD dwSize = ((TLicHdr*)pFM)->dwBlockSize;
-      pTempLic = new BYTE[dwSize];
-      CopyMemory(pTempLic, pFM + sizeof(TLicHdr), dwSize);
-      //memcpy(pTempLic, (pFM + sizeof(TLicHdr)), dwSize);
-      // decifra
-      if(!CryptDecrypt(hKey, 0, true, 0, pTempLic, &dwSize)) 
-	throw 0;
-      //
-      //
-      //
-      // AQUI COMIENZA LA DECISION 
+  try {
+    // obtiene el puntero a la licencia
+    pFM = (PBYTE)MapViewOfFile(hFM,FILE_MAP_WRITE/* FILE_MAP_READ*/, 0, 0, 0);
+    if (0 == pFM)
+      throw HRESULT(DBO_E_RUNTIME_LIC_ERROR);
+    // decifra
+    // obtieneGet handle to the default provider.
+    if(!CryptAcquireContext(&hProv, 0, 0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) 
+      throw HRESULT(DBO_E_RUNTIME_LIC_CRYPTO_ERROR);
+    // Crea hash, hashea el password, y deriva el key
+    if(!CryptCreateHash(hProv, CALG_MD5, 0, 0, &hHash)) 
+      throw HRESULT(DBO_E_RUNTIME_LIC_CRYPTO_ERROR);
+    if(!CryptHashData(hHash, (PBYTE)szPassword, sizeof(szPassword), 0)) 
+      throw HRESULT(DBO_E_RUNTIME_LIC_CRYPTO_ERROR);
+    if(!CryptDeriveKey(hProv, CALG_RC2, hHash, 0, &hKey)) 
+      throw HRESULT(DBO_E_RUNTIME_LIC_CRYPTO_ERROR);
+    // Destruye el hash.
+    CryptDestroyHash(hHash);
+    hHash = 0;
+    // aloca bufer para version decifrada, y copia el buffer
+    DWORD dwSize = ((TLicHdr*)pFM)->dwBlockSize;
+    pTempLic = new BYTE[dwSize];
+    CopyMemory(pTempLic, pFM + sizeof(TLicHdr), dwSize);
+    // decifra
+    if(!CryptDecrypt(hKey, 0, true, 0, pTempLic, &dwSize)) 
+      throw HRESULT(DBO_E_RUNTIME_LIC_CRYPTO_ERROR);
+    //
+    //
+    //
+    // AQUI COMIENZA LA DECISION 
+    //
+    SYSTEMTIME st;
+    DATE       dateNow;
+    TLicense2* pL = (TLicense2*)pTempLic;
+    
+#define VENC  ((DATE)((pL->dateN1 + pL->dateN2) / 2))
+#define TRIAL ((DATE)(pL->dateN2 - VENC))
 
-      SYSTEMTIME st;
-      DATE       dateNow;
-      TLicense2* pL = (TLicense2*)pTempLic;
-
-#define VENC  (DATE)((pL->dateN1 + pL->dateN2) / 2)
-#define TRIAL (DATE)(pL->dateN2 - VENC)
-
-      GetLocalTime(&st);
-      
-      if (!SystemTimeToVariantTime(&st, &dateNow))
-	throw 0;
-
-      // VENCIMIENTO FORZADO
-      if (0.0 < VENC)
-	if (dateNow < VENC) // ESTO ESTA MAL!!!!! DEBE SER >=
-	  // deny now!
-	  throw 0; 
+    GetLocalTime(&st);
+    
+    if (!SystemTimeToVariantTime(&st, &dateNow))
+      throw HRESULT(DBO_E_RUNTIME_LIC_ERROR);
+    
+    // VENCIMIENTO FORZADO
+    if (0.0 < VENC && dateNow >= VENC) 
+      // deny now!
+      throw HRESULT(DBO_E_RUNTIME_LIC_EXPIRED); 
        
-      // TRIAL
-     if (0.0 < TRIAL)
-       if (dateNow < TRIAL)
-	 fLicValida = true;
+    // TRIAL
+    if (0.0 < TRIAL && dateNow < TRIAL)
+      resultado = NOERROR;
 
-     // DOMAIN
-     if (!fLicValida && 0 != pL->szDomainName[0])
-       {
-	 NET_API_STATUS      nas;
-	 // obtain the PDC computer name of the supplied domain name (vet GetAnyDC
-	 nas = NetGetDCName(NULL, WIDE(pL->szDomainName), (LPBYTE*)&pDC);
-	 //nas = NetGetDCName(NULL, TString(pL->szDomainName), (LPBYTE*)&pDC);
-	 if(nas != NERR_Success) 
-	   throw 0;
-	 
-	 nas = NetUserModalsGet(pDC, 2, (LPBYTE *)&pUmi2);
-	 if(nas != NERR_Success) 
-	   throw 0;
-	 
-	 if(!IsValidSid((PSID)pL->byDomainSidData))
-	   throw 0;
-
-	 if (EqualSid(pUmi2->usrmod2_domain_id, (PSID)pL->byDomainSidData))
-	   fLicValida = true;
-       }
-
-     // DENY
-     
-     // if (dateNow < ((TLicense*)pTempLic)->dateVencimiento)
-     //fLicValida = true;
-
-      // AQUI TERMINO LA DECISION
-      //
-      //
-      //
-    }
-  catch (...)
-    {
-      // algo fallo REPROBO!
-      fLicValida = false; // realmente innecesario
-    }
-
+    // DOMAIN
+    if (FAILED(resultado) && 0 != pL->szDomainName[0]) {
+      NET_API_STATUS nas;
+      // obtain the PDC computer name of the supplied domain name (ver GetAnyDC)
+      nas = NetGetDCName(NULL, WIDE(pL->szDomainName), (LPBYTE*)&pDC);
+      if(nas != NERR_Success) 
+	throw HRESULT(DBO_E_RUNTIME_LIC_BAD_DOMAIN);
+	
+      nas = NetUserModalsGet(pDC, 2, (LPBYTE *)&pUmi2);
+      if(nas != NERR_Success) 
+	throw HRESULT(DBO_E_RUNTIME_LIC_BAD_DOMAIN);
+	
+      if(!IsValidSid((PSID)pL->byDomainSidData))
+	throw HRESULT(DBO_E_RUNTIME_LIC_BAD_DOMAIN);
+	
+      if (EqualSid(pUmi2->usrmod2_domain_id, (PSID)pL->byDomainSidData))
+	resultado = NOERROR;
+    }	
+    // AQUI TERMINO LA DECISION
+    //
+    //
+    //
+  }
+  catch (HRESULT hr) {
+    resultado = hr; 
+  }
+  catch (...) {
+    // algo fallo REPROBO!
+    resultado = DBO_E_RUNTIME_LIC_ERROR;
+  }
   // liberacion de recursos
   delete [] pTempLic;
   // libera el view
@@ -390,7 +309,7 @@ LicValidate()
   if(0 != hProv) 
     CryptReleaseContext(hProv, 0);
   // retorna el resultado de la validacion
-  return fLicValida;
+  return resultado;
 }
 
 bool
@@ -399,7 +318,7 @@ LicFastValidate()
   return true;
 }
 
-#if __CREATELIC__
+#if 0
 
 void  
 CreateLic2()
@@ -442,8 +361,8 @@ CreateLic2()
   // 7/05/98
 
   // TRIAL
-  st.wYear         = 1998;
-  st.wMonth        = 11; 
+  st.wYear         = 2001;
+  st.wMonth        = 04; 
   st.wDayOfWeek    = 0; 
   st.wDay          = 6; 
   st.wHour         = 10; 
@@ -459,6 +378,7 @@ CreateLic2()
   lic.dateN1 = venc - trial;
   lic.dateN2 = venc + trial;
 
+
   // DOMINIO
   NET_API_STATUS      nas;
   LPWSTR              pDC;
@@ -466,6 +386,7 @@ CreateLic2()
   string              sDomName("RED_ORIGENES");
   
   bool fError = false;
+#if 0
   try
     {
       // copia el nombre del dominio
@@ -506,7 +427,7 @@ CreateLic2()
 
   if (fError)
      return;
-
+#endif
   //
   // ENCRIPCION
   //
@@ -610,105 +531,4 @@ CreateLic2()
 #endif
 
 //-----------------------------------------------
-
-#if __RSA__
-
-void
-KeyGenExample(R_RSA_PUBLIC_KEY *publicKey,
-	     R_RSA_PRIVATE_KEY *privateKey)
-{
-  R_RANDOM_STRUCT randomStruct;
-  R_RSA_PROTO_KEY protoKey;
-  int status;
-  /* Initialise random structure ready for keygen */
-  R_RandomCreate(&randomStruct);
-  /* Initialise prototype key structure */
-  protoKey.bits=512;
-  protoKey.useFermat4 = 1;
-  /* Generate keys */
-  status = R_GeneratePEMKeys(publicKey, privateKey, &protoKey, &randomStruct);
-  if (status)
-    {
-      //printf("R_GeneratePEMKeys failed with %d\n", status);
-      return;
-    }
-}
-
-
-void RSAExample()
-{
-  R_RSA_PUBLIC_KEY  publicKey;
-  R_RSA_PRIVATE_KEY privateKey;
-  unsigned char demostring[] = "Test string for RSA functions #1";
-  unsigned char encryptedString[MAX_RSA_MODULUS_LEN+2];
-  unsigned char decryptedString[256];
-  int status;
-  unsigned int encryptedLength, decryptedLength;
-  /* Generate keys */
-  KeyGenExample(&publicKey, &privateKey);
-  /* Encrypt string with private key */
-  status = RSAPrivateEncrypt((unsigned char *)encryptedString, 
-			     &encryptedLength,
-			     (unsigned char *)demostring,
-			     /*(unsigned int)*/strlen(demostring), 
-			     &privateKey);
-  if (status)
-    {
-      //printf("RSAPrivateEncrypt failed with %x\n", status);
-      return;
-    }
-  /* Decrypt with public key */
-  status = RSAPublicDecrypt(decryptedString, &decryptedLength, encryptedString,
-			    encryptedLength, &publicKey);
-  if (status)
-    {
-      //      printf("RSAPublicDecrypt failed with %x\n", status);
-      return;
-    }
-
-/* Display decrypted string */
-  decryptedString[decryptedLength+1] = (char) "\0";
-  //printf("Decrypted string: %s\n", decryptedString);
-}
-
-void RSAExample2()
-{
-  R_RANDOM_STRUCT randomStruct;
-  R_RSA_PUBLIC_KEY publicKey;
-  R_RSA_PRIVATE_KEY privateKey;
-  char demostring[] = "Test string for RSA functions #2";
-  char encryptedString[MAX_RSA_MODULUS_LEN+2];
-  unsigned char decryptedString[256];
-  int status;
-  unsigned int encryptedLength, decryptedLength;
-  /* Generate keys */
-  KeyGenExample(&publicKey, &privateKey);
-  /* Initialise Random structure */
-  R_RandomCreate(&randomStruct);
-  /* Encrypt string with public key */
-  status = RSAPublicEncrypt(encryptedString, &encryptedLength, demostring,
-			    strlen(demostring), &publicKey, &randomStruct);
-  if (status)
-    {
-      //      printf("RSAPublicEncrypt failed with %x\n", status);
-      return;
-    }
-  /* Decrypt with public key */
-  status = RSAPrivateDecrypt(decryptedString, &decryptedLength,
-			     encryptedString, encryptedLength, &privateKey);
-  if (status)
-    {
-      //      printf("RSAPrivateDecrypt failed with %x\n", status);
-      return;
-    }
-  /* Display decryp ted string */
-  decryptedString[decryptedLength+1] = (char) "\0";
-  //  printf("Decrypted string: %s\n", decryptedString);
-}
-
-//-----------------------------------------------
-#endif
-
-
-
 

@@ -24,6 +24,15 @@ public:
   virtual ~IIParam() {}
 };
 
+// interfaz para procesar los PieceWise
+class IPWParam
+{
+public:
+  virtual void Start() = 0;
+  virtual void RequestPiece(IDispatch* pSink) = 0;
+  virtual void Finalize() = 0;
+};
+
 // abstract factory del param genérico
 extern void
 CreateNumericParam(IICursor& cursor, sword Wich, AP<IIParam>& rapParam);

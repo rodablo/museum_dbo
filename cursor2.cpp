@@ -429,20 +429,43 @@ TCursor::_UndefineColumn(string& name)
 void
 TCursor::_Execute(VARIANT& N, VARIANT& Offset)
 {
-  short n;
+  short n = 0, offset = 0;
+  // valida y obtiene N 
+  if (VT_ERROR != V_VT(&N) && !GetShortFromVariant(n, N))
+    /* N type mismatch */;
+  // valida y obtiene Offset
+  if (VT_ERROR != V_VT(&Offset) && !GetShortFromVariant(offset, Offset))
+    /* pendiente Offset type mismatch */;
+  // inicializa si es piecewise
+  if (0 != m_pPWParam)
+    m_pPWParam->Start();
+  // loop x si es piecewise
+  while (1) {
+    // ejecuta
+    if (0 != n)
+      ::oexn(&m_cda, n, offset);
+    else
+      ::oexec(&m_cda);
+    // evalua el resultado
+    switch (m_cda.rc) {    
+    case 0:
+      if (0 != m_pPWParam)
+	m_pPWParam->Finalize();
+      goto break_break; 
 
-  if (GetShortFromVariant(n, N))
-    {
-      short offset = 0;
-      // 
-      if (VT_ERROR != V_VT(&Offset))
-	GetShortFromVariant(offset, Offset);	
-      //
-      CHECK_OCI(oexn(&m_cda, n, offset));    
-    }	
-  else
-    // 1. Ejecuta y chequea errores
-    CHECK_OCI(oexec(&m_cda));
+    case 3129: //OCI_MORE_INSERT_PIECES
+      if (0 != m_pPWParam) 
+  	m_pPWParam->RequestPiece(m_conection.Sink());
+      break;
+
+    case 1403:
+    default:
+      if (0 != m_pPWParam)
+	m_pPWParam->Finalize();
+      RAISE_OCI(m_cda.rc);
+    }
+  }
+ break_break:
   //
   m_fIsDirty = false;
 }
@@ -492,22 +515,41 @@ TCursor::_Fetch(bool fExecute, VARIANT_BOOL* retv)
   for_each(m_vCols.begin(),  m_vCols.end(),  FPreWork<AP<IIColumn> >());    
   for_each(m_vParam.begin(), m_vParam.end(), FPreWork<AP<IIParam> >());
 
-  // 2. Hace el Fetch
-  if (fExecute/*0 == _lastRpco*/)
-    ::oexfet(&m_cda, m_ulRowsXFetch, 0, 0);
-  else
-    ::ofen  (&m_cda, m_ulRowsXFetch);
-
-  // Evalua que paso
-  switch (m_cda.rc)
-    {
+  // si es necesario ejecuta
+  if (fExecute)
+    CHECK_OCI(::oexec(&m_cda));
+  // al fetch
+  bool piecewise = false;
+  bool first = true;
+  while (1) {
+    // hace el fetch
+    ::ofen(&m_cda, m_ulRowsXFetch);
+    switch (m_cda.rc) {
     case 0:
+      // entrega la ultima pieza si la hubiese
+      if (piecewise && 0 != m_pPWColumn) 
+  	m_pPWColumn->DeliverPiece(m_conection.Sink());
+      //
       ChangeState(EQryFetched_TheInstance());
+      goto break_break;
+
+    case 3130: // OCI_MORE_FETCH_PIECES 
+      // chequeo
+      /*if (0 == m_pPWColumn)  
+	internal;*/
+      // entrega la data si no es la primera pasada
+      piecewise = true;
+      if (first)
+	first = false;
+      else 
+	m_pPWColumn->DeliverPiece(m_conection.Sink());
+      // seprepara para el siguiente chunk
+      m_pPWColumn->Prepare4NextPiece();
       break;
 
     case 1403:
       ChangeState(EQryEOF_TheInstance());
-      break;
+      goto break_break;
     
     default:
       // previo a mandar todo al cuerno...
@@ -515,7 +557,8 @@ TCursor::_Fetch(bool fExecute, VARIANT_BOOL* retv)
       // Propaga el error
       RAISE_OCI(m_cda.rc);
     }
-
+  }
+ break_break:
   //
   m_fIsDirty = false;
 
@@ -556,8 +599,9 @@ TCursor::_Clear()
 void 
 TCursor::_Close()
 {
-  //  
-  CHECK_OCI(oclose(&m_cda));
+  //  no hay quien atrape esto cuando esta en piecewise
+  //CHECK_OCI(oclose(&m_cda));
+  oclose(&m_cda);
   //
   ChangeState(EClosed_TheInstance());
 }

@@ -4,9 +4,11 @@
 #include "isession.hxx"
 
 class IIColumn;
+class IPWColumn;
 class IIParam;
+class IPWParam;
 
-class IICursor : public Cursor
+class IICursor : public _Cursor
 {
 public:
   //
@@ -26,6 +28,10 @@ public:
   virtual bool      IsStrict() = 0;
   virtual HRESULT   NewEnumColumns(IUnknown** ppIUnknown) = 0;
   virtual HRESULT   NewEnumParams(IUnknown** ppIUnknown) = 0;
+  //
+  virtual bool	    HasSink() = 0;
+  virtual void	    SetPWColumn(IPWColumn* pIPWColumn) = 0;
+  virtual void	    SetPWParam(IPWParam* pIPWParam) = 0;
   //
   virtual ~IICursor(){}
 };

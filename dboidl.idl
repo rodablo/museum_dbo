@@ -23,31 +23,19 @@
 // #define __LIB_VERSION_MINOR__ 1
 // cpp_quote("#define __LIB_VER_MINOR__ 1")
 
-cpp_quote("#define __LIBID__ LIBID_DBO21")
+//cpp_quote("#define __LIBID__ LIBID_DBO21")
 
-#if __ALTERNATE
-#define UUID_LIBID   		"-ef82-11cf-b8c6-00a02454eec8"
-#define UUID_VARENUM		"-ef82-11cf-b8c6-00a02454eec8"
-#define UUID_PARAM		"-ef82-11cf-b8c6-00a02454eec8"
-#define UUID_COLUMN		"-ef82-11cf-b8c6-00a02454eec8"
-#define UUID_PARAMS		"-ef82-11cf-b8c6-00a02454eec8"
-#define UUID_COLUMNS		"-ef82-11cf-b8c6-00a02454eec8"
-#define UUID_CURSOR		"-ef82-11cf-b8c6-00a02454eec8"
-#define UUID__SESSION		"-ef82-11cf-b8c6-00a02454eec8"
-#define UUID_AUXILIAR 	   	"-ef82-11cf-b8c6-00a02454eec8"
-#define UUID_CLSID_SESSION 	"-ef82-11cf-b8c6-00a02454eec8"
-#else
 #define UUID_LIBID   		__UUID_LIBID
-#define UUID_VARENUM		"ca43d291-ef82-11cf-b8c6-00a02454eec8"
-#define UUID_PARAM		"ca43d290-ef82-11cf-b8c6-00a02454eec8"
-#define UUID_COLUMN		"ca43d28c-ef82-11cf-b8c6-00a02454eec8"
-#define UUID_PARAMS		"ca43d28f-ef82-11cf-b8c6-00a02454eec8"
-#define UUID_COLUMNS		"ca43d28e-ef82-11cf-b8c6-00a02454eec8"
-#define UUID_CURSOR		"ca43d28a-ef82-11cf-b8c6-00a02454eec8"
-#define UUID__SESSION		"ca43d28b-ef82-11cf-b8c6-00a02454eec8"
-#define UUID_AUXILIAR 	   	"ca43d299-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_VARENUM		"ca43d391-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_PARAM		"ca43d390-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_COLUMN		"ca43d38c-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_PARAMS		"ca43d38f-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_COLUMNS		"ca43d38e-ef82-11cf-b8c6-00a02454eec8"
+#define UUID__CURSOR		"ca43d38a-ef82-11cf-b8c6-00a02454eec8"
+#define UUID__SESSION		"ca43d38b-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_AUXILIAR 	   	"ca43d399-ef82-11cf-b8c6-00a02454eec8"
+#define UUID_CURSOR_EVENT   	"ca43d3a0-ef82-11cf-b8c6-00a02454eec8"
 #define UUID_CLSID_SESSION 	__UUID_CLSID
-#endif
 
 /**
 *** MODIFICACIONES
@@ -66,11 +54,11 @@ cpp_quote("#define __LIBID__ LIBID_DBO21")
 ***/
   [
    uuid(UUID_LIBID),
-   helpfile(__HLP_NAME_S),
+   helpfile(STRINGIFY(__HLP_FNAME)),
    helpcontext(IDH_CONTENIDO),
-   helpstring("DBO 2.1"),
+   helpstring(STRINGIFY(__PROGID)),
    lcid(__LIB_LCID),
-   version(__LIB_VERSION)
+   version(__LIB_VER)
   ]
 library __PROGID
 {
@@ -113,6 +101,16 @@ library __PROGID
       //dboVError        = VT_ERROR,
       //dboVByte         = VT_UI1/*VT_BYTE*/,
       //dboVCursor       = 500
+
+      [helpcontext(IDH_DBOVARENUM_CURSOR), helpstring("DBO Cursor Object.")]
+       dboVCursor  = 500,
+
+      [helpcontext(IDH_DBOVARENUM_PIECEWISE_LONG), helpstring("Oracle LONG.")]
+       dboVPiecewiseLong = 501,
+
+      [helpcontext(IDH_DBOVARENUM_PIECEWISE_BINARY), helpstring("Oracle RAW, LONG RAW.")]
+       dboVPiecewiseBinary = 502
+
     }
   dboVarType;
 
@@ -220,7 +218,10 @@ library __PROGID
     
       [id(16), propget, helpcontext(IDH_COLUMN_PRECISION),
       helpstring("texto explicativo.")]
-	HRESULT Precision
+	HRESULT Precision//        [id(201), propput] 
+//  	HRESULT Fire([in] long nID);
+//        [id(202), propput] 
+//  	HRESULT ID([in] int n);
 	([out, retval] short* retv);
     
       [id(17), propget, helpcontext(IDH_COLUMN_SCALE),
@@ -354,18 +355,46 @@ library __PROGID
       	([out, retval] IUnknown** ppIUnknown);
     }
 
+
 /**
-*** IID_ICursor
+*** IID_CursorEvent 
+***/
+#define DISPID_CURSOR_EVENT_FETCH_PIECE 204
+cpp_quote("#define DISPID_CURSOR_EVENT_FETCH_PIECE 204")
+#define DISPID_CURSOR_EVENT_INSERT_PIECE 205
+cpp_quote("#define DISPID_CURSOR_EVENT_INSERT_PIECE 205")
+  [
+   uuid(UUID_CURSOR_EVENT),
+   helpstring("Eventos del Cursor.")//,
+  ]
+  dispinterface CursorEvent 
+    {
+    properties:
+    methods:
+      [id(DISPID_CURSOR_EVENT_FETCH_PIECE), 
+      helpstring("Entrega 1 segmento del una columna LONG o LONG RAW.")]
+	void FetchPiece([in] VARIANT_BOOL FirstPiece,
+			[in] long Row, [in] long Index, 
+			[in] VARIANT Piece);
+      [id(DISPID_CURSOR_EVENT_INSERT_PIECE), 
+      helpstring("Requiere un bloque de datos para una columna LONG o LONG RAW.")]
+	void InsertPiece([in, out] VARIANT_BOOL* LastPiece,
+			 [in] long Row, [in] long Index, 
+			 [out] VARIANT* Piece);
+    }
+
+/**
+*** IID__ICursor
 ***/
   [
-   uuid(UUID_CURSOR),
+   uuid(UUID__CURSOR),
    helpcontext(IDH_CURSOR),
    helpstring("Cursor."),
    object,
    pointer_default(unique),
    dual
   ]
-    interface Cursor : IDispatch
+    interface _Cursor : IDispatch
     {
       /// PROPIEDADES
       [id(10), propget, helpcontext(IDH_CURSOR_EOF),
@@ -457,7 +486,7 @@ library __PROGID
 	helpstring("texto explicativo.")]
 	  HRESULT BindCursor
 	  ([in] BSTR Wich, 
-	   [out, retval] Cursor** retv);
+	   [out, retval] _Cursor** retv);
 
 	[id(115), helpcontext(IDH_CURSOR_FETCH),
 	helpstring("texto explicativo.")]
@@ -468,7 +497,7 @@ library __PROGID
 	helpstring("texto explicativo.")]
 	  HRESULT Execute([in, optional] VARIANT N, [in, optional] VARIANT Offset);
 
-	[restricted]
+        [restricted]
 	  HRESULT Dummy1();
 	[restricted]
 	  HRESULT Dummy2();
@@ -567,7 +596,7 @@ library __PROGID
         
 	[id(115), helpcontext(IDH_SESSION_CREATECURSOR),
 	helpstring("Crea un instancia de Cursor.")]
-	  HRESULT CreateCursor([out, retval] Cursor** retval);
+	  HRESULT CreateCursor([out, retval] _Cursor** retval);
 
 	[restricted]
 	  HRESULT Dummy1();
@@ -585,7 +614,7 @@ library __PROGID
   [
    uuid(UUID_AUXILIAR),  
    helpstring("Auxiliar"), helpcontext(IDH_AUXILIAR), 
-   dllname(__DLL_NAME_S)
+   dllname(STRINGIFY(__DLL_FNAME))
   ] 
     module Auxiliar
     { 
@@ -604,12 +633,27 @@ library __PROGID
   [
    uuid(UUID_CLSID_SESSION),
    helpcontext(IDH_SESSION),
-   helpstring("Session.")/*, licensed*/
+   helpstring("Session.")
+   //, licensed
   ]
     coclass Session
     {
       [default] interface _Session;
-                
+      
+      [source] dispinterface CursorEvent;
+
+      interface IDispatch;
+    }
+
+  [
+   uuid(ca43d289-ef82-11cf-b8c6-00a02454eec8),
+  ]
+    coclass Cursor
+    {
+      [default] interface _Cursor;
+      
+      [source] dispinterface CursorEvent;
+
       interface IDispatch;
     }
 }

@@ -5,70 +5,37 @@
 #include "pch.hxx"
 #include "dbo.hxx"
 
-
 /**
 *** TConnectionPoint
 ***/
-class TConnectionPoint : public IConnectionPoint
-{
-public:
-  TConnectionPoint(TSimpleConnectionPoint * pCPC);
-  ~TConnectionPoint();
-  //IUnknown 
-  STDMETHODIMP         QueryInterface(REFIID riid, LPVOID* ppvObj);
-  STDMETHODIMP_(ULONG) AddRef() { return m_pCPC->AddRef(); } 
-  STDMETHODIMP_(ULONG) Release(){ return m_pCPC->Release();}
-  //IConnectionPoint 
-  STDMETHODIMP GetConnectionInterface(IID * pIID);
-  STDMETHODIMP GetConnectionPointContainer(IConnectionPointContainer ** ppCPC);
-  STDMETHODIMP Advise(LPUNKNOWN pUnk, DWORD * pdwCookie);
-  STDMETHODIMP Unadvise(DWORD dwCookie);
-  STDMETHODIMP EnumConnections(IEnumConnections ** ppEnum);
-
-private:
-  TSimpleConnectionPoint* m_pCPC; 
-  IID	      	m_iid;
-  const DWORD   m_cookie;
-};
-  
-
-
-
-//CConnectionPoint implementation
-
-/*
- * CConnectionPoint::CConnectionPoint
- * CConnectionPoint::~CConnectionPoint
- *
- * Parameters (Constructor):
- *  pObj            PCBeeper of the object we're in.  We can
- *                  query this for the IConnectionPointContainer
- *                  interface we might need.
- */
-//This object only supports one connection per point
-
-#define ADVISEKEY   72388       //Arbitrary
-
-
-TConnectionPoint::TConnectionPoint(TSimpleConnectionPoint * pCPC)
-  :  m_pCPC(pCPC), m_cookie(2)
+TConnectionPoint::TConnectionPoint(TConection * pC)
+  :  m_pC(pC), m_cookie(77777)
 {
 }
 
 TConnectionPoint::~TConnectionPoint(void)
 {
-  //ReleaseInterface(m_pObj->m_pIPropNotifySink);
+  ReleaseSink();
 }
 
+STDMETHODIMP_(ULONG) 
+TConnectionPoint::AddRef()  
+{ 
+  return m_pC->AddRef(); 
+} 
+
+STDMETHODIMP_(ULONG) 
+TConnectionPoint::Release() 
+{ 
+  return m_pC->Release();
+}
 
 STDMETHODIMP 
 TConnectionPoint::QueryInterface(REFIID riid, LPVOID * ppvObj)
 {
   if (0 == ppvObj)
     return ResultFromScode(E_INVALIDARG);
-   
-  *ppvObj = 0;
-
+  //
   if (IsEqualIID(riid, IID_IConnectionPoint) ||
       IsEqualIID(riid, IID_IUnknown)) {
     // retorna retenida
@@ -77,6 +44,7 @@ TConnectionPoint::QueryInterface(REFIID riid, LPVOID * ppvObj)
     return NOERROR;
   }
   // fallo
+  *ppvObj = 0; 
   return ResultFromScode(E_NOINTERFACE);
 }
 
@@ -86,14 +54,14 @@ TConnectionPoint::GetConnectionInterface(IID * pIID)
   if (0 == pIID)
     return ResultFromScode(E_POINTER);
   // retorna el iid de la interfaz 
-  *pIID = m_pCPC->m_sinkIID;
+  *pIID = m_pC->m_iid;
   return NOERROR;
 }
 
 STDMETHODIMP 
 TConnectionPoint::GetConnectionPointContainer(IConnectionPointContainer ** ppCPC)
 {	
-  return m_pCPC->QueryInterface
+  return m_pC->QueryInterface
     (IID_IConnectionPointContainer, (LPVOID*)ppCPC);
 }
 
@@ -106,15 +74,15 @@ TConnectionPoint::Advise(LPUNKNOWN pUnkSink, DWORD *pdwCookie)
   *pdwCookie = 0;
 
   // verifica que no este conectado (solo implementa una coneccion)
-  if (0 != m_pCPC->m_rpSink)
+  if (0 != m_pC->m_pSink)
     return ResultFromScode(CONNECT_E_ADVISELIMIT);
   
   // verifica la interface (y la otiene)
-  if (FAILED(pUnkSink->QueryInterface(m_pCPC->m_sinkIID, (void**)&pSink)))
+  if (FAILED(pUnkSink->QueryInterface(m_pC->m_iid, (void**)&pSink)))
     return ResultFromScode(CONNECT_E_CANNOTCONNECT);
 
-  *pdwCookie = ADVISEKEY;
-  m_pCPC->m_rpSink = pSink;
+  *pdwCookie = m_cookie;
+  m_pC->m_pSink = pSink;
   return NOERROR;
 }
 
@@ -124,10 +92,11 @@ TConnectionPoint::Unadvise(DWORD dwCookie)
   if (0 == dwCookie)
     return ResultFromScode(E_INVALIDARG);
 
-  if (ADVISEKEY != dwCookie)
+  if (m_cookie != dwCookie)
     ResultFromScode(CONNECT_E_NOCONNECTION);
 
-  //  ReleaseInterface(m_pObj->m_pIPropNotifySink);
+  ReleaseSink();
+
   return NOERROR;
 }
 
@@ -138,45 +107,44 @@ TConnectionPoint::EnumConnections(LPENUMCONNECTIONS *ppEnum)
   return ResultFromScode(E_NOTIMPL);
 }
 
-/**
-*** TSimpleConnectionPoint
-***/
-TSimpleConnectionPoint::TSimpleConnectionPoint(LPUNKNOWN pUnkOuter, 
-					       IID sinkIID, LPDISPATCH & rpSink)
-  :  m_pUnkOuter(pUnkOuter), m_cRef(0), m_sinkIID(sinkIID), m_rpSink(rpSink)
+void 
+TConnectionPoint::ReleaseSink()
 {
-  m_pCP = new TConnectionPoint(this);
+  if (0 != m_pC->m_pSink) {
+    m_pC->m_pSink->Release();
+    m_pC->m_pSink = 0;
+  }
 }
 
-TSimpleConnectionPoint::~TSimpleConnectionPoint()
+/**
+*** TConection
+***/
+TConection::TConection(LPUNKNOWN pUnkOuter, IID iid) 
+  :  
+  m_pUnkOuter(pUnkOuter), m_cRef(0), 
+  m_iid(iid), m_pSink(0), m_cp(this)
 {
-  delete m_pCP;
+}
+
+TConection::~TConection()
+{
 }
 
 STDMETHODIMP 
-TSimpleConnectionPoint::EnumConnectionPoints(IEnumConnectionPoints ** ppEnum)  
+TConection::EnumConnectionPoints(IEnumConnectionPoints ** ppEnum)  
 {
-//    IConnectionPoint  *rgCP[CCONNPOINTS];    
-//    UINT              i;    
-//    PCEnumConnectionPoints  pEnum;    *ppEnum=NULL;    
-//    for (i=0; i < CCONNPOINTS; i++)        
-//      rgCP[i]=(IConnectionPoint *)m_rgpConnPt[i];    
-//    //Create the enumerator:  we have only one connection point.    
-//    pEnum=new CEnumConnectionPoints(this, CCONNPOINTS, rgCP);    
-//    if (NULL==pEnum)        
-//      return ResultFromScode(E_OUTOFMEMORY);    
-//    pEnum->AddRef();    
-//    *ppEnum=pEnum;    
-//    return NOERROR;
+  *ppEnum = 0;
   return ResultFromScode(E_NOTIMPL);
 } 
 
 STDMETHODIMP 
-TSimpleConnectionPoint::FindConnectionPoint(REFIID riid, IConnectionPoint ** ppCP)   
+TConection::FindConnectionPoint(REFIID riid, IConnectionPoint ** ppCP)   
 {
+  if (0 == ppCP)
+    return ResultFromScode(E_INVALIDARG);
   *ppCP = 0;    
-  if (IsEqualIID(riid, m_sinkIID)) 
-    return m_pCP->QueryInterface(IID_IConnectionPoint, (void**)ppCP);        
+  if (IsEqualIID(riid, m_iid)) 
+    return m_cp.QueryInterface(IID_IConnectionPoint, (void**)ppCP);        
   // fallo
   return ResultFromScode(E_NOINTERFACE);    
 }      

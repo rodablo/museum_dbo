@@ -11,9 +11,9 @@
 1 icon dbo21.ico
 
 // mc
-#include "c:\temp\object\dbomc.rc"
-//
-#include "c:\temp\object\versioninfo.rc"
+#include "dbomc.rc"
+// versioninfo
+#include "versioninfo.rc"
 
 
 

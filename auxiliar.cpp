@@ -14,7 +14,7 @@
 int
 BuildNumber()
 {
-  return (int)(__VERSION_BUILD);
+  return (int)(__VER_RELEASE);
 }
 
 /**

@@ -52,13 +52,15 @@ ECursor* EQryEOF_TheInstance();
 *** Cursor
 ***/
 class TCursor
-  :  public TIDISPATCH<IICursor, &IID_Cursor>
+  :  public TIDISPATCH<IICursor, &IID__Cursor>
 {
   friend class EClosed; friend class EOpen; friend class EDeferredParse; friend class EQryParsed; 
   friend class EQryExecuted; friend class EQryFetched; friend class EQryEOF;
   friend class EPLParsed; friend class EPLExecuted; friend class EPLEOF;
   friend void  CreateCursor(IISession& session, IICursor*& rpCursor);  
 public:
+  /// redefine 
+  STDMETHODIMP QueryInterface(REFIID riid, LPVOID* ppvObj);
   /// Cursor Propiedades
   STDMETHOD(get_EOF)(VARIANT_BOOL* retv);
   STDMETHOD(get_RowCount)(long* retv);
@@ -81,7 +83,7 @@ public:
 			 dboVarType AsType, VARIANT StringLength, Param** retv);
   HRESULT __stdcall BindArray(BSTR Wich, short ArraySize, 
 			      dboVarType AsType, VARIANT StringLength, Param** retv);
-  HRESULT __stdcall BindCursor(BSTR Wich, Cursor** retv);
+  HRESULT __stdcall BindCursor(BSTR Wich, _Cursor** retv);
   STDMETHOD(Fetch)(VARIANT_BOOL* retv);
   STDMETHOD(Execute)(VARIANT N, VARIANT Start);
 
@@ -91,7 +93,8 @@ public:
   HRESULT __stdcall Dummy4() {return 0;}
 
   // IICursor
-  operator Cda_Def*()                {return &m_cda;}  //operator Lda_Def*() {return  m_IISession;}
+  operator Cda_Def*()                {return &m_cda;}  
+  //operator Lda_Def*() {return  m_IISession;}
   bool     IsStrict()                {return _fStrict; }
   //
   Cda_Def*  GetCDA()                 {return &m_cda;}
@@ -107,6 +110,9 @@ public:
   void      SetDirtyFlag()           {m_fIsDirty = true;}
   HRESULT   NewEnumColumns(IUnknown** ppIUnknown);
   HRESULT   NewEnumParams(IUnknown** ppIUnknown);
+  bool	    HasSink()		     {return m_conection.HasSink(); }
+  void	    SetPWColumn(IPWColumn* pIPWColumn) {m_pPWColumn = pIPWColumn; }
+  void	    SetPWParam(IPWParam* pIPWParam) {m_pPWParam = pIPWParam; }
 
   // TCursor
   HRESULT  IDispatchSEH();
@@ -168,6 +174,11 @@ protected:
   V_AP_IIPARAM           m_vParam; 
   MAP_NAME_2_P_IIPARAM   m_mapName2P;
   MAP_NUMBER_2_P_IIPARAM m_mapNumber2P;
+
+  // Eventos
+  TConection 		 m_conection;
+  IPWColumn*		 m_pPWColumn;
+  IPWParam*		 m_pPWParam;
 };
 
 inline

@@ -75,6 +75,7 @@ public:
   // TGParam
   HRESULT IDispatchSEH();
   void    SetDirtyFlag()      { m_IICursor.SetDirtyFlag(); }
+  IICursor& GetIICursor() const { return m_IICursor; } // esto hace inutil SetDirtyFlag
   //
   TGParam(IICursor& rIICursor);
   virtual ~TGParam();

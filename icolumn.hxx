@@ -25,6 +25,16 @@ public:
   //
 };
 
+// interfaz para procesar los PieceWise
+class IPWColumn
+{
+public:
+  virtual void Prepare4NextPiece() = 0;
+  virtual void DeliverPiece(IDispatch* pSink) = 0;
+};
+
+
+
 // abstract factory
 extern bool 
 CreateColumn(IICursor& cursor, sword pos, IIColumn*& rpColumn);

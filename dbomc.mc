@@ -366,6 +366,22 @@ Error Interno convirtiendo DATE.
 MessageId=
 Severity=Error
 Facility=RUNTIME
+SymbolicName=DBO_E_RUNTIME_PIECEWISE_NEED_EVENTS
+Language=Neutral
+Operaciones piecewise requiren Eventos.
+.
+
+MessageId=
+Severity=Error
+Facility=RUNTIME
+SymbolicName=DBO_E_RUNTIME_PIECEWISE_INSERT_TYPE_MISMATCH_S
+Language=Neutral
+Piecewise insert type mismatch, <%1> spected.
+.
+
+MessageId=
+Severity=Error
+Facility=RUNTIME
 SymbolicName=DBO_E_RUNTIME_END
 Language=Neutral
 runtime end.
@@ -415,40 +431,49 @@ No se pudo cargar la libreria de tipos.
 .
 
 
+;/**
+;*** LIC
+;***/
+MessageId=0x300
+Severity=Error
+Facility=RUNTIME
+SymbolicName=DBO_E_RUNTIME_LIC_NOT_LOADED
+Language=Neutral
+DBO_E_RUNTIME_LIC_NOT_LOADED
+.
+
+MessageId=
+Severity=Error
+Facility=RUNTIME
+SymbolicName=DBO_E_RUNTIME_LIC_ERROR
+Language=Neutral
+DBO_E_RUNTIME_LIC_ERROR
+.
+
+MessageId=
+Severity=Error
+Facility=RUNTIME
+SymbolicName=DBO_E_RUNTIME_LIC_CRYPTO_ERROR
+Language=Neutral
+DBO_E_RUNTIME_LIC_CRYPTO_ERROR
+.
+
+MessageId=
+Severity=Error
+Facility=RUNTIME
+SymbolicName=DBO_E_RUNTIME_LIC_EXPIRED
+Language=Neutral
+DBO_E_RUNTIME_LIC_EXPIRED
+.
+
+MessageId=
+Severity=Error
+Facility=RUNTIME
+SymbolicName=DBO_E_RUNTIME_LIC_BAD_DOMAIN
+Language=Neutral
+DBO_E_RUNTIME_LIC_BAD_DOMAIN
+.
 
 
 
 
-
-;//   const HRESULT DS_E_INTERNO	 		= DS_E_BASE + 0;	// error Interno
-;//   const HRESULT DS_E_EXCEPTION 		= DS_E_BASE + 1;	// OS exception
-;//   const HRESULT DS_E_PROPRO	 		= DS_E_BASE + 2;	// propiedad read only
-;//   const HRESULT DS_E_OLDDATA	 		= DS_E_BASE + 3;	// data de un fetch anterior
-;//   const HRESULT DS_E_BADCOLN	 		= DS_E_BASE + 4;	// bad col #, Name
-;//   const HRESULT DS_E_NOCON	 		= DS_E_BASE + 5;	// No esta conectado
-;//   const HRESULT DS_E_PRECON	 		= DS_E_BASE + 6;	// Ya estaba conectado
-;//   const HRESULT DS_E_RANGO	 		= DS_E_BASE + 7;	// Fuera de rango
-;//   const HRESULT DS_E_CONVERTTOANSI 	= DS_E_BASE + 8;	// Problemas convirtiendo
-;//   const HRESULT DS_E_SEQUENCE 		= DS_E_BASE + 9;	// Fuera de secuencia
-;//   const HRESULT DS_E_CREATEWIN		= DS_E_BASE + 10;	// No puedo crear el window
-;//   const HRESULT DS_E_LOADTYPLIBFAIL	= DS_E_BASE + 11;	// No pudo calgar la libreria de tipos
-;//   const HRESULT DS_E_CREATESQL		= DS_E_BASE + 12;	// No se puede crear un SQL sin conectar
-;//   const HRESULT DS_E_VENCIO			= DS_E_BASE + 13;	// No se puede crear un SQL sin conectar
-;//   const HRESULT DS_E_LAST		 		= DS_E_BASE + 14;	// Ultimo error + 1
-;//   STRINGTABLE DISCARDABLE
-;//   BEGIN
-;//       2000	"Error Interno."
-;//       2001	"Excepción OS."
-;//;      2002	"Propiedad temporalmente Read/Only."
-;//;      2003    "La información en el Array es de un Fetch anterior."
-;//       2004	"Número de columna inválido."
-;//       2005	"No esta conectado."
-;//       2006	"Ya estaba conectado."
-;//       2007	"Fuera de Rango"
-;//       2008	"Error convirtiendo string a ANSI"
-;//       2009	"Fuera de secuencia ¿?."
-;//       2010	"No se pudo crear la ventana."
-;//       2011	"No se pudo cargar la libreria de tipos (ds.tlb)."
-;//       2012	"No es posible crear un IDboSql si no esta Conectado."
-;//       2013	"Vencio."
-;//   END

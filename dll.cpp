@@ -25,7 +25,7 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hInst = 0;
 ULONG     g_cLock = 0;
 ULONG     g_cObj  = 0;
-char      g_szModuleName[] = __DLL_NAME_S; // inicializar desde GetModuleName()
+char      g_szModuleName[] = STRINGIFY(__DLL_FNAME); // inicializar desde GetModuleName()
 
 extern void __stdcall LicLoad();
 extern void __stdcall LicFree();
@@ -39,12 +39,11 @@ DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID /*lpReserved*/)
 {
   if (DLL_PROCESS_ATTACH == fdwReason)
     {
-      //	DebugBreak();  //asm { int 0x03 }
-      LicLoad();
       // 
       extern void Throw(unsigned int code, _EXCEPTION_POINTERS* pEP);
       _set_se_translator(Throw);
-
+      //	DebugBreak();  //asm { int 0x03 }
+      LicLoad();
       // globlaliza
       g_hInst = hInstance;
       // bye DLL_THREAD_ATTACH and DLL_THREAD_DETACH
@@ -71,16 +70,14 @@ DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID /*lpReserved*/)
     {
       // libera typelib si lo hubiese
       extern LPTYPELIB g_pTLib;
-      if (0 !=  g_pTLib)
-	{
-	  g_pTLib->Release();
-	  g_pTLib = 0;
-	}
+      if (0 !=  g_pTLib) {
+	g_pTLib->Release();
+	g_pTLib = 0;
+      }
       //
       LicFree();
       //
       return true;
-      //      return UnregisterClass("DBOWndClass", hInstance);
     }
   else
     return false;
@@ -96,24 +93,20 @@ DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppvObj)
  __try {
     // pesimismo inicial
     *ppvObj = 0;
-    // Vencimiento
-    //if (a())
-    //  return CLASS_E_CLASSNOTAVAILABLE;
     // valida la clase
     if (!IsEqualCLSID(rclsid, CLSID_Session))
       return CLASS_E_CLASSNOTAVAILABLE;
     // crea el classfactory
-    //TSessionCF* pSCF = new TSessionCF;
-    IClassFactory* pSCF = TSessionCF_TheInstance();
+    IClassFactory* pSCF;
+    CreateSessionCF(pSCF);
     if (0 == pSCF)
       return CLASS_E_CLASSNOTAVAILABLE;
     // solicita la interfaz
     HRESULT hr = pSCF->QueryInterface(riid, ppvObj);
-    if (FAILED(hr))
-      {
-        delete pSCF;
-        return hr;
-      }
+    if (FAILED(hr)) {
+      delete pSCF;
+      return hr;
+    }
     //
     return NOERROR;
   }
@@ -136,6 +129,7 @@ DllCanUnloadNow()
   return ResultFromScode(((0L == g_cObj && 0L == g_cLock) /*|| a()*/) ? S_OK : S_FALSE);
 }
 
+#if 0
 /**
 ***
 ***/
@@ -181,6 +175,7 @@ WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
   return NULL;
 }
+#endif
 
 /**
 ***

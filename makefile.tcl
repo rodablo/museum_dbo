@@ -77,9 +77,7 @@ $legalStr
 
 por informacion visite http://www.rodablo.com/dbo"
     set dialogFname [file join $tmpDir dialog]
-    set file [open $dialogFname w]
-    puts $file $dialogText 
-    close $file
+    set file [open $dialogFname w]; puts $file $dialogText; close $file
     # crea el file de opciones
     set optionText "
 -win32
@@ -93,16 +91,13 @@ por informacion visite http://www.rodablo.com/dbo"
 -c \"rundll32 setupapi,InstallHinfSection DI 132 .\\$infFname\"
 "
     set optionFname [file join $tmpDir option]
-    set file [open $optionFname w]
-    puts $file $optionText 
-    close $file
+    set file [open $optionFname w]; puts $file $optionText; close $file
     # invoca al winzipse
-    exec $zipCmd $zipFname  @[file native $optionFname]
+    exec $zipCmd $zipFname @[file native $optionFname]
     # renombra (el winzip lo deje en el tmp)
     file rename -force \
 	    [file join $tmpDir $fileName.exe] \
-	    [file join $outDir dbo-$verMajor-$verMinor-$verRelease-$build.exe]
-     
+	    [file join $outDir dbo-$verMajor-$verMinor-$verRelease-$build.exe]   
     # clean-up
     file delete -force $dialogFname $optionFname
 #    exit $errorlevel
@@ -163,26 +158,5 @@ switch -exact -- [lindex $argv 0] {
 }
 
 
-exit
 
 
-
-# basura
-set file [open versioninfo.rc]
-set data [read stdin];#$file]
-close $file
-
-puts $data
-set re {.*FILEVERSION *([0-9]+) *, *([0-9]+) *, *([0-9]+) *, *([0-9]+)(.*)}
-#set re {.*(FILEVERSION).*(.*)}
-
-if [regexp $re $data match mayor minor release build tail] {
-#    puts "match-->>$match<<"
-    puts "mayor--->>$mayor<<"
-    puts "minor--->>$minor<<"
-    puts "release->>$release<<"
-    puts "build--->>$build<<"
-    puts "tail---->>$tail<<"
-} else {
-    puts nada
-}

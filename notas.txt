@@ -176,3 +176,106 @@ SI PASO -1 como arg de params.item el -1 es interpretado como no numerico (ver f
 validar mejor
 
 -----------------------------
+
+
+lod direcrorios debug & release incluyen la version de manera que no colsionen
+
+cada vez que corre el debug registra el la dll
+
+--------------------------------
+
+							
+							
+#notas.txt#
+.
+..
+Dbo.Def				OK
+auxiliar.cpp			OK
+auxiliar.hxx			OK
+basura
+borrar_lib
+caratula.rtf
+classfactory.cpp		OK
+column.cpp			pasar a 1.4		listo!
+column.hxx			merge 1.4 y 1.3.1.1	
+column_bstr.cpp			OK
+column_date.cpp			1.1 u 1.6 (ver asunto de fechas magicas)
+columns.cpp			OK
+contents.cnt
+cursor.cpp			OK
+cursor.hxx			OK
+cursor2.cpp			OK
+cursor3.cpp			OK
+dbo.hxx				OK (ver el tema del singleton del classfactoy y de porque daba gpf)
+dbo.rc				OK
+dbo20.reg
+dbo20.td2
+dbo21.ico
+dbo21.reg
+dboidl.idl			OK
+dbomc.mc			OK
+debug
+dispatch.cpp			OK
+dispatch.hxx			OK
+dll.cpp				OK
+hlpsym.h			OK
+icolumn.hxx			OK
+icolumns.hxx			OK
+icursor.hxx			OK
+iparam.hxx			OK
+iparams.hxx			OK
+is
+isession.hxx			OK
+lastbuild
+license bad dom.reg
+license.cpp			ver esquema de lic!!!!!
+license.reg
+licensefactory.cpp
+makefile
+makefile.cpp	
+makefile.tcl
+makefile.vc
+notas.txt
+oci73
+param.cpp			
+param.hxx			OK
+param_bind.cpp			OK
+param_bind_array.cpp		OK
+param_bstr.cpp			
+param_date.cpp
+param_g.cpp			OK
+params.cpp			OK
+pch.hxx				OK
+rcs
+session.cpp			OK
+session.hxx			OK
+sqlnet.log
+tcl
+test.tcl
+test.tpj
+test2.tcl
+topicos.rtf
+vb
+vc50.pdb
+
+----------------------------------------
+create table raw_test_01 (id NUMBER(6), data LONG RAW);
+
+----------------------------------------
+
+Implementar validate reg.
+
+Ver porque no usa obndra para los arrays
+
+cambiar el metodo con el que se especifica el len del string para permitir big buffers
+
+implementar un evento para el non-blocking
+
+ver que makefile.cpp no cree vc50.pdb
+
+revisar los + - 1 en el size de los bindeos de strings
+
+agregar tipo RAW en la columna
+
+IMPORTANTE!!!! 
+HAY QUE MODIFICAR ANSI Y WIDE X QUE NO SE BANCAN UN \0 EN EL STRING

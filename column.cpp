@@ -90,11 +90,15 @@ CreateColumn(IICursor& cursor, sword pos, IIColumn*& pObj)
       pObj = new TColumn(cd);
       break;
 
-    case SQLT_LNG:
-      cd.m_bindType  = SQLT_STR;
-      cd.m_bindSize  = 50000L;//cd.m_dbsize + 1; //??????????????????????????????????????
+    case SQLT_LNG: // long
+    case SQLT_BIN: // binary (raw)
+    case SQLT_LBI: // long binary (long raw)
+      if (!cd.m_IICursor.HasSink())
+	RAISE_INTERNAL(DBO_E_RUNTIME_PIECEWISE_NEED_EVENTS);
+      // cd.m_bindType  = SQLT_LBI;
+      //cd.m_bindSize  = 50000L;
       cd.m_vtRowType = VT_BSTR;
-      pObj = new TBSTRColumn(cd);     
+      pObj = new TPWColumn(cd);     
       break;
 
     case SQLT_RID:                                               /* rowid */
@@ -129,8 +133,8 @@ CreateColumn(IICursor& cursor, sword pos, IIColumn*& pObj)
     case SQLT_VCS:                           /* Variable character string */  //como rebindeo???
     case SQLT_NON:                     /* Null/empty PCC Descriptor entry */
     case SQLT_VBI:                                /* binary in VCS format */
-    case SQLT_BIN:                                 /* binary data(DTYBIN) */
-    case SQLT_LBI:                                         /* long binary */
+      //    case SQLT_BIN:                                 /* binary data(DTYBIN) */
+      //case SQLT_LBI:                                         /* long binary */
     case SQLT_UIN:                                    /* unsigned integer */
     case SQLT_SLS:                       /* Display sign leading separate */
     case SQLT_LVC:                                 /* Longer longs (char) */
@@ -153,15 +157,19 @@ CreateColumn(IICursor& cursor, sword pos, IIColumn*& pObj)
 ***
 *** TCOLUMN
 ***/
-TColumn::TColumn(TColumnD& cd)
+TColumn::TColumn(TColumnD& cd, bool allocRows)
   :  TColumnD(cd)
 {
-  // crea el safeArray
   SAFEARRAYBOUND sab;
   sab.lLbound   = 1;
   sab.cElements = m_IICursor.GetRowsXFetch();
-  
-  m_psaRows = SafeArrayCreate(cd.m_vtRowType, 1, &sab);
+  // alloca si no es piecewise
+  if (allocRows) {
+    // crea el safeArray
+    m_psaRows = SafeArrayCreate(cd.m_vtRowType, 1, &sab);
+  }
+  else
+    m_psaRows = 0;
   //INTERNAL(E_OUTOFMEMORY, 0 == m_psaVector);
 
   // crea los arrays auxiliares
@@ -179,7 +187,8 @@ TColumn::TColumn(TColumnD& cd)
 TColumn::~TColumn()
 {
   // destruccion del array (y la data contenida)
-  SafeArrayDestroy(m_psaRows);
+  if (0 != m_psaRows)
+    SafeArrayDestroy(m_psaRows);
   // destruye los arrays temporales
   delete [] m_pIndp; 
   delete [] m_pRLen;
@@ -387,7 +396,7 @@ TColumn::get_Ref(VARIANT* retv)
 #endif
     //verifica contenido valido
     // 
-    VariantClear(retv);
+    CHECK_HRESULT(VariantClear(retv));
 
     V_VT(retv) = (VARTYPE)(VT_ARRAY|VT_BYREF|m_vtRowType);
     V_ARRAYREF(retv) = &m_psaRows;
@@ -399,7 +408,7 @@ HRESULT __stdcall
 TColumn::get_Copy(VARIANT* retv)
 {
   try {
-    VariantClear(retv);    
+    CHECK_HRESULT(VariantClear(retv));    
 
     SAFEARRAY* psaCopy;
 

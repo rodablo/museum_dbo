@@ -3,6 +3,9 @@
 *** rodablo@hotmail.com
 ***/
 //#pragma option -v-
+#pragma warning(disable : 4786) 
+#pragma warning(disable : 4355) 
+
 #include <memory>
 #include <vector>
 #include <map>
@@ -29,12 +32,14 @@ extern char      g_szModuleName[];
 /**
 *** TSESSIONCF
 ***/
-extern IClassFactory* TSessionCF_TheInstance();
+//extern IClassFactory* CreateSessionCF();
+extern void CreateSessionCF(IClassFactory*& rpSCF);
 
 /***
 **** IMPLEMENTACIONES
 ****/
 #include "dispatch.hxx"
+#include "connectable.hxx"
 
 
 

@@ -1,13 +1,10 @@
 /**
 ***     DBO2(1997/1998)
 *** rodablo@hotmail.com
-    +infrared +keyboard +PC 
 ***/
 #include "pch.hxx"
 #include "dbo.hxx"
 #include "cursor.hxx"
-//#include "iparams.hxx"
-//#include "icolumns.hxx"
 
 /** Factory
 *** (en el futuro sera de ICursor)
@@ -24,7 +21,6 @@ CreateCursor(IISession& isession, IICursor*& rpCursor)
   AP<TCursor> ap = AP<TCursor>(new TCursor(isession));
   // lo abre
   ap->_pState->Open(ap.get());  
-  //ap->DoOpen();
   // retorna
   rpCursor = ap.release();
 }
@@ -33,7 +29,7 @@ CreateCursor(IISession& isession, IICursor*& rpCursor)
 ***
 ***/
 TCursor::TCursor(IISession& isession)
-  :  m_IISession(isession)
+  :  m_IISession(isession), m_conection(this, DIID_CursorEvent)
 {
   // Oracle
   //m_estado = CERRADO;
@@ -51,6 +47,10 @@ TCursor::TCursor(IISession& isession)
 
   _lastRpc = 0;
 
+  m_pPWColumn = 0;
+  m_pPWParam = 0;
+  
+
   // crea las instancias contenidas de las colecciones  (no obtiene la interfaz)
   CreateParams(*this, m_pParams);
   CreateColumns(*this, m_pColumns);
@@ -60,19 +60,12 @@ TCursor::TCursor(IISession& isession)
 
 TCursor::~TCursor()
 {
-//   // deletea la instancia contenida
-//   delete m_pColumns;
-
-//   // muchos releases no deletes
   //  ::Beep(880,200);
-
+  
+  // cierra el cursor
   _pState->Close(this);
 
-//   // vacia las columnas
-  //  m_vParam.erase(m_vParam.begin(), m_vParam.end());
-  //  m_vCols.erase(m_vCols.begin(), m_vCols.end());
-
-
+  // column
   m_mName2Col.erase(m_mName2Col.begin(), m_mName2Col.end());
   m_vCols.erase(m_vCols.begin(), m_vCols.end());
 
@@ -87,6 +80,22 @@ TCursor::~TCursor()
 
   //
   m_IISession.CursorRelease(); // !!!!!!!!!!!!!!!!!!!!!!!!!!!
+}
+
+STDMETHODIMP
+TCursor::QueryInterface(REFIID riid, LPVOID* ppvObj)
+{
+  if (0 == ppvObj)
+    return E_INVALIDARG;
+  //
+  if (IsEqualIID(riid, IID_IConnectionPointContainer)) {
+    //
+    *ppvObj = &m_conection;
+    ((IUnknown*)*ppvObj)->AddRef(); 
+    return NOERROR;
+  }
+  else 
+    return TIDISPATCH<IICursor, &IID__Cursor>::QueryInterface(riid, ppvObj);
 }
 
 void 
@@ -247,7 +256,8 @@ TCursor::Bind(VARIANT Wich,
 
 HRESULT __stdcall
 TCursor::BindArray(BSTR Wich, 
-		   short ArraySize, dboVarType AsType, VARIANT StringLength, Param** retv)
+		   short ArraySize, dboVarType AsType, VARIANT StringLength, 
+		   Param** retv)
 {
   try {
     // lo pasa al autómata
@@ -257,7 +267,7 @@ TCursor::BindArray(BSTR Wich,
 }
 
 HRESULT __stdcall 
-TCursor::BindCursor(BSTR Wich, Cursor** retv)
+TCursor::BindCursor(BSTR Wich, _Cursor** retv)
 {
   try {
     // lo pasa al autómata
@@ -289,7 +299,4 @@ TCursor::Execute(VARIANT N, VARIANT Offset)
   }
   __AUTO_EXCEPT;
 }
-
-
-
 

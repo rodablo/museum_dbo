@@ -73,7 +73,7 @@ public:
   //TColumn
   HRESULT  IDispatchSEH();
 
-  TColumn(TColumnD& cd);
+  TColumn(TColumnD& cd, bool allocRows = true);
   virtual ~TColumn();
 
 protected:
@@ -128,6 +128,52 @@ protected:
   ODATE* m_pTmp;
 };
 
-//class TERRColumn;
+class TPWColumn : public TColumn, public IPWColumn
+{
+public:
+  // Column
+  virtual HRESULT __stdcall get_Ref(VARIANT* retv);
+  virtual HRESULT __stdcall get_Copy(VARIANT* retv);
+  // TColumn
+  void PreWork();    
+  void PosWork() {}   
+  void PosWorkPreRAISE() {}
+  // IPWColumn
+  void Prepare4NextPiece();
+  void DeliverPiece(IDispatch* pSink);
+  //
+  TPWColumn(TColumnD& cd);
+  virtual ~TPWColumn();
+  //
+protected:
+  ub1 	m_buffer[0x7fff];
+  ub4 	m_len, m_iteration, m_indexp;
+  ub1  	m_piece;
+};
+
+//  class TLongPWColumn : public TPWColumn
+//  {
+//  public:
+//    // IPWColumn
+//    void Prepare4NextPiece();
+//    void DeliverPiece(IDispatch* pSink);
+//    // TLongPWColumn
+//    TLongPWColumn(TColumnD& cd);
+//    virtual ~TLongPWColumn();
+//    //
+//  protected:
+//  };
+
+//  class TLongRawPWColumn : public TPWColumn
+//  {
+//  public:
+//    //
+//    TLongRawPWColumn(TColumnD& cd);
+//    virtual ~TLongRawPWColumn();
+//    //
+//  protected:
+//    SAFEARRAY*  m_pSA; 
+//    void*	      m_pvD;
+//  };
 
 #endif //_COLUMN_HXX_
