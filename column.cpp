@@ -192,12 +192,12 @@ void
 TColumn::PreWork()
 {
   // Obtiene un puntero a la data del vector en crudo! y lo mantiene lockeado
-  void* pV;
-  CHECK_HRESULT(SafeArrayAccessData(m_psaRows, &pV));
+  /*void* pV;*/
+  CHECK_HRESULT(SafeArrayAccessData(m_psaRows, &m_pV));
   // define finalmente
   CHECK_OCI(::odefin(m_IICursor.GetCDA(), 
 		     m_pos,
-		     (ub1*)pV, 
+		     (ub1*)m_pV, 
 		     m_bindSize,
 		     m_bindType,
 		     m_scale,
@@ -207,9 +207,24 @@ TColumn::PreWork()
 		     m_pRC));
 }
 
+
 void
 TColumn::PosWork()
 {
+  // este itera sobre los datos buscando nulos
+  long r;
+  for (r = 0 ; r < m_IICursor.GetCount() ; r++)
+    {
+      // si es nulo o hubo error en este row ignora
+      if (0 != m_pIndp[r] || 0 != m_pRC[r]) 
+	ZeroMemory( ((char*)m_pV) + (m_bindSize * r), m_bindSize);
+    }
+  // resto 
+  char* start = ((char*)m_pV) + (m_bindSize * r);
+  char* end   = ((char*)m_pV) + (m_bindSize * m_IICursor.GetRowsXFetch());
+
+  ZeroMemory(start, end - start);
+	    
   // invalida el puntero del bind y deslockea el vector 
   CHECK_HRESULT(SafeArrayUnaccessData(m_psaRows));
 }
