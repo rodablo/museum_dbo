@@ -11,7 +11,9 @@
 using namespace std;
 //#pragma option -v
 
-//#include "dborc.h"
+
+//nclude "dborc.h"
+#include "config.h"
 #include "dbomc.hxx"
 #include "dboidl.hxx"
 #include "auxiliar.hxx"
