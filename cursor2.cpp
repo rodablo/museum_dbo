@@ -264,6 +264,15 @@ TCursor::_BindParam(VARIANT& Wich, VARIANT& Value, VARIANT& AsType, VARIANT& Len
     // no puede determinar el tipo
     RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_CANT_DETERMINE_VTYPE);
 
+  // deduce el string length del string si no lo proveen
+  if (VT_BSTR  == vt && 
+      VT_ERROR == V_VT(&Length) &&
+      VT_BSTR  == V_VT(&Value))
+    {
+      V_VT(&Length) = VT_I2;
+      V_I2(&Length) = (short)::SysStringLen(V_BSTR(&Value));
+    }
+  
   // invoca a _Bind
   IIParam*    pParam;
   //  AP<IIParam> apParam;
