@@ -105,7 +105,7 @@ library DBO2
       //oVEmpty        = VT_NULL,
       dboVInteger = VT_I2,
       dboVLong    = VT_I4,
-      dboVFloat   = VT_R4,
+      dboVSingle  = VT_R4,
       dboVDouble  = VT_R8,
       dboVDate    = VT_DATE,
       dboVString  = VT_BSTR,
@@ -391,7 +391,7 @@ library DBO2
 	helpstring("texto explicativo.")]
 	  HRESULT DefineColumns();
 #if __VISUAL5__
-	[id(112), helpcontext(IDH_NUEVO),
+	[id(112), helpcontext(IDH_NUEVO), restricted,
 	helpstring("texto explicativo.")]
 	  HRESULT DefineColumnAs([in] short Position, [in] dboVarType AsType);
 #else
@@ -413,7 +413,7 @@ library DBO2
 	   [in, optional] VARIANT StringLength,
 	   [out, retval] Param** retv);
 
-	[id(118), helpcontext(IDH_NUEVO),
+	[id(118), helpcontext(IDH_NUEVO), restricted,
 	helpstring("texto explicativo.")]
 	  HRESULT BindCursor
 	  ([in] BSTR Wich, 
