@@ -620,10 +620,16 @@ cpp_quote("#define DISPID_CURSOR_EVENT_INSERT_PIECE 205")
     { 
       [entry(100), helpcontext(IDH_LICENSEINFORMATION),
        helpstring("texto explicativo.")] 
-	BSTR LicenseInformation(); 
+	BSTR __stdcall LicenseInformation(); 
       [entry(101), helpcontext(IDH_BUILDNUMBER),
        helpstring("texto explicativo.")] 
-	int  BuildNumber(); 
+	int __stdcall BuildNumber(); 
+      [entry(102), helpcontext(IDH_BUILDNUMBER),
+       helpstring("cambia el password.")] 
+	HRESULT __stdcall PasswordChange([in] BSTR User,
+					 [in] BSTR OldPassword,
+					 [in] BSTR NewPassword,
+					 [in] BSTR Alias);
     }; 
 
 

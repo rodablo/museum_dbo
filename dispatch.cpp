@@ -193,7 +193,7 @@ IDispatchSEH(LPEXCEPTION_POINTERS& rpEP,
     }
   /// Aqui transfiero la informacion al automation
   // crea el string SOURCE
-  rExcepInfo.bstrSource = WIDE("DBO21").SysAllocString();
+  rExcepInfo.bstrSource = WIDE("DBO22").SysAllocString();
   // otro retorno informal (revisar si el GetScode no strola nada)
   rExcepInfo.scode = GetScode(hrret);
   // notifica a los que acceden por Invoke

@@ -24,13 +24,13 @@ MACHINE		= ALPHA
 ### TOOLS
 ###
 !IF "ROJO" == "$(COMPUTERNAME)"
-VC        	= C:\VC
-VB		= C:\ARCHIV~1\MICROS~2\VB98\VB6.EXE
-WINDBG		= C:\ARCHIV~1\Debuggers\bin\windbg.exe
-SHAREDIDE 	= C:\ARCHIV~1\devstudio\sharedide
-TCL       	= C:\ARCHIV~1\Tcl
-#OCI		= C:\Oracle\Ora81\OCI
-OCI		= .\oci73
+VC        	= C:\devstudio\VC
+VB		= G:\PROGRA~1\MICROS~1\VB98\VB6.EXE
+WINDBG		= C:\DevStudio\SharedIDE\bin\msdev.exe
+#WINDBG		= C:\PROGRA~1\DbgTools\windbg.exe
+SHAREDIDE 	= C:\devstudio\sharedide
+TCL       	= C:\PROGRA~1\Tcl
+OCI		= G:\Oracle\Ora81\OCI
 ZIP     	= C:\ARCHIV~1\WINZIP\WINZIP32.EXE
 ZIPSE   	= C:\ARCHIV~1\WINZIP~1\WINZIPSE.EXE
 !ELSE
@@ -39,6 +39,7 @@ SHAREDIDE 	= C:\ARCHIV~1\devstudio\sharedide
 TCL       	= C:\ARCHIV~1\Tcl
 OCI		= .
 !ENDIF
+
 ###
 TCLSH 	  	= $(TCL)\bin\tclsh83.exe
 WISH      	= $(TCL)\bin\wish83.exe
@@ -58,9 +59,9 @@ BUILD_MODE	= release
 !ELSE
 BUILD_MODE	= debug
 !ENDIF
-BUILD_ROOT	= C:\Z\WORK
+BUILD_ROOT	= C:\Z\DBO
 SRC		= $(BUILD_ROOT)
-OUT		= $(BUILD_ROOT)\$(BUILD_MODE)
+OUT		= C:\Z\WORK\$(BUILD_MODE)
 TMP       	= $(OUT)\tmp
 
 ###
@@ -281,6 +282,7 @@ LIBID	        = {$(__UUID_LIBID)}
 ### dll
 ###
 OBJS 		= \
+	$(TMP)\password_change.obj \
 	$(TMP)\dll.obj $(TMP)\license.obj $(TMP)\auxiliar.obj \
 	$(TMP)\classfactory.obj $(TMP)\dispatch.obj $(TMP)\connectable.obj\
 	$(TMP)\session.obj \
@@ -359,7 +361,7 @@ uuid.lib oleaut32.lib user32.lib
 advapi32.lib 
 netapi32.lib
 $(OBJS)
-$(OCI)\lib\msvc\ociw32.lib
+$(OCI)\lib\msvc\oci.lib
 $(TMP)\dbo.res
 <<NOKEEP
 	del /F $*.exp $*.lib 
@@ -498,7 +500,7 @@ $(TMP)\makefile.dll: $(TMP)\makefile.obj
 	del /F $*.exp $*.lib 
 
 debug_makefile: $(TMP)\makefile.dll
-	$(WINDBG) /w "makefile.dll" /l "debug makefile.dll" $(WISH) ./test.tcl
+	$(WINDBG)  -T "debug makefile.dll" $(WISH) ./test.tcl
 
 #$(TMP)\makefile.dll: workdirs makefile.c
 #	$(CC) /LDd /MDd /Fo$(TMP)\ \
@@ -546,9 +548,14 @@ $<
 debug_reg: dll
 	$(TCLSH) makefile.tcl --debug-reg-server register $(__PROGID) $(__UUID_CLSID) $(__UUID_LIBID) $(__VER_MAJOR) $(__VER_MINOR) $(OUT)\$(__DLL_FNAME)
 
-
 debug_run: dll
-	$(WINDBG) /w "dbo" /l "debug $(__FILE_NAME) build: XXXX" /g $(VB) .\vb\dbo20.vbp
+# 	$(WINDBG) -W "dbo" -T "debug $(__FILE_NAME) build: XXXX" \
+		-srcpath $(SRC) -y $(OUT) -g $(VB) c:\z\work\vb\dbo20.vbp
+
+	$(WINDBG) $(VB) c:\z\work\vb\dbo20.vbp
+#	$(WINDBG) C:\DevStudio\VC\bin\Oleview.exe
+
+# ;$(TMP) -i $(OUT) 
 
 debug_unreg:
 	$(TCLSH) makefile.tcl --debug-reg-server unregister $(__PROGID) $(__UUID_CLSID) $(__UUID_LIBID) $(__VER_MAJOR) $(__VER_MINOR) $(OUT)\$(__DLL_FNAME)

@@ -29,13 +29,7 @@
 
 /**
 *** Oracle
-*** Size of HDA area:
-*** 256 for 32 bit arquitectures
 ***/
-#define HDA_SIZE 256
-extern "C"
-	{
-#include <ociapr.h>
-	}
+#include <oci.h>
 
 #endif

@@ -11,7 +11,7 @@
 /**
 *** Module Varios
 ***/
-int
+int __stdcall
 BuildNumber()
 {
   return (int)(__VER_RELEASE);

@@ -7,6 +7,7 @@
 //#include <wincrypt.h>
 #include <lm.h>         // for NetXxx API
 
+#define __CREATE_LIC__ 0
 /**
 ***
 ***
@@ -93,7 +94,7 @@ static char   dummie2[] =
 };
 
 
-BSTR /*__stdcall*//*__pascal*/
+BSTR __stdcall
 LicenseInformation()
 {
   return SysAllocString(WIDE("..."));
@@ -105,8 +106,10 @@ LicenseInformation()
 void __stdcall
 LicLoad()
 {
-  // void CreateLic2();
-  // CreateLic2();
+#if __CREATE_LIC__
+  void CreateLic2();
+  CreateLic2();
+#endif
   // intenta obtener el handle de la licencia cargada
   hFM = OpenFileMapping(/*FILE_MAP_READ*/FILE_MAP_WRITE/*PAGE_READWRITE*/, 
 			false, szFMName);
@@ -318,7 +321,7 @@ LicFastValidate()
   return true;
 }
 
-#if 0
+#if __CREATE_LIC__
 
 void  
 CreateLic2()
@@ -362,9 +365,9 @@ CreateLic2()
 
   // TRIAL
   st.wYear         = 2001;
-  st.wMonth        = 04; 
+  st.wMonth        = 9; 
   st.wDayOfWeek    = 0; 
-  st.wDay          = 6; 
+  st.wDay          = 30; 
   st.wHour         = 10; 
   st.wMinute       = 0; 
   st.wSecond       = 0; 

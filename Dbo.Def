@@ -2,4 +2,5 @@ EXPORTS
 	DllCanUnloadNow 	PRIVATE
 	DllGetClassObject	PRIVATE
 	LicenseInformation 	@100
-	BuildNumber        	@101
+	BuildNumber        	@101	
+	PasswordChange        	@102
