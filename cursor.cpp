@@ -42,7 +42,7 @@ TCursor::TCursor(IISession& isession)
 
   m_fColsDefined = false;
   m_fIsDirty = false;
-  _fStrict = true;
+  _fStrict = false;
 
   // Prop data
   m_ulRowsXFetch = 1;
@@ -245,11 +245,11 @@ TCursor::BindParam(VARIANT Wich, VARIANT Value, VARIANT AsType, VARIANT Length)
 
 HRESULT __stdcall
 TCursor::Bind(VARIANT Wich, 
-	      dboVarType AsType, VARIANT StringLength, VARIANT Value, Param** retv)
+	      dboVarType AsType, VARIANT StringLength, Param** retv)
 {
   try {
     // lo pasa al autómata
-    _pState->Bind(this, Wich, AsType, StringLength, Value, retv);
+    _pState->Bind(this, Wich, AsType, StringLength, retv);
    }
    __AUTO_EXCEPT;
 }
@@ -265,6 +265,20 @@ TCursor::BindArray(BSTR Wich,
    __AUTO_EXCEPT;
 }
 
+HRESULT __stdcall 
+TCursor::BindCursor(BSTR Wich, Cursor** retv)
+{
+  try {
+    // lo pasa al autómata
+    //_pState->BindCursor(this, Wich, retv);
+    RAISE_INTERNAL(DBO_E_RUNTIME_ABRITTA_S, "BindCursor");
+    if (0 != retv)
+      *retv = 0;
+  }
+  __AUTO_EXCEPT;
+}
+
+
 HRESULT __stdcall
 TCursor::Fetch(VARIANT_BOOL FAR* retv)
 {
@@ -276,11 +290,11 @@ TCursor::Fetch(VARIANT_BOOL FAR* retv)
 }
 
 HRESULT __stdcall
-TCursor::Execute(VARIANT N)
+TCursor::Execute(VARIANT N, VARIANT Offset)
 {
   try {
     // lo pasa al estado
-    _pState->Execute(this, N);
+    _pState->Execute(this, N, Offset);
   }
   __AUTO_EXCEPT;
 }
