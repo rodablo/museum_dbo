@@ -126,7 +126,7 @@ LicLoad()
 {
   
   //  void CreateLic2();
-  //CreateLic2();
+  //  CreateLic2();
   
   // intenta obtener el handle de la licencia cargada
   hFM = OpenFileMapping(/*FILE_MAP_READ*/FILE_MAP_WRITE/*PAGE_READWRITE*/, false, szFMName);
@@ -375,9 +375,9 @@ CreateLic2()
 
   // VENCIMIENTO
   st.wYear         = 1998;
-  st.wMonth        = 4; 
+  st.wMonth        = 9; 
   st.wDayOfWeek    = 0; 
-  st.wDay          = 7; 
+  st.wDay          = 6; 
   st.wHour         = 14; 
   st.wMinute       = 0; 
   st.wSecond       = 0; 
@@ -385,11 +385,14 @@ CreateLic2()
   
   DATE venc = -1;
   //  if (!SystemTimeToVariantTime(&st, &venc))
-  //  return;
+  //    return;
+  
+  // 7/04/98
+  // 7/05/98
 
   // TRIAL
   st.wYear         = 1998;
-  st.wMonth        = 4; 
+  st.wMonth        = 5; 
   st.wDayOfWeek    = 0; 
   st.wDay          = 7; 
   st.wHour         = 14; 

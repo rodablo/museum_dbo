@@ -23,6 +23,7 @@ public:
   virtual IIParam*  GetParam(string& name) = 0;
   virtual int       GetParamCount() = 0;
   virtual void      SetDirtyFlag() = 0;
+  virtual bool      IsStrict() = 0;
   //
   virtual ~IICursor(){}
 };
