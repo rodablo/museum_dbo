@@ -43,6 +43,14 @@ Propiedad temporalmente READ/ONLY.
 MessageId=
 Severity=Error
 Facility=RUNTIME
+SymbolicName=DBO_E_RUNTIME_CANT_MODIFY_ROW_AFTER_DEFINE
+Language=Neutral
+Propiedad <RowsXFetch> READ-ONLY luego del invocar <DefineColumns> o <Fetch>.
+.
+
+MessageId=
+Severity=Error
+Facility=RUNTIME
 SymbolicName=DBO_E_RUNTIME_SESSION_ACTIVE_CURSOR_EXIST_LU
 Language=Neutral
 Existe(n) <%1!lu!> cursor(es) activo(s).
@@ -141,7 +149,7 @@ Severity=Error
 Facility=RUNTIME
 SymbolicName=DBO_E_RUNTIME_PARAM_NAME_TYPE_MISMATCH_I
 Language=Neutral
-Tipo variant <%1!d!> no valido como nombre de parametro.
+Tipo variant <%1!d!> no valido como nombre/número de parametro.
 .
 
 MessageId=
@@ -150,6 +158,14 @@ Facility=RUNTIME
 SymbolicName=DBO_E_RUNTIME_PARAM_INDEX_TYPE_MISMATCH_I
 Language=Neutral
 Tipo variant <%1!d!> no valido como index de parametro.
+.
+
+MessageId=
+Severity=Error
+Facility=RUNTIME
+SymbolicName=DBO_E_RUNTIME_PARAM_VALUE_TYPE_MISMATCH_I_I
+Language=Neutral
+Param Type Missmatch, se espera Tipo Variant <%1!d!>, se encontro <%2!d!>.
 .
 
 MessageId=
@@ -166,6 +182,15 @@ Facility=RUNTIME
 SymbolicName=DBO_E_RUNTIME_PARAM_EXIST_S
 Language=Neutral
 Parametro <%1> existe.
+.
+
+MessageId=
+Severity=Error
+Facility=RUNTIME
+SymbolicName=DBO_E_RUNTIME_PARAM_STRING_TRUNCATION_I_I
+Language=Neutral
+El String asignado al Parámetro quedará ¿trunco?.
+StringLength = <%1!d!>, se encontró <%2!d!>.
 .
 
 MessageId=
@@ -222,6 +247,23 @@ Facility=RUNTIME
 SymbolicName=DBO_E_RUNTIME_PARAM_INDEX_ONLY_IN_ARRAYS
 Language=Neutral
 Index válido solo en parámetros tipo Array.
+.
+
+MessageId=
+Severity=Error
+Facility=RUNTIME
+SymbolicName=DBO_E_RUNTIME_PARAM_STRINGLENGTH_ONLY_IN_STRING
+Language=Neutral
+StringLength válido solo en parámetros tipo String.
+.
+
+MessageId=
+Severity=Error
+Facility=RUNTIME
+SymbolicName=DBO_E_RUNTIME_PARAM_STRINGLENGTH_CANT_BE_ZERO
+Language=Neutral
+El parametro tipo String no puede tener longitud 0,
+revise StringLength o Value.
 .
 
 MessageId=
@@ -286,6 +328,15 @@ Facility=RUNTIME
 SymbolicName=DBO_E_RUNTIME_FETCH_O_DEFINE_IN_PL
 Language=Neutral
 Invocacion a Fetch o DefineColumn(s) ilegal en una sentencia PL/SQL.
+.
+
+MessageId=
+Severity=Error
+Facility=RUNTIME
+SymbolicName=DBO_E_RUNTIME_VARIANT_MISSMATCH_I
+Language=Neutral
+Error Interno convirtiendo Variant.
+VARTYPE <%1!d!>.
 .
 
 MessageId=

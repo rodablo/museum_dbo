@@ -33,7 +33,7 @@ BEGIN
       VALUE "LegalCopyright", "(1998)RODABLO para Origenes A.F.J.P.\0"
       VALUE "ProductName", "DBO 2.0\0"
       VALUE "ProductVersion", "2.0\0"
-      VALUE "Build", "0054" /*__DBO2_BUILD_NUMBER_S_*/  "\0"
+      VALUE "Build", "0056" /*__DBO2_BUILD_NUMBER_S_*/  "\0"
     END	             
   END
 

@@ -153,8 +153,6 @@ module Informacion
     helpstring("texto explicativo.")]
       HRESULT RC
       ([in, optional] VARIANT Index, [out, retval] short* retv);
-    // Count
-    // Max
 
     [id(DISPID_VALUE), propget, helpcontext(IDH_NUEVO),
     helpstring("texto explicativo.")]
@@ -164,25 +162,16 @@ module Informacion
     [id(DISPID_VALUE), propput]
       HRESULT Value
       ([in, optional] VARIANT Index, [in] VARIANT Value);
+    
+    [id(13), propget, helpcontext(IDH_NUEVO),
+    helpstring("texto explicativo.")]
+      HRESULT Strict
+      ([out, retval] VARIANT_BOOL* retv);
 
-// METODOS
-//     [id(50), helpcontext(IDH_NUEVO),
-//     helpstring("texto explicativo.")]
-//       HRESULT Bind
-// 	([in, optional] VARIANT Value, 
-// 	 [in, defaultvalue(dboVError)] dboVarType AsType,
-// 	 [in, optional] VARIANT StringLength,
-// 	 [out, retval] Param** retv);
-
-//     [id(51), helpcontext(IDH_NUEVO),
-//     helpstring("texto explicativo.")]
-//       HRESULT BindArray
-// 	([in, optional] VARIANT Value, 
-// 	 [in, optional] VARIANT ArraySize, 
-// 	 [in, defaultvalue(dboVError)] dboVarType AsType,
-// 	 [in, optional] VARIANT StringLength,
-// 	 [out, retval] Param** retv);
-     };
+    [id(13), propput]
+      HRESULT Strict
+      ([in] VARIANT_BOOL Strict);
+    };
 
 /**
 *** Column
@@ -229,15 +218,6 @@ module Informacion
      helpstring("texto explicativo.")]
        HRESULT IsNullOk
        ([out, retval] VARIANT_BOOL* retv);
-
-//     [id(19), propput, helpcontext(IDH_NUEVO),
-//     helpstring("texto explicativo.")]
-//       HRESULT Strict
-//       ([in] VARIANT_BOOL Strict);
-
-//     [id(19), propget]
-//       HRESULT Strict
-//       (VARIANT_BOOL* retv);
 
     [id(20), propget, helpcontext(IDH_CURSOR_COUNT),
       helpstring("Numero de rows leidas en el ultimo fetch.")]
@@ -382,6 +362,15 @@ module Informacion
       helpstring("texto explicativo.")]
 	HRESULT IsDirty
 	([out, retval] VARIANT_BOOL* retv);
+
+      [id(16), propget, helpcontext(IDH_NUEVO),
+      helpstring("texto explicativo.")]
+	HRESULT Strict
+	([out, retval] VARIANT_BOOL* retv);
+
+      [id(16), propput]
+	HRESULT Strict
+	([in] VARIANT_BOOL Strict);
       
       // COLLECCIONES
       [propget, id(DISPID_EVALUATE), helpcontext(IDH_NUEVO),
@@ -412,15 +401,17 @@ module Informacion
       helpstring("texto explicativo.")]
  	HRESULT Bind
  	([in] VARIANT Wich, 
- 	 [in, optional] VARIANT Value, [in, defaultvalue(dboVError)] dboVarType AsType,
+ 	 [in] dboVarType AsType,
  	 [in, optional] VARIANT StringLength,
+	 [in, optional] VARIANT Value,
 	 [out, retval] Param** retv);
 
       [id(114), helpcontext(IDH_NUEVO),
       helpstring("texto explicativo.")]
   	HRESULT BindArray
   	([in] BSTR Wich, 
-  	 [in] dboVarType AsType, [in] short ArraySize, 
+	 [in] short ArraySize, 
+  	 [in] dboVarType AsType, 
  	 [in, optional] VARIANT StringLength,
  	 [out, retval] Param** retv);
 
@@ -431,7 +422,7 @@ module Informacion
 
       [id(116), helpcontext(IDH_CURSOR_EJECUTAR),
       helpstring("texto explicativo.")]
-	HRESULT Execute(/*[in, optional] VARIANT N*/);
+	HRESULT Execute([in, optional] VARIANT N);
 
       [id(117), helpcontext(IDH_NUEVO),
       helpstring("texto explicativo.")]
