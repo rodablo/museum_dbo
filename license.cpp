@@ -356,6 +356,7 @@ LicFastValidate()
 void  
 CreateLic2()
 {
+  ::MessageBeep(-1);
   // INICIALIZA LA LICENCIA
   TLicense2 lic;
   ZeroMemory(&lic, sizeof(TLicense2));
@@ -394,10 +395,10 @@ CreateLic2()
 
   // TRIAL
   st.wYear         = 1998;
-  st.wMonth        = 7; 
+  st.wMonth        = 8; 
   st.wDayOfWeek    = 0; 
   st.wDay          = 7; 
-  st.wHour         = 14; 
+  st.wHour         = 10; 
   st.wMinute       = 0; 
   st.wSecond       = 0; 
   st.wMilliseconds = 0;
