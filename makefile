@@ -1,12 +1,12 @@
-.AUTODEPEND
-.NOSWAP
+#.NOAUTODEPEND
+#.NOSWAP
 
 __VERSION_MAJOR = 2
 __VERSION_MINOR = 1
 __VERSION_BUILD = 65
 __VERSION       = $(__VERSION_MAJOR).$(__VERSION_MINOR).$(__VERSION_BUILD)
 
-!if $d(ALTERNATE)
+!ifdef ALTERNATE
 __ALTERNATE  = 1
 __CODE_NAME  = ALTERNATE
 __BASE_NAME  = $(__CODE_NAME)$(__VERSION_MAJOR)$(__VERSION_MINOR) 
@@ -31,33 +31,30 @@ __HLP_NAME_S = "$(__FILE_NAME).hlp"
 ### TOOLS...
 ###
 !if "MRODABLOATH" == "$(COMPUTERNAME)"
-BCROOT  = C:\BC501
+VCROOT  = C:\VC
 PRGFILE = "c:\Program Files"
 !else
-BCROOT  = C:\BC5
+VCROOT  = C:\VC
 PRGFILE = "c:\Archivos de programa"
 !endif
-IMPLIB  = Implib
-CPP     = $(BCROOT)\bin\Cpp32.exe
-BCC32   = $(BCROOT)\bin\Bcc32 
-BCC32I  = $(BCROOT)\bin\Bcc32i 
-TLINK32 = $(BCROOT)\bin\TLink32
-TLIB    = $(BCROOT)\bin\TLib
-BRC32   = $(BCROOT)\bin\Brc32
-TASM32  = Tasm32
-MC      = c:\mstools\bin\mc.exe  
-MIDL    = c:\mstools\bin\midl.exe
 
-!if MRODABLOATH == "$(COMPUTERNAME)"
+#IMPLIB  = Implib
+CC   = $(VCROOT)\bin\cl.exe
+LINK = $(VCROOT)\bin\link.exe 
+RC   = c:\bc5\bin\brc32.exe
+MC   = $(VCROOT)\bin\mc.exe  
+MIDL = $(VCROOT)\bin\midl.exe
+
+!if "MRODABLOATH" == "$(COMPUTERNAME)"
 ZIP     = "c:\Program Files\WinZip\WINZIP32.EXE"
 ZIPSE   = "c:\Program Files\WinZip Self-Extractor\Winzipse.exe"
 #ZIPSE   = "c:\Program Files\WinZip\Winzipse.exe"
 !else
+#RC      = "c:\Archivos de programa\DevStudio\SharedIDE\bin\rc.exe"
 ZIP     = "c:\Archivos de programa\WinZip\WINZIP32.EXE"
 ZIPSE   = "c:\Archivos de programa\WinZip Self-Extractor\Winzipse.exe"
 #ZIPSE  = "c:\Archivos de programa\WinZip\Winzipse.exe"
 !endif
-
 
 ###
 ### Paths
@@ -67,9 +64,11 @@ BINARY    = c:\z\bin
 SOURCE    = d:\work
 TMP2      = $(TMP)\\
 EMPTY     = 
+ORANTROOT = c:\ORANT
 
 .path.obj=$(TMP)
 .path.cpp=$(SOURCE)
+.path.hxx=$(SOURCE)
 .path.res=$(TMP)
 .path.zip=$(TMP)
 .path.dll=$(BINARY)
@@ -79,12 +78,10 @@ EMPTY     =
 .path.inf=$(BINARY)
 .path.i  =$(TMP)
 
+.suffixes: .hxx .c .cpp .obj .dll .exe
+
 ###
-###
-###
-###
-###
-### here link la DLL     
+### 
 ###
 LINKOBJS = \
 	ZZdll.obj ZZlicense.obj ZZauxiliar.obj ZZclassfactory.obj ZZdispatch.obj \
@@ -97,25 +94,54 @@ LINKOBJS = \
 ###
 ### LINK
 ###
-$(__FILE_NAME).dll: $(.path.obj)\dbomc.hxx $(.path.obj)\dboidl.hxx $(.path.obj)\dboidl.obj $(LINKOBJS:ZZ=$(EMPTY)) dbo.res dbo.def makefile
-   $(TLINK32) -Tpd -aa -L.\LIB;$(BCROOT)\LIB;C:\ORANT\OCI73\LIB\BORLAND; -v -c -n -V4.0 -w-dup -x @&&|
-.\lib\c0d32dyn.obj+
-$(TMP)\dboidl.obj+
-$(LINKOBJS:ZZ=$(TMP2)), $(BINARY)\$(__FILE_NAME).dll, $(TMP)\$(__FILE_NAME).map,+
+$(__FILE_NAME).dll: $(.path.obj)\dbomc.hxx $(.path.obj)\dboidl.hxx $(.path.obj)\dboidl.obj $(LINKOBJS:ZZ=$(EMPTY)) dbo.res dbo.def #makefile
+   $(LINK) @&&|
+#-Tpd -aa -L.\LIB;$(BCROOT)\LIB;C:\ORANT\OCI73\LIB\BORLAND; -v -c -n -V4.0 -w-dup -x @&&|
+#.\lib\c0d32dyn.obj+
+#$(TMP)\dboidl.obj+
+#$(LINKOBJS:ZZ=$(TMP2)), $(BINARY)\$(__FILE_NAME).dll, $(TMP)\$(__FILE_NAME).map,+
 #cg32.lib+
-cw32.lib+
+#cw32.lib+
 #cw32mt.lib+
 #$(BCROOT)\LIB\bidsf.lib+
-oleaut32.lib advapi32.lib ole2w32.lib import32.lib+
+#oleaut32.lib advapi32.lib ole2w32.lib import32.lib+
 #d:\work\lib\
-ociw32.lib, dbo.def, $(TMP)\dbo.res
+#ociw32.lib, dbo.def, $(TMP)\dbo.res
+
+/DEBUG
+#/DEBUGTYPE:COFF
+#/PDB:NONE				# $(BINARY)\$(__FILE_NAME).pdb
+/DLL
+/NODEFAULTLIB                           # Ignore Libraries
+/MACHINE:IX86                           # ALPHA # Specify Target Platform
+/INCREMENTAL:NO
+/LIBPATH:$(VCROOT)\lib
+/OUT:$(BINARY)\$(__FILE_NAME).dll
+/DEF:dbo.def 
+$(LINKOBJS:ZZ=$(TMP2))
+$(TMP)\dboidl.obj
+c:\orant\oci73\lib\msvc\ociw32.lib
+libcmtd.lib
+#msvcrt.lib
+kernel32.lib
+Msvcprt.lib
+#libcmt.lib
+#msvcrt.lib
+ole32.lib 
+uuid.lib #olepro32.lib
+user32.lib
+oleaut32.lib 
+advapi32.lib 
+netapi32.lib
+$(TMP)\dbo.res
 |
+
 ###
 ###
 ###
 ### CONFIG.H
 ###
-$(TMP)\config.h: makefile
+$(TMP)\config.h: #makefile
 	sed "s/@/#/g" < &&|	# uso el sed porque '#' es comentoario para el make
 @ifndef __CONFIG_H_
 @define __CONFIG_H_
@@ -143,6 +169,7 @@ $(TMP)\config.h: makefile
 
 @endif
 | > $< 
+
 ###
 ###
 ### MC
@@ -164,60 +191,117 @@ $(TMP)\dboidl.hxx: dboidl.idl $(TMP)\config.h # Ver multiples targets en el make
 /tlb $*.tlb /iid $*.c /h $< dboidl.idl
 |
 ###
+###
 $(TMP)\dboidl.obj: $(TMP)\dboidl.c
-    $(BCC32) -P- -c -o$@ $(TMP)\dboidl.c
+	$(CC) /c /nologo /TC /Fo$@ $(TMP)\dboidl.c
+
 ###
 ###
 ###
 ### CPP's & opciones
 ###
 .cpp.obj:
-    BCC32 -c +&&|
--y                                 #
--H                                 #
--Hc                                #
--H=$(TMP)\$(__FILE_NAME).csm       #   
--H"PCH.HXX"
--I$(TMP) 
--I$(BCROOT)\INCLUDE
--IC:\MSTOOLS\INCLUDE
--IC:\ORANT\OCI73\INCLUDE 
--I.\CRYPTO
--DINC_OLE2;STRICT;_DEBUG 
-#-DRWQE_STANDARD_LIBRARY           # ????
-#-DRWSTD_NO_NAMESPACE              # si saco los namespaces no linkea los string
-#-DRWSTD_NO_NEW_HEADER             # .....
-##-DTHREAD=SINGLE
-#-DRWSTD_NO_WSTR=0
--DRWDEBUG=1   			   # ¿¿¡¡ Atención !!??
-#-D__USING_STD_NAMES__             #
-#-D__STD_STRING                      
-#-N                                # Check stack overflow 
--tWDE                              # Windows DLL, explicit functions exported
--ff-                               # ANSI float
--x                                 # enable exceptions
-#-xp                               # Enable exception location information
--xd                                # Enable destructor cleanup
--xds                               # Enable throwing exceptions from a DLL
--RT                                # Enable run-time type information
--d                                 # Duplicate strings merged
--r                                 # Register variables
--X-                                # Autodependency information
--u                                 # Generate underscores
--C                                 # nested comments
--A- 
--AT                                # borland extensions
--w                                 # all warnings
--R                                 # browse info in obj
--v                                 # turns debugging on and inline expansion off
--Od                                # Disable all optimizations
--Jg                                # Smart Templates
--5                                 # i386 pentium i486  
-#-vGd 
-#-vGt
--wcln -wsig -wucp -w-par -w-pch- -wstv -wasm -wamp 
--wobs -wpch -wdef -wnod -wamb -wbbf -wpin -wnak
-| -o$@ $. 
+	$(CC) /c /nologo @&&|
+/TP
+#/c                                      # Compile Without Linking
+#/nologo
+/Fp$(TMP)\$(__FILE_NAME).pch	        # header precopilado
+/YXpch.hxx				# Automatic Use of Precompiled Headers
+/X                                      # Ignore Standard Include Paths
+/I$(TMP) 
+/I$(VCROOT)\INCLUDE
+#/IC:\MSTOOLS\INCLUDE
+/I$(ORANTROOT)\OCI73\INCLUDE 
+/DINC_OLE2;STRICT;_DEBUG 
+/D_WINDLL
+/LDd                                     # Creates a DLL
+#/ML                			# Single-Threaded
+/MT					# Multithreaded
+#/Ob1                                     # inline only In-line Function Expansion
+
+#/ML					# Single-Threaded 
+#/Od					# Disable (Debug)
+/GX                                     # Enable Exception Handling (unwind)
+#/Gy                                     # Enable Function-Level Linking
+/EHa                                    # specify the asynchronous exception handling model
+
+/Od 					 # Disable (Debug)
+/Oy-	# Enables the creation of frame pointers on the call stack.
+/Odi	# Disables optimization.
+/Yd     # Place Debug Info in Object File
+/Z7	# Generates complete debugging information
+#/Zn     # Turn Off SBRPACK
+
+
+# -tWDE                              # Windows DLL, explicit functions exported
+# -ff-                               # ANSI float
+# -x                                 # enable exceptions
+# #-xp                               # Enable exception location information
+# -xd                                # Enable destructor cleanup
+# -xds                               # Enable throwing exceptions from a DLL
+# -RT                                # Enable run-time type information
+# -d                                 # Duplicate strings merged
+# -r                                 # Register variables
+# -X-                                # Autodependency information
+# -u                                 # Generate underscores
+# -C                                 # nested comments
+# -A- 
+# -AT                                # borland extensions
+# -w                                 # all warnings
+# -R                                 # browse info in obj
+# -v                                 # turns debugging on and inline expansion off
+# -Od                                # Disable all optimizations
+# -Jg                                # Smart Templates
+# -5                                 # i386 pentium i486  
+# #-vGd 
+# #-vGt
+# -wcln -wsig -wucp -w-par -w-pch- -wstv -wasm -wamp 
+# -wobs -wpch -wdef -wnod -wamb -wbbf -wpin -wnak
+# | -o$@ $. 
+
+| /Fo$@ $. 
+
+###
+### Dependencias explicitas
+###
+### TOTOS = $(LINKOBJS:ZZ=$(EMPTY))
+### MODULOS = $(TOTOS:obj=cpp)
+
+dbo.hxx:		config.h dbomc.hxx dboidl.hxx auxiliar.hxx dispatch.hxx
+
+dll.cpp: 		pch.hxx dbo.hxx
+license.cpp: 		pch.hxx dbo.hxx
+auxiliar.cpp: 		pch.hxx dbo.hxx
+dispatch.cpp:		pch.hxx dbo.hxx
+
+classfactory.cpp: 	isession.hxx pch.hxx dbo.hxx
+
+session.hxx:		isession.hxx
+session.cpp: 		session.hxx icursor.hxx pch.hxx dbo.hxx
+
+icursor.hxx:		isession.hxx
+cursor.hxx:		icursor.hxx icolumn.hxx iparam.hxx icolumns.hxx iparams.hxx
+cursor.cpp: 		cursor.hxx pch.hxx dbo.hxx
+cursor2.cpp: 		cursor.hxx pch.hxx dbo.hxx
+cursor3.cpp: 		cursor.hxx pch.hxx dbo.hxx
+
+icolumns.hxx:		icursor.hxx
+columns.cpp: 		icolumns.hxx pch.hxx dbo.hxx
+iparams.hxx:		icursor.hxx
+params.cpp: 		iparams.hxx pch.hxx dbo.hxx
+
+icolumn.hxx:		icursor.hxx
+column.hxx:		icolumn.hxx
+column.cpp: 		column.hxx pch.hxx dbo.hxx
+column_bstr.cpp: 	column.hxx pch.hxx dbo.hxx
+column_date.cpp: 	column.hxx pch.hxx dbo.hxx
+
+iparam.hxx:		icursor.hxx
+param.hxx:    		iparam.hxx
+param_g.cpp: 		param.hxx pch.hxx dbo.hxx
+param_bind.cpp:		param.hxx pch.hxx dbo.hxx
+param_bind_array.cpp: 	param.hxx pch.hxx dbo.hxx
+
 ###
 ###
 ### .RES
@@ -226,13 +310,13 @@ $(TMP)\dboidl.obj: $(TMP)\dboidl.c
 #$(TMP)\dbo.res :  dbo.rc dboidl.tlb $(TMP)\MSG00000.bin
 #$(.path.res)\
 dbo.res: dbo.rc $(TMP)\dboidl.hxx $(TMP)\dbomc.hxx $(TMP)\versioninfo.rc
-    $(BRC32) -R @&&|
-    -I$(.path.obj);$(BCROOT)\INCLUDE; 
-    -DINC_OLE2;STRICT;_DEBUG;  
-    -FO$@ dbo.rc               
+    $(RC) -R @d:\work\&&|
+   -I$(.path.obj);$(BCROOT)\INCLUDE; 
+   -DINC_OLE2;STRICT;_DEBUG;  
+   -FO$@ dbo.rc               
 |
 
-$(TMP)\versioninfo.rc:	makefile
+$(TMP)\versioninfo.rc:	#makefile
 	copy &&|
 VS_VERSION_INFO VERSIONINFO 
   FILEVERSION     $(__VERSION_MAJOR),$(__VERSION_MINOR),$(__VERSION_BUILD),0
@@ -286,7 +370,7 @@ $(__FILE_NAME).hlp: $(TMP)\help.hpj $(SOURCE)\caratula.rtf $(SOURCE)\topicos.rtf
 ###
 ### ESTO GENERA EL .HPJ
 ###
-$(TMP)\help.hpj: makefile
+$(TMP)\help.hpj: #makefile
     sed "s/@/#/g" < &&|
 ; This file is maintained by HCW. Do not modify this file directly. (JA!JA!)
 
@@ -332,7 +416,7 @@ install: $(BINARY)\$(__FILE_NAME).exe
 ###
 ### SE
 ###
-$(BINARY)\$(__FILE_NAME).exe: $(__FILE_NAME).zip makefile
+$(BINARY)\$(__FILE_NAME).exe: $(__FILE_NAME).zip #makefile
 	$(ZIPSE) $(TMP)\$(__FILE_NAME).zip -t &&|
 $(__CODE_NAME) $(__VERSION)
 $(__LEGAL_STR)
@@ -366,7 +450,7 @@ $(BINARY)\$(__FILE_NAME).inf
 ###
 ### .INF
 ###
-$(__FILE_NAME).inf: makefile
+$(__FILE_NAME).inf: #makefile
 	copy &&|
 ;;;
 ;;; $(__FILE_NAME).inf
@@ -489,7 +573,9 @@ LIBID	        = {$(__UUID_LIBID)}
 ###
 debug:  $(__FILE_NAME).dll
 	copy $(BINARY)\$(__FILE_NAME).dll "c:\Archivos de Programa\$(__CODE_NAME) $(__VERSION)\$(__FILE_NAME).dll"
-	td32.exe -sd$(SOURCE) -t$(BINARY) -c$(SOURCE)\dbo20.td2 "c:\Archivos de Programa\DevStudio\vb\vb5.exe" d:\z\xxx\vb\dbo20.vbp
+	copy $(BINARY)\$(__FILE_NAME).pdb "c:\Archivos de Programa\$(__CODE_NAME) $(__VERSION)\$(__FILE_NAME).pdb"
+
+	td32.exe -sd$(SOURCE) -t$(BINARY) -c$(SOURCE)\dbo20.td2 "c:\Archivos de Programa\DevStudio\vb\vb5.exe" d:\vb\dbo20.vbp
 ###
 ###
 ### CLEAR
