@@ -9,8 +9,9 @@
 #if _PEND_
 #pragma message Agregar un error si trunca strings en el put_Value
 #endif
-/*******************************************************************************
-*** TABind
+
+/**
+*** TS(calar)Bind
 ***/
 class TSBind 
   : public TBind
@@ -39,6 +40,7 @@ protected: // data
 TSBind::TSBind(TGParam& param)
   : TBind(param)
 {
+  _indp = -1;		// inicialmente nulo
 }
 
 void
@@ -63,7 +65,7 @@ TSBind::get_IsNull(VARIANT& Index, VARIANT_BOOL* retv)
   *retv = IsNull() ? VARIANT_TRUE : VARIANT_FALSE;  
 }
 
-/*******************************************************************************
+/**
 *** TTSBind
 ***/
 template <VARTYPE vt, class vT, sword sqlt, class sqlT>
@@ -117,7 +119,7 @@ TTSBind<vt, vT, sqlt, sqlT>::put_Value(VARIANT& Index, VARIANT& Value)
 	  if (vt != V_VT(&Value))
 	    RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_VALUE_TYPE_MISMATCH_I_I, (int)vt, (int)V_VT(&Value));
 	  // asigna
-	  _data = *reinterpret_cast<sqlT*>(&(Value.lVal));
+	  _data = *reinterpret_cast<sqlT*>(&Value.lVal);
 	}
       else
 	{
@@ -126,7 +128,7 @@ TTSBind<vt, vT, sqlt, sqlT>::put_Value(VARIANT& Index, VARIANT& Value)
 	  VariantInit(&v); 
 	  CHECK_HRESULT(VariantChangeType(&v, &Value, 0, vt));
 	  // asigna
-	  _data = *reinterpret_cast<sqlT*>(&(v.lVal));
+	  _data = *reinterpret_cast<sqlT*>(&v.lVal);
 	  // libera lo que fuese
 	  VariantClear(&v);
 	}
@@ -152,11 +154,12 @@ TTSBind<vt, vT, sqlt, sqlT>::get_Value(VARIANT& Index, VARIANT* retv)
   else
     {
       retv->vt = vt;
-      (*(reinterpret_cast<vT*>(&retv->lVal))) = _data; 
+      // asigna (eventualmente usando operador de conversion)	
+      *reinterpret_cast<vT*>(&retv->lVal) = _data; 
     }
 }
 
-/*******************************************************************************
+/**
 *** TStringSBind
 ***/
 class TStringSBind
@@ -255,7 +258,7 @@ TStringSBind::get_Value(VARIANT& Index, VARIANT* retv)
   // no puede tener indice si no es array
   if (VT_ERROR != V_VT(&Index))
     RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_INDEX_ONLY_IN_ARRAYS);
-   //
+  //
   CHECK_HRESULT(VariantClear(retv));
   //
   if (IsNull())
@@ -268,8 +271,15 @@ TStringSBind::get_Value(VARIANT& Index, VARIANT* retv)
 }
 
 void
-TGParam::Bind(dboVarType AsType, VARIANT& StringLength, VARIANT& Value) 
+TGParam::Bind(dboVarType AsType, VARIANT& StringLength)
 {
+  // primero que nada verifica que no se hayan olvidado el parentesis
+  // 0 o -1 en AsType con StringLength vacio o bool en StringLength
+  if ( (0 >= AsType && VT_ERROR == V_VT(&StringLength))
+       ||
+       VT_BOOL == V_VT(&StringLength))
+    RAISE_INTERNAL(DBO_E_RUNTIME_LVALUE_NEED_PARETHESIS);
+  //
   if (VT_BSTR == AsType)
     {
       size_t length;
@@ -281,11 +291,11 @@ TGParam::Bind(dboVarType AsType, VARIANT& StringLength, VARIANT& Value)
 	    RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_LENGTH_TYPE_MISMATCH_I, V_VT(&StringLength));
 	  length = _length;
 	}
-      else if (/*VT_ERROR !=*/VT_BSTR == V_VT(&Value))
-	{
-	  length = SysStringLen(V_BSTR(&Value));
-	}
-      else
+      //       else if (/*VT_ERROR !=*/VT_BSTR == V_VT(&Value))
+      // 	{		
+      // 	  length = SysStringLen(V_BSTR(&Value));
+      // 	}
+      else	
 	RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_CANT_DETERMINE_STRING_SIZE);
 
       // verifica que no sea 0
@@ -302,7 +312,7 @@ TGParam::Bind(dboVarType AsType, VARIANT& StringLength, VARIANT& Value)
       // 
       switch (AsType)
 	{
-	case VT_UI1:// Byte 
+//      case VT_UI1:// Byte 
 	case VT_I2: 
 	  _apBind = new TTSBind<VT_I2,   short,  SQLT_INT, short>(*this);  break; // Integer
 	case VT_I4: 
@@ -319,10 +329,6 @@ TGParam::Bind(dboVarType AsType, VARIANT& StringLength, VARIANT& Value)
 	  RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_TYPE_MISMATCH_I, (int)AsType);
 	}        
     }
-  // si hay valur inicial lo asigna
-  if (VT_ERROR != V_VT(&Value))
-    {
-      VARIANT Index = {VT_ERROR};
-      _apBind->put_Value(Index, Value);
-    }
 }
+
+
