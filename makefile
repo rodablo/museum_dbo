@@ -3,7 +3,7 @@
 
 __VERSION_MAJOR = 2
 __VERSION_MINOR = 1
-__VERSION_BUILD = 64
+__VERSION_BUILD = 65
 __VERSION       = $(__VERSION_MAJOR).$(__VERSION_MINOR).$(__VERSION_BUILD)
 
 !if $d(ALTERNATE)
@@ -12,10 +12,11 @@ __BASE_NAME   = ALTERNATE
 __FILE_NAME   = alternate
 __INST_NAME   = alternate-$(__VERSION)
 !else
-__ALTERNATE   = 0
-__BASE_NAME   = DBO21
-__FILE_NAME   = dbo21
-__INST_NAME   = dbo-$(__VERSION)
+__ALTERNATE = 0
+__CODE_NAME = DBO
+__BASE_NAME = $(__CODE_NAME)$(__VERSION_MAJOR)$(__VERSION_MINOR)
+__FILE_NAME = dbo21
+__INST_NAME = dbo-$(__VERSION)
 !endif
 
 ###
@@ -30,8 +31,7 @@ BRC32   = Brc32
 TASM32  = Tasm32
 MC      = c:\mstools\bin\mc.exe  
 MIDL    = c:\mstools\bin\midl.exe
-IS      = "c:\Program Files\InstallShield\InstallShield Express BC++ 5.02 Edition\isx.exe"
-ZIP     = c:
+ZIP     = "c:\Archivos de programa\WinZip\WINZIP32.EXE"
 
 ###
 ### Paths
@@ -45,9 +45,11 @@ EMPTY     =
 .path.obj=$(TMP)
 .path.cpp=$(SOURCE)
 .path.res=$(TMP)
+.path.zip=$(TMP)
 .path.dll=$(BINARY)
 .path.hlp=$(BINARY)
 .path.cnt=$(BINARY)
+.path.inf=$(BINARY)
 
 ###
 ###
@@ -77,6 +79,8 @@ cw32.lib+
 #cw32mt.lib+
 #C:\BC5\LIB\bidsf.lib+
 oleaut32.lib advapi32.lib ole2w32.lib import32.lib+
+#.\crypto\rsa.lib+
+#d:\work\lib\
 ociw32.lib, dbo.def, $(TMP)\dbo.res
 |
 #    tdstrp32 $(BINARY)\dbo20.dll
@@ -98,7 +102,7 @@ $(TMP)\dboidl.hxx: dboidl.idl # Ver multiples targets en el make
 #$(TMP)\dboidl.c: dboidl.idl # Ver multiples targets en el make
     $(MIDL) @&&|        
 /ms_ext /char unsigned /nologo /win32 /D __COMPAT00__=0
-/D __ALTERNATE__=$(__ALTERNATE__)
+/D __ALTERNATE=$(__ALTERNATE)
 /D __BASE_NAME=$(__BASE_NAME) 
 /D __FILE_NAME=$(__FILE_NAME) 
 /I c:\mstools\include /tlb $*.tlb /iid $*.c /h $< dboidl.idl
@@ -122,6 +126,7 @@ $(TMP)\dboidl.obj: $(TMP)\dboidl.c
 -IC:\BC5\INCLUDE
 -IC:\MSTOOLS\INCLUDE
 -IC:\ORANT\OCI73\INCLUDE 
+-I.\CRYPTO
 -DINC_OLE2;STRICT;_DEBUG 
 -D__ALTERNATE=$(__ALTERNATE)
 -D__DBO2_BUILD_NUMBER__=$(__VERSION_BUILD)
@@ -269,249 +274,163 @@ BrowseButtons ()
 ###
 ### INSTALLEXE
 ###
-install: $(TMP)\$(__FILE_NAME).exe
-	copy $(TMP)\$(__FILE_NAME).exe $(BINARY)\$(__INST_NAME).exe
-###
+install: $(BINARY)\$(__INST_NAME).exe
+
 ###
 ### SE
 ###
-$(TMP)\$(__FILE_NAME).exe: $(TMP)\$(__FILE_NAME).zip
-	winzipse $(TMP)\$(__FILE_NAME).zip @&&|
+$(BINARY)\$(__INST_NAME).exe: $(__INST_NAME).zip makefile
+	winzipse $(TMP)\$(__INST_NAME).zip -t &&|
+DBO $(__VERSION)
+©1998 RODABLO para OriGenes A.F.J.P
+| @&&|
+-win32
 -i $(SOURCE)\dbo21.ico
--ishield3
--win32	
+-st "Instalar DBO $(__VERSION)"
+-setup
 -le
--auto
-|	
+#-auto
+-o
+-c "rundll32 setupapi,InstallHinfSection DoIt 132 .\$(__INST_NAME).inf"
+| 
+	copy $(TMP)\$(__INST_NAME).exe $(BINARY)\$(__INST_NAME).exe
+	del  /Q /F $(TMP)\$(__INST_NAME).exe
 ###
 ###
 ### ZIP
 ###
-$(TMP)\$(__FILE_NAME).zip: $(TMP)\$(__FILE_NAME)\650mb\Disk1\_setup.1
-	PKZIP -ex $(TMP)\$(__FILE_NAME).zip $(TMP)\$(__FILE_NAME)\650mb\Disk1\*.*
-###
-###
-### IS
-###
-$(TMP)\$(__FILE_NAME)\650mb\Disk1\_setup.1: $(__FILE_NAME).dll $(__FILE_NAME).hlp $(__FILE_NAME).cnt
+$(__INST_NAME).zip: $(__FILE_NAME).dll $(__FILE_NAME).hlp $(__FILE_NAME).cnt $(__INST_NAME).inf
 	tdstrp32 $(BINARY)\$(__FILE_NAME).dll
+	del /Q /F $(TMP)\$(__INST_NAME).zip
+	$(ZIP) -min -a -ex $(TMP)\$(__INST_NAME).zip @&&|
+$(BINARY)\$(__FILE_NAME).dll 
+$(BINARY)\$(__FILE_NAME).hlp 
+$(BINARY)\$(__FILE_NAME).cnt
+$(BINARY)\$(__INST_NAME).inf 
+|
+
+###
+###
+### .INF
+###
+$(__INST_NAME).inf: makefile
 	copy &&|
-[InstallShield Wizard]
-iDate=1
-iTime=1
-Flag=0
-ISX.EXE Size=668160
-ISX.EXE Date=12.49.10  18/12/1996
-ISX.EXE Ver=1.11.0.0
-SETUP.EXE Size=44928
-SETUP.EXE Date=13.04.12  4/11/1996
-SETUP.EXE Ver=3.0.107.0
-SETUP.INS Size=66760
-SETUP.INS Date=17.50.16  7/3/1997
-SETUP.INS Ver=Not available
-_INST16.EX_ Size=66760
-_INST16.EX_ Date=17.50.16  7/3/1997
-_INST16.EX_ Ver=Not available
-_INST32I.EX_ Size=320276
-_INST32I.EX_ Date=16.17.32  5/11/1996
-_INST32I.EX_ Ver=Not available
-ISDEPEND.INI Size=5102
-ISDEPEND.INI Date=16.31.20  11/6/1996
-ISDEPEND.INI Ver=Not available
-SWDEPEND.INI Size=4605
-SWDEPEND.INI Date=1.12.52  12/3/1997
-SWDEPEND.INI Ver=Not available
-ICOMP.EXE Size=119808
-ICOMP.EXE Date=15.05.10  15/1/1996
-ICOMP.EXE Ver=3.00.062
-SPLIT.EXE Size=90624
-SPLIT.EXE Date=15.09.36  15/1/1996
-SPLIT.EXE Ver=3.00.060
-PACKLIST.EXE Size=87552
-PACKLIST.EXE Date=15.10.30  15/1/1996
-PACKLIST.EXE Ver=3.00.060
-Version=1.11a
-DevTool=for Borland C++ 5.0
-Platform=Win32
-PtrBase=38200
-PtrPosY=73
-PtrPage=0
-DisksBuilt=1
-DisksDir=dbo21\650MB\
-TabsVisit=000000000000000000
-LangNum=0
-[VisualDesign]
-AppName=DBO $(__VERSION)
-Version=$(__VERSION)
-Company=RODABLO
-Title=DBO $(__VERSION)
-TitleType=1
-BackgrndAlign=2
-Backgrnd=1
-BackgrndColor=0
-Uninstall=1
-Silent=1
-SmsMode=0
-[RegEntries]
-Reg1Path=HKEY_CLASSES_ROOT
-Reg1Val1Type=0
-Reg1Val1Name=(Default)
-Reg1Val1Data=(value not set)
-Reg1Vals=1
-Reg2Path=HKEY_CURRENT_USER
-Reg2Val1Type=0
-Reg2Val1Name=(Default)
-Reg2Val1Data=(value not set)
-Reg2Vals=1
-Reg3Path=HKEY_LOCAL_MACHINE
-Reg3Val1Type=0
-Reg3Val1Name=(Default)
-Reg3Val1Data=(value not set)
-Reg3Vals=1
-Reg4Path=HKEY_USERS
-Reg4Val1Type=0
-Reg4Val1Name=(Default)
-Reg4Val1Data=(value not set)
-Reg4Vals=1
-Reg5Path=HKEY_CURRENT_CONFIG
-Reg5Val1Type=0
-Reg5Val1Name=(Default)
-Reg5Val1Data=(value not set)
-Reg5Vals=1
-Reg6Path=HKEY_DYN_DATA
-Reg6Val1Type=0
-Reg6Val1Name=(Default)
-Reg6Val1Data=(value not set)
-Reg6Vals=1
-Reg7Path=HKEY_CLASSES_ROOT\CLSID
-Reg7Val1Type=0
-Reg7Val1Name=(Default)
-Reg7Val1Data=(value not set)
-Reg7Vals=1
-Reg8Path=HKEY_CLASSES_ROOT\CLSID\{CA43D287-EF82-11cf-B8C6-00A02454EEC8}
-Reg8PathUninstall=1
-Reg8Val1Type=0
-Reg8Val1Name=(Default)
-Reg8Val1Data=DBO $(__VERSION_MAJOR).$(__VERSION_MINOR)
-Reg8Vals=1
-Reg9Path=HKEY_CLASSES_ROOT\CLSID\{CA43D287-EF82-11cf-B8C6-00A02454EEC8}\InProcServer32
-Reg9Val1Type=0
-Reg9Val1Name=(Default)
-Reg9Val1Data=<INSTALLDIR>\dbo21.dll
-Reg9Vals=1
-Reg10Path=HKEY_CLASSES_ROOT\CLSID\{CA43D287-EF82-11cf-B8C6-00A02454EEC8}\ProgID
-Reg10Val1Type=0
-Reg10Val1Name=(Default)
-Reg10Val1Data=DBO21.Session
-Reg10Vals=1
-Reg11Path=HKEY_CLASSES_ROOT\CLSID\{CA43D287-EF82-11cf-B8C6-00A02454EEC8}\Programmable
-Reg11Val1Type=0
-Reg11Val1Name=(Default)
-Reg11Val1Data=(value not set)
-Reg11Vals=1
-Reg12Path=HKEY_CLASSES_ROOT\CLSID\{CA43D287-EF82-11cf-B8C6-00A02454EEC8}\TypeLib
-Reg12Val1Type=0
-Reg12Val1Name=(Default)
-Reg12Val1Data={CA43D288-EF82-11cf-B8C6-00A02454EEC8}
-Reg12Vals=1
-Reg13Path=HKEY_CLASSES_ROOT\CLSID\{CA43D287-EF82-11cf-B8C6-00A02454EEC8}\Version
-Reg13Val1Type=0
-Reg13Val1Name=(Default)
-Reg13Val1Data=2.1
-Reg13Vals=1
-Reg14Path=HKEY_CLASSES_ROOT\CLSID\{CA43D287-EF82-11cf-B8C6-00A02454EEC8}\VersionIndependentProgID
-Reg14Val1Type=0
-Reg14Val1Name=(Default)
-Reg14Val1Data=DBO21.Session
-Reg14Vals=1
-Reg15Path=HKEY_CLASSES_ROOT\DBO21.Session
-Reg15PathUninstall=1
-Reg15Val1Type=0
-Reg15Val1Name=(Default)
-Reg15Val1Data=DBO $(__VERSION_MAJOR).$(__VERSION_MINOR)
-Reg15Vals=1
-Reg16Path=HKEY_CLASSES_ROOT\DBO21.Session\Clsid
-Reg16Val1Type=0
-Reg16Val1Name=(Default)
-Reg16Val1Data={CA43D287-EF82-11cf-B8C6-00A02454EEC8}
-Reg16Vals=1
-Reg17Path=HKEY_CLASSES_ROOT\TypeLib
-Reg17Val1Type=0
-Reg17Val1Name=(Default)
-Reg17Val1Data=(value not set)
-Reg17Vals=1
-Reg18Path=HKEY_CLASSES_ROOT\TypeLib\{CA43D288-EF82-11cf-B8C6-00A02454EEC8}
-Reg18PathUninstall=1
-Reg18Val1Type=0
-Reg18Val1Name=(Default)
-Reg18Val1Data=(value not set)
-Reg18Vals=1
-Reg19Path=HKEY_CLASSES_ROOT\TypeLib\{CA43D288-EF82-11cf-B8C6-00A02454EEC8}\2.1
-Reg19Val1Type=0
-Reg19Val1Name=(Default)
-Reg19Val1Data=DBO $(__VERSION_MAJOR).$(__VERSION_MINOR)
-Reg19Vals=1
-Reg20Path=HKEY_CLASSES_ROOT\TypeLib\{CA43D288-EF82-11cf-B8C6-00A02454EEC8}\2.1\0
-Reg20Val1Type=0
-Reg20Val1Name=(Default)
-Reg20Val1Data=(value not set)
-Reg20Vals=1
-Reg21Path=HKEY_CLASSES_ROOT\TypeLib\{CA43D288-EF82-11cf-B8C6-00A02454EEC8}\2.1\0\win32
-Reg21Val1Type=0
-Reg21Val1Name=(Default)
-Reg21Val1Data=<INSTALLDIR>\dbo21.dll
-Reg21Vals=1
-Reg22Path=HKEY_CLASSES_ROOT\TypeLib\{CA43D288-EF82-11cf-B8C6-00A02454EEC8}\2.1\FLAGS
-Reg22Val1Type=0
-Reg22Val1Name=(Default)
-Reg22Val1Data=0
-Reg22Vals=1
-Reg23Path=HKEY_CLASSES_ROOT\TypeLib\{CA43D288-EF82-11cf-B8C6-00A02454EEC8}\2.1\HELPDIR
-Reg23Val1Type=0
-Reg23Val1Name=(Default)
-Reg23Val1Data=<INSTALLDIR>\dbo21.hlp
-Reg23Vals=1
-Regs=23
-[Groups]
-Groups=2
-Group1Size=1886030
-Group1Files=2
-Group1Name=Dll
-Group1Dir=<INSTALLDIR>
-Group1File1=C:\z\bin\dbo21.dll
-Group1File2=D:\work\license.reg
-Group2Size=50643
-Group2Files=2
-Group2Name=Help
-Group2Dir=<INSTALLDIR>
-Group2File1=C:\z\bin\DBO21.HLP
-Group2File2=c:\z\bin\dbo21.cnt
-[Components]
-Components=2
-Component1Groups=1
-Component1Name=DLL
-Component1Description=Archivos requeridos para el funcionamiento.
-Component1GroupList=1 
-Component2Groups=1
-Component2Name=Ayuda en linea
-Component2Description=Archivos de la ayuda en linea.
-Component2GroupList=2 
-[Types]
-Types=1
-Type1Components=2
-Type1Name=Complete 
-Type1ComponentList=1 2 
-[Sequence]
-DestinationLocationDir=<WINDISK>\Archivos de programa\RODABLO\DBO $(__VERSION)
-SelectProgramFolderName=Dbo21
-SplashScreen=1
-SplashScreenBmp=D:\work\is\splash.bmp
-DestinationLocation=1
-BeginFileTransfer=1
-ProgressBar=1
-SetupComplete=1
-| $(TMP)\$(__FILE_NAME).iwz
-	$(IS) $(TMP)\$(__FILE_NAME).iwz
+;;;
+;;; $(__INST_NAME).inf
+;;;
+;;; Instalación/Desinstalacíon para el dbo $(__VERSION)
+;;;
+;;; ©1998 RODABLO
+;;;
+[version]
+Signature="$$Windows NT$" 				;"$$CHICAGO$"
+Provider=%RODABLO%
+
+;;;
+;;; DIRS
+;;;
+[DestinationDirs]
+InfDirFiles = 17                       			; 17 - \Windows\INF directory
+AppDirFiles = 24, %PROGRAMFILESDIR%\%DISP_NAME%\  	; 24 - LDID_APPS\Program Files\
+
+;;; Repite DefaultInstall para que le alcance la opcion -c al  selfextractor 
+;;;
+[DoIt]
+Copyfiles = AppDirFiles, InfDirFiles
+AddReg    = AddRegSection
+
+[DefaultInstall]
+Copyfiles = AppDirFiles, InfDirFiles
+AddReg    = AddRegSection
+
+[Uninstall]
+DelFiles = AppDirFiles, InfDirFiles
+DelReg   = DelRegSection
+
+;;;
+;;; FILES
+;;;
+[AppDirFiles]
+%FILE_NAME%.dll
+%FILE_NAME%.hlp
+%FILE_NAME%.cnt
+
+[InfDirFiles]
+%INST_NAME%.inf
+
+;;;
+;;; REGISTRY
+;;;
+[AddRegSection]
+;;; Registra el servidor
+HKCR,DBO21.Session,,,%SHORT_DISP_NAME%
+HKCR,DBO21.Session\Clsid,,,%CLSID%
+
+HKCR,CLSID\%CLSID%,,,%SHORT_DISP_NAME%
+HKCR,CLSID\%CLSID%\InProcServer32,,,%24%\%PROGRAMFILESDIR%\%DISP_NAME%\%FILE_NAME%.dll
+HKCR,CLSID\%CLSID%\ProgId,,,DBO21.Session
+HKCR,CLSID\%CLSID%\Programmable,,,
+HKCR,CLSID\%CLSID%\TypeLib,,,%LIBID%
+HKCR,CLSID\%CLSID%\Version,,,DBO21.Session
+HKCR,CLSID\%CLSID%\VersionIndependentProgID,,,DBO21.Session
+
+HKCR,TypeLib\%LIBID%\2.1,,,%SHORT_DISP_NAME%
+HKCR,TypeLib\%LIBID%\2.1\FLAGS,,,0
+HKCR,TypeLib\%LIBID%\2.1\HELPDIR,,,%24%\%PROGRAMFILESDIR%\%DISP_NAME%\%FILE_NAME%.hlp
+HKCR,TypeLib\%LIBID%\2.1\0\win32,,,%24%\%PROGRAMFILESDIR%\%DISP_NAME%\%FILE_NAME%.dll
+
+;;; Registra la desinstalación
+HKLM,%APPUNINSTALLKEY%\%INST_NAME%,"DisplayName",,"%DISP_NAME%"
+HKLM,%APPUNINSTALLKEY%\%INST_NAME%,"UninstallString",,"RunDll32 advpack.dll,LaunchINFSection %17%\%INST_NAME%.inf, Uninstall"
+
+;;; Registra la licencia
+
+[DelRegSection]
+;;; Remueve el servidor
+HKCR,DBO21.Session
+HKCR,CLSID\%CLSID%
+HKCR,TypeLib\%LIBID%
+HKCR,Interface\%CLSID%
+
+;;; Remueve la desinstalación
+HKLM,%APPUNINSTALLKEY%\%INST_NAME%,
+
+;;; Remueve la licencia
+
+;;;
+;;; Source file information
+;;;
+[SourceDisksNames.x86]
+1 = %DiskId%,,,""
+
+[SourceDisksFiles]
+%FILE_NAME%.dll = 1 
+%FILE_NAME%.hlp = 1
+%FILE_NAME%.cnt = 1
+%INST_NAME%.inf = 1
+
+;;;
+;;; STRINGS 
+;;; Este area hace de vínculo con el makefile
+;;;
+
+[Strings]
+;;; Dirs 
+PROGRAMFILESDIR = "Archivos de programa"
+;;; Keys 
+APPUNINSTALLKEY = "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
+;;; Varios
+DISKID          = "DBO 2.1 - Disco de instalacíon"
+DISP_NAME       = "DBO $(__VERSION)"       
+SHORT_DISP_NAME = "DBO $(__VERSION_MAJOR).$(__VERSION_MINOR)"       
+INST_NAME       = "$(__INST_NAME)"
+FILE_NAME       = "dbo21"
+BASE_NAME       = "DBO21"
+RODABLO         = "RODABLO"
+CLSID	        = "{CA43D287-EF82-11cf-B8C6-00A02454EEC8}"
+LIBID	        = "{CA43D288-EF82-11cf-B8C6-00A02454EEC8}"
+| $(BINARY)\$(__INST_NAME).inf
+
 ###
 ###
 ### DEBUG
@@ -526,6 +445,7 @@ debug:  $(__FILE_NAME).dll
 clear:
 	del /Q /F /S $(TMP)\*.*	
 	del /Q /F    $(BINARY)\$(__FILE_NAME).*
+	del /Q /F    $(BINARY)\$(__INST_NAME).inf
 ###
 ###	
 
