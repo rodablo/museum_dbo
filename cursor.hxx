@@ -26,11 +26,10 @@ public:
   virtual void BindParam(TCursor* pC, VARIANT& Wich, VARIANT& Value, 
 			 VARIANT& AsType, VARIANT& Length);
   virtual void Bind(TCursor* pC, VARIANT& Wich, 
-		    dboVarType AsType, VARIANT& StringLength, 
-		    VARIANT& Value, Param** retv);
+		    dboVarType AsType, VARIANT& StringLength, Param** retv);
   virtual void BindArray(TCursor* pC, BSTR Wich, short ArraySize, 
 			 dboVarType AsType, VARIANT& StringLength, Param** retv);
-  virtual void Execute(TCursor* pC, VARIANT& N);  
+  virtual void Execute(TCursor* pC, VARIANT& N, VARIANT& Offset);  
   virtual void Fetch(TCursor* pC, VARIANT_BOOL* retv);  
   virtual void Close(TCursor* pC);
   //
@@ -82,11 +81,12 @@ public:
   STDMETHOD(DefineColumns)();
   STDMETHOD(DefineColumnAs)(short Position, dboVarType AsType);
   HRESULT __stdcall Bind(VARIANT Wich, 
-			 dboVarType AsType, VARIANT StringLength, VARIANT Value, Param** retv);
+			 dboVarType AsType, VARIANT StringLength, Param** retv);
   HRESULT __stdcall BindArray(BSTR Wich, short ArraySize, 
 			      dboVarType AsType, VARIANT StringLength, Param** retv);
+  HRESULT __stdcall BindCursor(BSTR Wich, Cursor** retv);
   STDMETHOD(Fetch)(VARIANT_BOOL* retv);
-  STDMETHOD(Execute)(VARIANT N);
+  STDMETHOD(Execute)(VARIANT N, VARIANT Start);
   // chau orden
   STDMETHOD(BindParam)(VARIANT Wich, VARIANT Value, VARIANT AsType, VARIANT Length);
   // IICursor
@@ -104,21 +104,22 @@ public:
   IIParam*  GetParam(string& name);
   int       GetParamCount()          {return m_vParam.size();}
   void      SetDirtyFlag()           {m_fIsDirty = true;}
+  HRESULT   NewEnumColumns(IUnknown** ppIUnknown);
+  HRESULT   NewEnumParams(IUnknown** ppIUnknown);
 
   // TCursor
   HRESULT  IDispatchSEH();
 
   void _BindParam(VARIANT& Wich, VARIANT& Value, VARIANT& AsType, VARIANT& Length);
-  void _Bind(VARIANT& Wich, dboVarType AsType, VARIANT& StringLength, 
-	     VARIANT& Value, Param** retv);
+  void _Bind(VARIANT& Wich, dboVarType AsType, VARIANT& StringLength, Param** retv);
   void _BindArray(BSTR Wich, short ArraySize, 
 		  dboVarType AsType, VARIANT& StringLength, Param** retv);
   void _DefineColumns();
   void _UndefineColumns();
   void _UndefineColumn(int pos);
   void _UndefineColumn(string& name);
-  void _Execute(VARIANT& N);
-  bool _ExecutePL(VARIANT& N);
+  void _Execute(VARIANT& N, VARIANT& Offset);
+  bool _ExecutePL(VARIANT& N, VARIANT& Offset);
   void _Fetch(bool fExecute, VARIANT_BOOL* retv);
   void _Clear();
   void _Close();
@@ -158,7 +159,7 @@ protected:
   // cambiar estos typedef a container independiente
 
   typedef vector<AP<IIParam> >                 V_AP_IIPARAM;
-  typedef map<long, AP<IIParam>, less<long> >  MAP_UNIQUE_2_AP_IIPARAM;
+  //typedef map<long, AP<IIParam>, less<long> >  MAP_UNIQUE_2_AP_IIPARAM;
   typedef map<string, IIParam*, less<string> > MAP_NAME_2_P_IIPARAM;
   typedef map<sword,  IIParam*, less<sword> >  MAP_NUMBER_2_P_IIPARAM;
 
