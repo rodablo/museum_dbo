@@ -24,6 +24,8 @@ public:
   virtual int       GetParamCount() = 0;
   virtual void      SetDirtyFlag() = 0;
   virtual bool      IsStrict() = 0;
+  virtual HRESULT   NewEnumColumns(IUnknown** ppIUnknown) = 0;
+  virtual HRESULT   NewEnumParams(IUnknown** ppIUnknown) = 0;
   //
   virtual ~IICursor(){}
 };
