@@ -8,6 +8,17 @@
 #include <wincrypt.h>
 #include <lm.h>         // for NetXxx API
 
+#define __RSA__ 1
+
+#if __RSA__
+#include <rsaeuro.h>
+extern "C" 
+{
+#include <rsa.h>
+}
+void RSAExample();
+#endif
+
 #define __CREATELIC__ 0
 /*
 \\RED_DESARROLLO
@@ -129,6 +140,9 @@ LicLoad()
 #if __CREATELIC__  
   void CreateLic2();
   CreateLic2();
+#endif
+#if __RSA__
+  //RSAExample();
 #endif
   // intenta obtener el handle de la licencia cargada
   hFM = OpenFileMapping(/*FILE_MAP_READ*/FILE_MAP_WRITE/*PAGE_READWRITE*/, false, szFMName);
@@ -277,7 +291,7 @@ LicValidate()
 
       // VENCIMIENTO FORZADO
       if (0.0 < VENC)
-	if (dateNow < VENC)
+	if (dateNow < VENC) // ESTO ESTA MAL!!!!! DEBE SER >=
 	  // deny now!
 	  throw 0; 
        
@@ -378,26 +392,26 @@ CreateLic2()
 
   // VENCIMIENTO
   st.wYear         = 1998;
-  st.wMonth        = 9; 
+  st.wMonth        = 12; 
   st.wDayOfWeek    = 0; 
-  st.wDay          = 6; 
-  st.wHour         = 14; 
+  st.wDay          = 7; 
+  st.wHour         = 10; 
   st.wMinute       = 0; 
   st.wSecond       = 0; 
   st.wMilliseconds = 0;
   
-  DATE venc = -1;
-  //  if (!SystemTimeToVariantTime(&st, &venc))
-  //    return;
+  DATE venc = -1; // no funciona
+//   if (!SystemTimeToVariantTime(&st, &venc))
+//     return;
   
   // 7/04/98
   // 7/05/98
 
   // TRIAL
   st.wYear         = 1998;
-  st.wMonth        = 9; 
+  st.wMonth        = 10; 
   st.wDayOfWeek    = 0; 
-  st.wDay          = 8; 
+  st.wDay          = 6; 
   st.wHour         = 10; 
   st.wMinute       = 0; 
   st.wSecond       = 0; 
@@ -560,3 +574,107 @@ CreateLic2()
 }
 
 #endif
+
+//-----------------------------------------------
+
+#if __RSA__
+
+void
+KeyGenExample(R_RSA_PUBLIC_KEY *publicKey,
+	     R_RSA_PRIVATE_KEY *privateKey)
+{
+  R_RANDOM_STRUCT randomStruct;
+  R_RSA_PROTO_KEY protoKey;
+  int status;
+  /* Initialise random structure ready for keygen */
+  R_RandomCreate(&randomStruct);
+  /* Initialise prototype key structure */
+  protoKey.bits=512;
+  protoKey.useFermat4 = 1;
+  /* Generate keys */
+  status = R_GeneratePEMKeys(publicKey, privateKey, &protoKey, &randomStruct);
+  if (status)
+    {
+      //printf("R_GeneratePEMKeys failed with %d\n", status);
+      return;
+    }
+}
+
+
+void RSAExample()
+{
+  R_RSA_PUBLIC_KEY  publicKey;
+  R_RSA_PRIVATE_KEY privateKey;
+  unsigned char demostring[] = "Test string for RSA functions #1";
+  unsigned char encryptedString[MAX_RSA_MODULUS_LEN+2];
+  unsigned char decryptedString[256];
+  int status;
+  unsigned int encryptedLength, decryptedLength;
+  /* Generate keys */
+  KeyGenExample(&publicKey, &privateKey);
+  /* Encrypt string with private key */
+  status = RSAPrivateEncrypt((unsigned char *)encryptedString, 
+			     &encryptedLength,
+			     (unsigned char *)demostring,
+			     /*(unsigned int)*/strlen(demostring), 
+			     &privateKey);
+  if (status)
+    {
+      //printf("RSAPrivateEncrypt failed with %x\n", status);
+      return;
+    }
+  /* Decrypt with public key */
+  status = RSAPublicDecrypt(decryptedString, &decryptedLength, encryptedString,
+			    encryptedLength, &publicKey);
+  if (status)
+    {
+      //      printf("RSAPublicDecrypt failed with %x\n", status);
+      return;
+    }
+
+/* Display decrypted string */
+  decryptedString[decryptedLength+1] = (char) "\0";
+  //printf("Decrypted string: %s\n", decryptedString);
+}
+
+void RSAExample2()
+{
+  R_RANDOM_STRUCT randomStruct;
+  R_RSA_PUBLIC_KEY publicKey;
+  R_RSA_PRIVATE_KEY privateKey;
+  char demostring[] = "Test string for RSA functions #2";
+  char encryptedString[MAX_RSA_MODULUS_LEN+2];
+  unsigned char decryptedString[256];
+  int status;
+  unsigned int encryptedLength, decryptedLength;
+  /* Generate keys */
+  KeyGenExample(&publicKey, &privateKey);
+  /* Initialise Random structure */
+  R_RandomCreate(&randomStruct);
+  /* Encrypt string with public key */
+  status = RSAPublicEncrypt(encryptedString, &encryptedLength, demostring,
+			    strlen(demostring), &publicKey, &randomStruct);
+  if (status)
+    {
+      //      printf("RSAPublicEncrypt failed with %x\n", status);
+      return;
+    }
+  /* Decrypt with public key */
+  status = RSAPrivateDecrypt(decryptedString, &decryptedLength,
+			     encryptedString, encryptedLength, &privateKey);
+  if (status)
+    {
+      //      printf("RSAPrivateDecrypt failed with %x\n", status);
+      return;
+    }
+  /* Display decryp ted string */
+  decryptedString[decryptedLength+1] = (char) "\0";
+  //  printf("Decrypted string: %s\n", decryptedString);
+}
+
+//-----------------------------------------------
+#endif
+
+
+
+
