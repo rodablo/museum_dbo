@@ -5,6 +5,9 @@
 #include "pch.hxx"
 #include "dbo.hxx"
 
+#if _PEND_
+#pragma message Revisar comportamiento de ANSI/WIDE con "" o char* = 0
+#endif
 /**
 *** Module Varios
 ***/
@@ -17,21 +20,22 @@ BuildNumber()
 /**
 *** MALLOC & FREE
 ***/
+/*
 extern "C" 
 {
-  void* _RTLENTRY _EXPFUNC totomalloc(size_t size) {
+  void* _RTLENTRY _EXPFUNC malloc(size_t size) {
     return ::HeapAlloc(::GetProcessHeap(), HEAP_GENERATE_EXCEPTIONS, size);
   }
 
-  void* _RTLENTRY _EXPFUNC totorealloc(void* block, size_t size) {
+  void* _RTLENTRY _EXPFUNC realloc(void* block, size_t size) {
     return ::HeapReAlloc(::GetProcessHeap(), HEAP_GENERATE_EXCEPTIONS, block,  size);
   }
 
-  void _RTLENTRY _EXPFUNC totofree(void* block) {
+  void _RTLENTRY _EXPFUNC free(void* block) {
     ::HeapFree(::GetProcessHeap(), /*HEAP_NO_SERIALIZE*/0, block);
   }
 }
-
+*/
 /**
 *** ODATE
 ***/
@@ -140,4 +144,31 @@ ODATE::operator DATE ()
     RAISE_LASTERROR_();
   //
   return date;
+}
+
+/**
+*** VAR
+***/
+VAR::operator long()
+{
+  RAISE_INTERNAL(DBO_E_RUNTIME_VARIANT_MISSMATCH_I,(int)V_VT(_pV));
+  return 1;
+}
+
+VAR::operator int()
+{
+  RAISE_INTERNAL(DBO_E_RUNTIME_VARIANT_MISSMATCH_I,(int)V_VT(_pV));
+  return 1;
+}
+
+VAR::operator short()
+{
+  RAISE_INTERNAL(DBO_E_RUNTIME_VARIANT_MISSMATCH_I,(int)V_VT(_pV));
+  return 1;
+}
+
+VAR::operator BSTR()
+{
+  RAISE_INTERNAL(DBO_E_RUNTIME_VARIANT_MISSMATCH_I,(int)V_VT(_pV));
+  return 0;
 }
