@@ -7,6 +7,8 @@
 
 #include <wincrypt.h>
 #include <lm.h>         // for NetXxx API
+
+#define __CREATELIC__ 0
 /*
 \\RED_DESARROLLO
 
@@ -124,10 +126,10 @@ LicenseInformation()
 void __stdcall
 LicLoad()
 {
-  
-  //  void CreateLic2();
-  //  CreateLic2();
-  
+#if __CREATELIC__  
+  void CreateLic2();
+  CreateLic2();
+#endif
   // intenta obtener el handle de la licencia cargada
   hFM = OpenFileMapping(/*FILE_MAP_READ*/FILE_MAP_WRITE/*PAGE_READWRITE*/, false, szFMName);
   // si no existe asume que es el primero y crea nuevo
@@ -349,7 +351,7 @@ LicFastValidate()
   return true;
 }
 
-#if 0
+#if __CREATELIC__
 
 void  
 CreateLic2()
@@ -392,7 +394,7 @@ CreateLic2()
 
   // TRIAL
   st.wYear         = 1998;
-  st.wMonth        = 6; 
+  st.wMonth        = 7; 
   st.wDayOfWeek    = 0; 
   st.wDay          = 7; 
   st.wHour         = 14; 
