@@ -28,7 +28,7 @@ public:
   virtual ~TSBind() {}
 
 protected: // métodos
-  virtual bool   IsNull() {0 > _indp;}
+  virtual bool   IsNull() {return 0 > _indp;}
 
 protected: // data 
   //
