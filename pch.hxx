@@ -21,8 +21,10 @@
 *** INCLUDES
 ***/
 #include <windows.h>
-#include <windowsx.h>                 // GET_WM_COMMAND_ID
+#include <windowsx.h>                 	// GET_WM_COMMAND_ID
 //#include <olectl.h>                   // IClassFactory2
+//#include <ocidl.h>			// IConnectionPointContainer, etc..
+#include <olectl.h>			// IConnectionPointContainer, etc..
 //#include <twinsys/string.h>	      // TString
 
 /**

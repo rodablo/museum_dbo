@@ -175,6 +175,7 @@ void
 TPWBinaryBind::Finalize()
 {
   SafeArrayUnaccessData(V_ARRAY(&m_variantPiece));
+  VariantClear(&m_variantPiece);
 }
 
 /**
@@ -209,11 +210,8 @@ TPWLongBind::RequestPiece(IDispatch* pSink)
     CallEvent(pSink);  
     // verifica el tipo
     if (VT_BSTR == m_variantPiece.vt) {
-      // determina el tamaño del buffer
-      if (0 == (m_ub4PieceDataLength = 
-		WideCharToMultiByte(CP_ACP, 0, V_BSTR(&m_variantPiece), 
-				    -1, 0, 0, 0, 0)))
-	RAISE_LASTERROR_();
+      // determina el tamaño del string (sin el 0)
+      m_ub4PieceDataLength = SysStringLen(V_BSTR(&m_variantPiece));
       // aloca el buffer
       m_pvPieceData = new char[m_ub4PieceDataLength]; 
       // convierte
@@ -222,6 +220,8 @@ TPWLongBind::RequestPiece(IDispatch* pSink)
 				    V_BSTR(&m_variantPiece), m_ub4PieceDataLength, 
 				    m_pvPieceData, m_ub4PieceDataLength, 0, 0)))
 	RAISE_LASTERROR_();
+      // libera el string
+      VariantClear(&m_variantPiece);
       // declara el buffer para el exec
       CHECK_OCI(::osetpi(_Param, 
 			 VARIANT_TRUE == m_vbLastPiece? OCI_LAST_PIECE : m_ub1Piece,
@@ -238,7 +238,10 @@ TPWLongBind::RequestPiece(IDispatch* pSink)
 
 void 
 TPWLongBind::Finalize()
-{
+{	
+  // libera el string
+  VariantClear(&m_variantPiece);
+  // libera el buffer temporario
   if (0 != m_pvPieceData) {
     delete [] m_pvPieceData;
     m_pvPieceData = 0;
