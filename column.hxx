@@ -54,6 +54,11 @@ public:
   virtual HRESULT __stdcall get_Ref(VARIANT* retv);
   virtual HRESULT __stdcall get_Copy(VARIANT* retv);
 
+  virtual HRESULT __stdcall Dummy1() {}
+  virtual HRESULT __stdcall Dummy2() {}  
+  virtual HRESULT __stdcall Dummy3() {}  
+  virtual HRESULT __stdcall Dummy4() {}
+
   // IIColumn
   virtual string& Name() { return m_sName; }       
   virtual sword   Pos()  { return m_pos; }        

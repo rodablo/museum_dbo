@@ -89,6 +89,12 @@ public:
   STDMETHOD(Execute)(VARIANT N, VARIANT Start);
   // chau orden
   STDMETHOD(BindParam)(VARIANT Wich, VARIANT Value, VARIANT AsType, VARIANT Length);
+
+  HRESULT __stdcall Dummy1() {}
+  HRESULT __stdcall Dummy2() {}  
+  HRESULT __stdcall Dummy3() {}  
+  HRESULT __stdcall Dummy4() {}
+
   // IICursor
   operator Cda_Def*()                {return &m_cda;}  //operator Lda_Def*() {return  m_IISession;}
   bool     IsStrict()                {return _fStrict; }
