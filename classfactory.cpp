@@ -68,10 +68,10 @@ TSessionCF::CreateInstance(LPUNKNOWN pUnkOuter, REFIID riid, LPVOID* ppvObj)
     if (0 != pUnkOuter)
       return CLASS_E_NOAGGREGATION;
     // verifica la licencia
-    extern HRESULT LicValidate();
-    HRESULT hr = LicValidate();
-    if (FAILED(hr))
-	return hr;
+    //extern HRESULT LicValidate();
+    //HRESULT hr = LicValidate();
+    //    if (FAILED(hr))
+    //return hr;
     // crea una instancia
     IISession* pS;
     CreateSession(pS);

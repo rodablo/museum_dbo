@@ -6,7 +6,7 @@ __NODEBUG 	= 0
 ###
 __VER_MAJOR   	= 2
 __VER_MINOR   	= 2
-__VER_RELEASE 	= 2
+__VER_RELEASE 	= 4
 ###
 ### END DEL AREA EDITABLE
 ###

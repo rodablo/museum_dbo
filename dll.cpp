@@ -43,7 +43,7 @@ DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID /*lpReserved*/)
       extern void Throw(unsigned int code, _EXCEPTION_POINTERS* pEP);
       _set_se_translator(Throw);
       //	DebugBreak();  //asm { int 0x03 }
-      LicLoad();
+      //      LicLoad();
       // globlaliza
       g_hInst = hInstance;
       // bye DLL_THREAD_ATTACH and DLL_THREAD_DETACH
@@ -75,7 +75,7 @@ DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID /*lpReserved*/)
 	g_pTLib = 0;
       }
       //
-      LicFree();
+      //LicFree();
       //
       return true;
     }
