@@ -224,6 +224,14 @@ IDispatchSEH(LPEXCEPTION_POINTERS& rpEP,
   return hrret;
 }
 
-
+/**
+***
+***
+***/
+void
+Throw(unsigned int code, _EXCEPTION_POINTERS* pEP) 
+{
+  throw TException(pEP);
+}
 
 
