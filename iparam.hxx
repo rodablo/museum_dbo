@@ -14,30 +14,24 @@ public:
   virtual sword   Number()   = 0; // retorna la numero del parametro
   virtual void    PreWork()  = 0;
   virtual void    PosWork()  = 0;
-
-  virtual void    _Bind()    = 0; // borrar
   virtual bool    ZeroRef()  = 0;
 
-  virtual void    Bind(dboVarType AsType, VARIANT& StringLength, VARIANT& Value) = 0;
+  virtual void    Bind(dboVarType AsType, VARIANT& StringLength) = 0;
   virtual void    BindArray(dboVarType AsType, short ArraySize, VARIANT& StringLength) = 0;
   virtual void    ClearBind() = 0;
+  virtual bool    IsStrict() = 0;
+  //
+  virtual void    Internal_put_Value(VARIANT& Index, VARIANT& Value) = 0;	
   //
   virtual ~IIParam() {}
 };
 
-// esto aqui esta mal!
-// bool
-// ValidateWichParam(VARIANT& rWich, sword* pNumber);
- 
-// abstract factory (volar los parametros del bind)
-extern void
-_CreateParam(IICursor& cursor, VARIANT& Wich, VARIANT& Value, VARIANT& AsType, VARIANT& Length,
-	    AP<IIParam>& rapParam);
-
 // abstract factory del param genérico
 extern void
 CreateNumericParam(IICursor& cursor, sword Wich, AP<IIParam>& rapParam);
-
+//
 extern void
 CreateStringParam(IICursor& cursor, string& Wich, AP<IIParam>& rapParam);
 #endif //_IPARAM_HXX_
+
+
