@@ -6,8 +6,8 @@
 #include "pch.hxx"
 #include "dbo.hxx"
 #include "cursor.hxx"
-#include "iparams.hxx"
-#include "icolumns.hxx"
+//#include "iparams.hxx"
+//#include "icolumns.hxx"
 
 /** Factory
 *** (en el futuro sera de ICursor)
@@ -18,8 +18,10 @@ CreateCursor(IISession& isession, IICursor*& rpCursor)
 {
   // pesimismo inicial
   rpCursor = 0;
-  // se aloca...
-  AP<TCursor> ap = new TCursor(isession);
+  // se aloca... 
+  // (ver si MSC se banca invocar al contructor 
+  // AP<TCursor> ap(new TCursor(isession));
+  AP<TCursor> ap = AP<TCursor>(new TCursor(isession));
   // lo abre
   ap->_pState->Open(ap.get());  
   //ap->DoOpen();
