@@ -1,8 +1,7 @@
 /**
-***	DBO11(R)1997
+*** DBO2(1997/1998)
 *** rodablo@hotmail.com
 ***/
-
 /// soporte de errores para vtable
 class TISEI : public ISupportErrorInfo
 {
@@ -23,6 +22,38 @@ private:
   LPUNKNOWN  m_pUnkObj; // IUnknown del Objeto que la implementa
   const IID& m_riid;
 };
+
+/**
+***
+*** TException
+***/
+class TException
+{
+public:
+  TException(_EXCEPTION_POINTERS* pEP){m_pEP = pEP;}
+
+  //protected:
+  //  TISEI         m_ISEI;     	// vtable errors
+  // EXCEPINFO	m_excepInfo;	// automation
+  _EXCEPTION_POINTERS* m_pEP;
+};
+
+//  class TOracleException : public TException
+//  {
+//  };
+//  class TInternalException : public TException
+//  {
+//  };
+//  class THRESULTException : public TException
+//  {
+//  };
+//  class TOSException : public TException
+//  {
+//  public:
+//  protected:
+//    LPEXCEPTION_POINTERS  m_pEP;    
+//  };
+
 
 /**
 ***
@@ -73,7 +104,7 @@ public:
 //   inline void   CHECK_HRESULT(HRESULT hr);
 //   inline void   CHECK_OCI(sword stat);
 
-  DWORD           IDispatchSEHFilter(LPEXCEPTION_POINTERS pEP);
+  //  DWORD           IDispatchSEHFilter(LPEXCEPTION_POINTERS pEP);
   virtual HRESULT IDispatchSEH() = 0;
 
   /// implementacion
@@ -89,12 +120,17 @@ protected:
   ULONG                 m_cRef;             // ref count
   const IID&            m_rIID;
   LPTYPEINFO            m_pTI;              // typeinfo
+  //excepciones
+  TException*           m_pEx;
   //SEH
   TISEI                 m_ISEI;             // vtable errors
   EXCEPINFO             m_excepInfo;
   bool                  m_fException;
   LPEXCEPTION_POINTERS  m_pEP;              // Aqui pasa la info el SEH
 };
+
+extern void LoadTypeInfo(const IID& rIID, LPTYPEINFO& rpTI);
+
 
 template <class IBase, const IID* pIID>
 TIDISPATCH<IBase, pIID>::TIDISPATCH() 
@@ -104,8 +140,9 @@ TIDISPATCH<IBase, pIID>::TIDISPATCH()
   m_cRef       = 0;
   m_pTI        = 0;
   m_fException = false;
+  m_pEx        = 0;
   //
-  void LoadTypeInfo(const IID& rIID, LPTYPEINFO& rpTI);
+  //  extern void LoadTypeInfo(const IID& rIID, LPTYPEINFO& rpTI);
   LoadTypeInfo(m_rIID, m_pTI);
 }
 
@@ -116,6 +153,9 @@ TIDISPATCH<IBase, pIID>::~TIDISPATCH() {
     m_pTI->Release(); 
     m_pTI = 0;
     }
+  // 
+  if (0 != m_pEx)
+    delete m_pEx;
 }
 
 template <class IBase, const IID* pIID>
@@ -197,16 +237,16 @@ TIDISPATCH<IBase, pIID>::Invoke(DISPID dispidMember, REFIID riid,
 /**
 *** SEH
 ***/
-template <class IBase, const IID* pIID>
-inline DWORD
-TIDISPATCH<IBase, pIID>::IDispatchSEHFilter(LPEXCEPTION_POINTERS pEP) {
-  if (EXCEPTION_SINGLE_STEP != pEP->ExceptionRecord->ExceptionCode) {
-    m_pEP = pEP;                        // 1. salva la info en la instancia
-    return EXCEPTION_EXECUTE_HANDLER;
-  }
-  else
-    return EXCEPTION_CONTINUE_SEARCH;
-}
+//  template <class IBase, const IID* pIID>
+//  inline DWORD
+//  TIDISPATCH<IBase, pIID>::IDispatchSEHFilter(LPEXCEPTION_POINTERS pEP) {
+//    if (EXCEPTION_SINGLE_STEP != pEP->ExceptionRecord->ExceptionCode) {
+//      m_pEP = pEP;                        // 1. salva la info en la instancia
+//      return EXCEPTION_EXECUTE_HANDLER;
+//    }
+//    else
+//      return EXCEPTION_CONTINUE_SEARCH;
+//  }
 
 HRESULT
 IDispatchSEH(LPEXCEPTION_POINTERS& rpEP, 
@@ -254,8 +294,16 @@ CHECK_OCI(sword stat) {
     RAISE_OCI(stat);
 }
 
-#define __AUTO_EXCEPT						\
-__except (IDispatchSEHFilter(GetExceptionInformation())) {	\
-  return IDispatchSEH(); }					\
-return NOERROR
+//
+//  #define __AUTO_EXCEPT						\
+//  __except (IDispatchSEHFilter(GetExceptionInformation())) {	\
+//    return IDispatchSEH(); }					\
+//  return NOERROR
+//
 
+#define __AUTO_EXCEPT		\
+    catch(TException e) {	\
+        m_pEP = e.m_pEP;        \
+        return IDispatchSEH();  \
+        }	                \
+return NOERROR
