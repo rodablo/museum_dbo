@@ -1,0 +1,88 @@
+:Base dbo21.hlp>main
+:Title DBO 2.1
+1 Introducción=IDH_CONTENIDO
+1 Referencia
+
+2 Session
+3 Introducción=IDH_SESSION
+3 Propiedades
+4 User=IDH_SESSION_USER>main
+4 Password=IDH_SESSION_PASSWORD>main
+4 Alias=IDH_SESSION_ALIAS>main
+4 IsLogged=IDH_SESSION_ISLOGGED>main
+4 AutoCommit=IDH_SESSION_AUTOCOMMIT>main
+4 NonBlockingMode=IDH_SESSION_NONBLOCKINGMODE>main
+4 RC=IDH_SESSION_RC>main
+4 CursorCount=IDH_SESSION_CURSORCOUNT>main
+3 Métodos 
+4 Logon=IDH_SESSION_LOGON>main
+4 Logoff=IDH_SESSION_LOGOFF>main
+4 Commit=IDH_SESSION_COMMIT>main
+4 RollBack=IDH_SESSION_ROLLBACK>main
+4 Break=IDH_SESSION_BREAK>main
+4 CreateCursor=IDH_SESSION_CREATECURSOR>main
+
+2 Cursor
+3 Introducción=IDH_CURSOR
+3 Propiedades
+4 EOF=IDH_CURSOR_EOF>main
+4 RowCount=IDH_CURSOR_ROWCOUNT>main
+4 RPC=IDH_CURSOR_RPC>main
+4 RC=IDH_CURSOR_RC>main
+4 RowXFetch=IDH_CURSOR_ROWXFETCH>main
+4 IsDirty=IDH_CURSOR_ISDIRTY>main
+4 Strict=IDH_CURSOR_STRICT>main
+4 Params=IDH_CURSOR_PARAMS>main
+4 Cols=IDH_CURSOR_COLS>main
+3 Métodos
+4 ParseSQL=IDH_CURSOR_PARSESQL>main
+4 DefineColumns=IDH_CURSOR_DEFINECOLUMNS>main
+4 Bind=IDH_CURSOR_BIND>main
+4 BindArray=IDH_CURSOR_BINDARRAY>main
+4 Fetch=IDH_CURSOR_FETCH>main
+4 Execute=IDH_CURSOR_EXECUTE>main
+
+2 Param
+3 Introducción=IDH_PARAM
+3 Propiedades
+4 Name=IDH_PARAM_NAME>main
+4 Number=IDH_PARAM_NUMBER>main
+4 IsNull=IDH_PARAM_ISNULL>main
+4 Length=IDH_PARAM_LENGTH>main
+4 RC=IDH_PARAM_RC>main
+4 Value=IDH_PARAM_VALUE>main
+4 Strict=IDH_PARAM_STRICT>main
+4 NVL=IDH_PARAM_NVL.main
+
+2 Params
+3 Introducción=IDH_PARAMS
+3 Propiedades
+4 Count=IDH_PARAMS_COUNT>main
+4 Item=IDH_PARAMS_ITEM>main
+
+2 Column
+3 Introducción=IDH_COLUMN
+3 Propiedades
+4 Name=IDH_COLUMN_NAME>main
+4 Position=IDH_COLUMN_POSITION>main
+4 DisplaySize=IDH_COLUMN_DISPLAYSIZE>main
+4 Precision=IDH_COLUMN_PRECISION>main
+4 Scale=IDH_COLUMN_SCALE>main
+4 IsNullOK=IDH_COLUMN_ISNULLOK>main
+4 HasNulls=IDH_COLUMN_HASNULLS>main
+4 HasErrors=IDH_COLUMN_HASERRORS>main
+4 NVL=IDH_COLUMN_NVL>main
+4 RowCount=IDH_COLUMN_ROWCOUNT>main
+4 IsNull=IDH_COLUMN_ISNULL>main
+4 Length=IDH_COLUMN_LENGTH>main
+4 RC=IDH_COLUMN_RC>main
+4 Ref=IDH_COLUMN_REF>main
+4 Copy=IDH_COLUMN_COPY>main
+
+2 Columns
+3 Introducción=IDH_COLUMNS
+3 Propiedades
+4 Count=IDH_COLUMNS_COUNT>main
+4 Item=IDH_COLUMNS_ITEM>main
+
+
