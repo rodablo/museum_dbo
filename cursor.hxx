@@ -25,11 +25,12 @@ public:
   virtual void DefineColumns(TCursor* pC);
   virtual void BindParam(TCursor* pC, VARIANT& Wich, VARIANT& Value, 
 			 VARIANT& AsType, VARIANT& Length);
-  virtual void Bind(TCursor* pC, VARIANT Wich, 
-		    VARIANT Value, dboVarType AsType, VARIANT StringLength, Param** retv);
-  virtual void BindArray(TCursor* pC, BSTR Wich, 
-			 dboVarType AsType, short ArraySize, VARIANT StringLength, Param** retv);
-  virtual void Execute(TCursor* pC);  
+  virtual void Bind(TCursor* pC, VARIANT& Wich, 
+		    dboVarType AsType, VARIANT& StringLength, 
+		    VARIANT& Value, Param** retv);
+  virtual void BindArray(TCursor* pC, BSTR Wich, short ArraySize, 
+			 dboVarType AsType, VARIANT& StringLength, Param** retv);
+  virtual void Execute(TCursor* pC, VARIANT& N);  
   virtual void Fetch(TCursor* pC, VARIANT_BOOL* retv);  
   virtual void Close(TCursor* pC);
   //
@@ -69,6 +70,9 @@ public:
   STDMETHOD(put_RowsXFetch)(long Max);
   STDMETHOD(get_RowsXFetch)(long* retv);
   STDMETHOD(get_IsDirty)(VARIANT_BOOL* retv);
+  virtual HRESULT __stdcall put_Strict(VARIANT_BOOL Strict);
+  virtual HRESULT __stdcall get_Strict(VARIANT_BOOL* retv);
+
   /// Params
   STDMETHOD(get_Params)(Params** ppParams);
   /// Columns
@@ -78,15 +82,16 @@ public:
   STDMETHOD(DefineColumns)();
   STDMETHOD(DefineColumnAs)(short Position, dboVarType AsType);
   HRESULT __stdcall Bind(VARIANT Wich, 
-			 VARIANT Value, dboVarType AsType, VARIANT StringLength, Param** retv);
-  HRESULT __stdcall BindArray(BSTR Wich, 
-			      dboVarType AsType, short ArraySize, VARIANT StringLength, Param** retv);
+			 dboVarType AsType, VARIANT StringLength, VARIANT Value, Param** retv);
+  HRESULT __stdcall BindArray(BSTR Wich, short ArraySize, 
+			      dboVarType AsType, VARIANT StringLength, Param** retv);
   STDMETHOD(Fetch)(VARIANT_BOOL* retv);
-  STDMETHOD(Execute)();
+  STDMETHOD(Execute)(VARIANT N);
   // chau orden
   STDMETHOD(BindParam)(VARIANT Wich, VARIANT Value, VARIANT AsType, VARIANT Length);
   // IICursor
   operator Cda_Def*()                {return &m_cda;}  //operator Lda_Def*() {return  m_IISession;}
+  bool     IsStrict()                {return _fStrict; }
   //
   Cda_Def*  GetCDA()                 {return &m_cda;}
   Lda_Def*  GetLDA()                 {return m_IISession.GetLDA();}
@@ -104,13 +109,16 @@ public:
   HRESULT  IDispatchSEH();
 
   void _BindParam(VARIANT& Wich, VARIANT& Value, VARIANT& AsType, VARIANT& Length);
-  void _BindArray(BSTR Wich, dboVarType AsType, short ArraySize, VARIANT StringLength, Param** retv);
+  void _Bind(VARIANT& Wich, dboVarType AsType, VARIANT& StringLength, 
+	     VARIANT& Value, Param** retv);
+  void _BindArray(BSTR Wich, short ArraySize, 
+		  dboVarType AsType, VARIANT& StringLength, Param** retv);
   void _DefineColumns();
   void _UndefineColumns();
   void _UndefineColumn(int pos);
   void _UndefineColumn(string& name);
-  void _Execute();
-  bool _ExecutePL();
+  void _Execute(VARIANT& N);
+  bool _ExecutePL(VARIANT& N);
   void _Fetch(bool fExecute, VARIANT_BOOL* retv);
   void _Clear();
   void _Close();
@@ -129,6 +137,7 @@ protected:
   //
   ECursor*              _pState;
   bool                  m_fIsDirty;
+  bool                  _fStrict;
   // bool m_fNeedReparse;
 
   bool                  m_fColsDefined;

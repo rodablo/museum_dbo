@@ -42,6 +42,7 @@ TCursor::TCursor(IISession& isession)
 
   m_fColsDefined = false;
   m_fIsDirty = false;
+  _fStrict = true;
 
   // Prop data
   m_ulRowsXFetch = 1;
@@ -134,8 +135,11 @@ TCursor::put_RowsXFetch(long Max)
   //  momento verificar un bindeo previo y emitir un error
 {
   try {
+    if (m_fColsDefined)
+      RAISE_INTERNAL(DBO_E_RUNTIME_CANT_MODIFY_ROW_AFTER_DEFINE);
+#if _PEND_
 #pragma message verificar que Max > 0 && Max < 32000
-
+#endif
     // si elestado noes anterior a fetch emitir error o cols defined = falso
 
     // 0. Verifica limites razonables, En realidad no habria que controlar
@@ -158,6 +162,20 @@ HRESULT __stdcall
 TCursor::get_IsDirty(VARIANT_BOOL* retv)
 {
   *retv = m_fIsDirty;
+  return NOERROR;
+}
+
+HRESULT __stdcall 
+TCursor::put_Strict(VARIANT_BOOL Strict)
+{  
+  _fStrict = (VARIANT_TRUE == Strict);
+  return NOERROR;
+}
+
+HRESULT __stdcall 
+TCursor::get_Strict(VARIANT_BOOL* retv)
+{  
+  *retv = IsStrict() ? VARIANT_TRUE : VARIANT_FALSE;
   return NOERROR;
 }
 
@@ -224,24 +242,25 @@ TCursor::BindParam(VARIANT Wich, VARIANT Value, VARIANT AsType, VARIANT Length)
   __AUTO_EXCEPT;
 }
 
+
 HRESULT __stdcall
 TCursor::Bind(VARIANT Wich, 
-	      VARIANT Value, dboVarType AsType, VARIANT StringLength, Param** retv)
+	      dboVarType AsType, VARIANT StringLength, VARIANT Value, Param** retv)
 {
   try {
-     //
-     RAISE_INTERNAL(DBO_E_RUNTIME_ABRITTA_S, "BindArray");
+    // lo pasa al autómata
+    _pState->Bind(this, Wich, AsType, StringLength, Value, retv);
    }
    __AUTO_EXCEPT;
 }
 
 HRESULT __stdcall
 TCursor::BindArray(BSTR Wich, 
-		   dboVarType AsType, short ArraySize, VARIANT StringLength, Param** retv)
+		   short ArraySize, dboVarType AsType, VARIANT StringLength, Param** retv)
 {
   try {
     // lo pasa al autómata
-    _pState->BindArray(this, Wich, AsType, ArraySize, StringLength, retv);
+    _pState->BindArray(this, Wich, ArraySize, AsType, StringLength, retv);
    }
    __AUTO_EXCEPT;
 }
@@ -257,11 +276,11 @@ TCursor::Fetch(VARIANT_BOOL FAR* retv)
 }
 
 HRESULT __stdcall
-TCursor::Execute()
+TCursor::Execute(VARIANT N)
 {
   try {
     // lo pasa al estado
-    _pState->Execute(this);
+    _pState->Execute(this, N);
   }
   __AUTO_EXCEPT;
 }

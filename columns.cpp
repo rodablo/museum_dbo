@@ -67,9 +67,9 @@ HRESULT __stdcall
 TColumns::get_Item(VARIANT Index, Column** ppColumn)
 {
   try {
-
+#if _PEND_
 #pragma message verificar que ppColumn != 0
-
+#endif
     int i = 0; 
     // pesimismo inicia
     *ppColumn = 0;

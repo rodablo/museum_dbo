@@ -124,9 +124,95 @@ TCursor::_BindParam(VARIANT& Wich, VARIANT& Value, VARIANT& AsType, VARIANT& Len
   Primero verifica que el parametro no exista (else genera un error) luego
   crea el parametro (vacio) listo pa' bindear.
   */
+
 void 
-TCursor::_BindArray(BSTR Wich, 
-		    dboVarType AsType, short ArraySize, VARIANT StringLength, Param** retv)
+TCursor::_Bind(VARIANT& Wich, 
+	       dboVarType AsType, VARIANT& StringLength, VARIANT& Value, 
+	       Param** retv)
+{
+  IIParam* pParam;
+  // determina tipo de parametro (Numerico o Alfa) por el VT_ del indice
+  long   wichN = -1;
+  string wichS;
+  switch (V_VT(&Wich)) // (pasar esto al constructor de TScalarParam, unificando los constructores)
+    {
+    case VT_UI1:// Byte
+      wichN = (long)V_UI1(&Wich); break;
+    case VT_I2: // Integer
+      wichN = (long)V_I2(&Wich);  break;            
+    case VT_I4: // Long
+      wichN = (long)V_I4(&Wich);  break;
+    case VT_R4: // Single
+      wichN = (long)V_R4(&Wich);  break;
+    case VT_R8: // Double
+      wichN = (long)V_R8(&Wich);  break;
+    case VT_BSTR:
+      wichS = ANSI(V_BSTR(&Wich));
+      break;
+    default:
+      RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_NAME_TYPE_MISMATCH_I, V_VT(&Wich));
+    }
+  // procede según sea numerico u alfa
+  if (-1 == wichN)
+    { // lo busca para ver si es rebind
+      MAP_NAME_2_P_IIPARAM::iterator a = m_mapName2P.find(wichS);
+      if (a != m_mapName2P.end())
+	{ // ok lo busca en el vector
+	  for (V_AP_IIPARAM::iterator b = m_vParam.begin(); b != m_vParam.end(); b++)
+	    if ((*b)->UniqueID() == ((*a).second)->UniqueID())
+	      {
+		(*b)->ClearBind();   // unbind
+		pParam = (*b).get(); 
+		break;
+	      }
+	}
+      else
+	{ // primer bind
+	  AP<IIParam> apP;              // crea uno 
+	  CreateStringParam(*this, wichS, apP);      
+	  pParam = apP.get();      
+	  // 
+	  m_mapName2P[apP->Name()] = apP.get();  // agraga el key
+	  m_vParam.insert(m_vParam.end(), apP);
+	}
+    }
+  else // es numérico
+    { // lo busca para ver si es rebind
+      MAP_NUMBER_2_P_IIPARAM::iterator a = m_mapNumber2P.find(wichN);
+      if (a != m_mapNumber2P.end())
+	{ // ok lo busca en el vector
+	  for (V_AP_IIPARAM::iterator b = m_vParam.begin(); b != m_vParam.end(); b++)
+	    if ((*b)->UniqueID() == ((*a).second)->UniqueID())
+	      {
+		(*b)->ClearBind();   // unbind
+		pParam = (*b).get();    
+		break;
+	      }
+	}
+      else
+	{ // primer bind
+	  AP<IIParam> apP;              // crea uno 
+	  CreateNumericParam(*this, wichN, apP);      
+	  pParam = apP.get();      
+	  // agraga el key 
+	  m_mapNumber2P[apP->Number()] = apP.get();
+	  m_vParam.insert(m_vParam.end(), apP);
+	}
+    }
+  // ahora bindea
+  pParam->Bind(AsType, StringLength, Value);
+  // retorna si se solicito
+  if (0 != retv)
+    {
+      pParam->AddRef();
+      *retv = pParam;
+    }
+}
+
+void 
+TCursor::_BindArray(BSTR Wich, short ArraySize,
+		    dboVarType AsType, VARIANT& StringLength, 
+		    Param** retv)
 {
   IIParam* pParam;
   //
@@ -134,8 +220,7 @@ TCursor::_BindArray(BSTR Wich,
   // busca a ver si es rebind
   MAP_NAME_2_P_IIPARAM::iterator a = m_mapName2P.find(wich);
   if (a != m_mapName2P.end())
-    { // es rebind
-      // ok lo busca en el vector y asigna al temp (por si falla)
+    { // ok lo busca en el vector y asigna al temp (por si falla)
       for (V_AP_IIPARAM::iterator b = m_vParam.begin(); b != m_vParam.end(); b++)
 	if ((*b)->UniqueID() == ((*a).second)->UniqueID())
 	  {
@@ -147,7 +232,7 @@ TCursor::_BindArray(BSTR Wich,
   else
     { // primer bind
       AP<IIParam> apP;              // crea uno 
-      CreateParam(*this, wich, apP);      
+      CreateStringParam(*this, wich, apP);      
       pParam = apP.get();      
       // 
       m_mapName2P[apP->Name()] = apP.get();  // agraga el key
@@ -163,46 +248,6 @@ TCursor::_BindArray(BSTR Wich,
     }
 }
 
-/*
-void 
-TCursor::_CreateParam(VARIANT Wich, Param** ppParam)
-{
-  // verifica que no exista previamente
-  sword swNumber;
-  if (ValidateWichParam(Wich, &swNumber))
-    {
-      string wich(ANSI(V_BSTR(&Wich)));
-      // busca esperando no encontrar...
-      MAP_NAME_2_P_IIPARAM::iterator i = m_mapName2P.find(wich);
-      if (i != m_mapName2P.end())
-	RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_EXIST_S, wich.c_str());
-    }
-  else
-    {
-      // busca esperando no encontrar...
-      MAP_NUMBER_2_P_IIPARAM::iterator i = m_mapNumber2P.find(swNumber);
-      if (i == m_mapNumber2P.end())
-	RAISE_INTERNAL(DBO_E_RUNTIME_PARAM_EXIST_I, (long)swNumber);
-    }
-  // temporalmente aqui
-  AP<IIParam> apParam;
-  // crea el parametro
-  ::CreateParam(*this, Wich, apParam);
-  // OK, agrega
-  if (-1 == apParam->Number())
-    m_mapName2P[apParam->Name()] = apParam.get();
-  else
-    m_mapNumber2P[apParam->Number()] = apParam.get();   
-  // retorna la IF si se lo requirieron
-  if (0 != ppParam)
-    {
-      apParam->AddRef();
-      *ppParam = apParam.get();
-    }
-  // agrega al map de TODOS los parametros y libera del ámbito
-  m_vParam.insert(m_vParam.end(), apParam);
-}
-*/
 void
 TCursor::_DefineColumns()
 {
@@ -263,16 +308,20 @@ TCursor::_UndefineColumn(string& name)
 }
 
 void
-TCursor::_Execute()
+TCursor::_Execute(VARIANT& N)
 {
-  // 1. Ejecuta y chequea errores
-  CHECK_OCI(oexec(&m_cda));
+  short n;
+  if (GetShortFromVariant(n, N))
+    CHECK_OCI(oexn(&m_cda, n, 0));    
+  else
+    // 1. Ejecuta y chequea errores
+    CHECK_OCI(oexec(&m_cda));
   //
   m_fIsDirty = false;
 }
 
 bool
-TCursor::_ExecutePL()
+TCursor::_ExecutePL(VARIANT& N)
 {
   // Ejecuta 
   ::oexec(&m_cda);
@@ -372,53 +421,3 @@ TCursor::_Close()
   //
   ChangeState(EClosed_TheInstance());
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
