@@ -74,21 +74,8 @@ library DBO2
 {
   /// OLE2
   importlib("stdole32.tlb");
- 
-  ///
-  [
-   uuid("ca43d199-ef82-11cf-b8c6-00a02454eec8"),  
-   helpstring("varios"), helpcontext(IDH_NUEVO), 
-   dllname("dbo20.dll")
-  ] 
-    module Informacion
-    { 
-      [helpstring("texto explicativo."), entry(100)] 
-	BSTR LicenseInformation(); 
-      [helpstring("texto explicativo."), entry(101)] 
-	int  BuildNumber(); 
-    }; 
 
+ 
 /**
 *** dboVARENUM
 ***/
@@ -161,7 +148,7 @@ library DBO2
       [id(DISPID_VALUE), propput]
 	HRESULT Value
 	([in, optional] VARIANT Index, [in] VARIANT Value);
-    
+
       [id(13), propget, helpcontext(IDH_NUEVO),
       helpstring("texto explicativo.")]
 	HRESULT Strict
@@ -170,6 +157,22 @@ library DBO2
       [id(13), propput]
 	HRESULT Strict
 	([in] VARIANT_BOOL Strict);
+      
+
+      [id(15), propget, helpcontext(IDH_NUEVO),
+      helpstring("texto explicativo.")]
+	HRESULT NVL
+	([in, optional] VARIANT Index, [in, optional] VARIANT NullVaLue,
+	 [out, retval] VARIANT* retv);
+
+      [restricted]
+	HRESULT Dummy1();
+      [restricted]
+	HRESULT Dummy2();
+      [restricted]
+	HRESULT Dummy3();
+      [restricted]
+	HRESULT Dummy4();
     };
 
 /**
@@ -249,6 +252,15 @@ library DBO2
       helpstring("Return a VARIANT with a copy of the data array.")]
 	HRESULT Copy
 	([out, retval] VARIANT* retv);
+
+      [restricted]
+	HRESULT Dummy1();
+      [restricted]
+	HRESULT Dummy2();
+      [restricted]
+	HRESULT Dummy3();
+      [restricted]
+	HRESULT Dummy4();
     };
 
 /**
@@ -413,12 +425,6 @@ library DBO2
 	   [in, optional] VARIANT StringLength,
 	   [out, retval] Param** retv);
 
-	[id(118), helpcontext(IDH_NUEVO), restricted,
-	helpstring("texto explicativo.")]
-	  HRESULT BindCursor
-	  ([in] BSTR Wich, 
-	   [out, retval] Cursor** retv);
-
 	[id(115), helpcontext(IDH_CURSOR_FETCH),
 	helpstring("texto explicativo.")]
 	  HRESULT Fetch
@@ -435,6 +441,22 @@ library DBO2
 	   [in, optional] VARIANT Value, 
 	   [in, optional] VARIANT AsType,
 	   [in, optional] VARIANT Length);
+
+	[id(118), helpcontext(IDH_NUEVO), restricted,
+	helpstring("texto explicativo.")]
+	  HRESULT BindCursor
+	  ([in] BSTR Wich, 
+	   [out, retval] Cursor** retv);
+
+	[restricted]
+	  HRESULT Dummy1();
+	[restricted]
+	  HRESULT Dummy2();
+	[restricted]
+	  HRESULT Dummy3();
+	[restricted]
+	  HRESULT Dummy4();
+
     }
 
   // #if ~__COMPAT00__ && 0
@@ -550,7 +572,32 @@ library DBO2
 	[id(115), helpcontext(IDH_SESSION_CREATESQL),
 	helpstring("Crea un instancia de Cursor.")]
 	  HRESULT CreateCursor([out, retval] ICURSOR** retval);
+	[restricted]
+	  HRESULT Dummy1();
+	[restricted]
+	  HRESULT Dummy2();
+	[restricted]
+	  HRESULT Dummy3();
+	[restricted]
+	  HRESULT Dummy4();
     }
+
+  /**
+  *** Varios
+  ***/
+  [
+   uuid("ca43d199-ef82-11cf-b8c6-00a02454eec8"),  
+   helpstring("Auxiliares"), helpcontext(IDH_NUEVO), 
+   dllname("dbo20.dll")
+  ] 
+    module Auxiliares
+    { 
+      [helpstring("texto explicativo."), entry(100)] 
+	BSTR LicenseInformation(); 
+      [helpstring("texto explicativo."), entry(101)] 
+	int  BuildNumber(); 
+    }; 
+
 
   /**
   *** CLSID_Session
