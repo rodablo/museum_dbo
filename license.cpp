@@ -392,7 +392,7 @@ CreateLic2()
 
   // TRIAL
   st.wYear         = 1998;
-  st.wMonth        = 5; 
+  st.wMonth        = 6; 
   st.wDayOfWeek    = 0; 
   st.wDay          = 7; 
   st.wHour         = 14; 
