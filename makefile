@@ -1,8 +1,8 @@
 .AUTODEPEND
 .NOSWAP
 
-__DBO2_BUILD_NUMBER__  = 56
-__DBO2_BUILD_NUMBER_S_ = "banana"
+__DBO2_BUILD_NUMBER__ = 58
+__DBO2_BUILD_NUMBER_S_= "0058\0"
 
 ###
 ### TOOLS...
@@ -22,7 +22,7 @@ MIDL    = c:\mstools\bin\midl.exe
 ###
 TMP  = c:\temp\object
 BINARY = c:\z\bin
-SOURCE = d:\z\xxx
+SOURCE = d:\work
 TMP2 = $(TMP)\\
 EMPTY  = 
 
@@ -41,8 +41,7 @@ LINKOBJS = \
         ZZcursor.obj ZZcursor2.obj ZZcursor3.obj \
         ZZcolumns.obj ZZparams.obj \
         ZZcolumn.obj ZZcolumn_bstr.obj ZZcolumn_date.obj \
-        ZZparam_g.obj ZZparam_bind.obj ZZparam_bind_array.obj \
-	ZZparam.obj ZZparam_bstr.obj ZZparam_date.obj 
+        ZZparam_g.obj ZZparam_bind.obj ZZparam_bind_array.obj 
 ###
 ###
 ### LINK
@@ -93,7 +92,7 @@ $(TMP)\dboidl.obj: $(TMP)\dboidl.c
 -y                                 #
 -H                                 #
 -Hc                                #
--H=$(TMP)\DBO20.CSM              #   
+-H=$(TMP)\DBO20.CSM                #   
 -H"PCH.HXX"
 -I$(TMP) 
 -IC:\BC5\INCLUDE
@@ -145,7 +144,7 @@ dbo.res: dbo.rc $(TMP)\dboidl.hxx $(TMP)\dbomc.hxx
     $(BRC32) -R @&&|
     -I$(.path.obj);C:\BC5\INCLUDE; 
     -DINC_OLE2;STRICT;_DEBUG;  
-    -d__DBO2_BUILD_NUMBER_S_="banana"#$(__DBO2_BUILD_NUMBER_S_)	
+    -d__DBO2_BUILD_NUMBER_S_=$(__DBO2_BUILD_NUMBER_S__)	
     -FO$@ dbo.rc               
 |
 ####################################################################################################
@@ -159,7 +158,7 @@ dbo.res: dbo.rc $(TMP)\dboidl.hxx $(TMP)\dbomc.hxx
 ###
 debug:  dbo20.dll
         #td32.exe -sd$(SOURCE) -t$(BINARY) -c$(SOURCE)\dbo20.td2 "c:\Program Files\Microsoft Visual Basic\vb32.exe" $(SOURCE)\vb\dbo20.vbp      
-        td32.exe -sd$(SOURCE) -t$(BINARY) -c$(SOURCE)\dbo20.td2 "c:\Archivos de Programa\DevStudio\vb\vb5.exe" $(SOURCE)\vb\dbo20.vbp
+        td32.exe -sd$(SOURCE) -t$(BINARY) -c$(SOURCE)\dbo20.td2 "c:\Archivos de Programa\DevStudio\vb\vb5.exe" d:\z\xxx\vb\dbo20.vbp
 
 ####################################################################################################
 ###
