@@ -41,7 +41,7 @@ ECursor::BindParam(TCursor* pC, VARIANT& Wich, VARIANT& Value, VARIANT& AsType, 
 
 void 
 ECursor::Bind(TCursor* pC, VARIANT& Wich, 
-	      dboVarType AsType, VARIANT& StringLength, VARIANT& Value, Param** retv)
+	      dboVarType AsType, VARIANT& StringLength, Param** retv)
 {
   RAISE_INTERNAL(DBO_E_RUNTIME_UNSPECTED_METHOD, "Bind");
 }
@@ -55,7 +55,7 @@ ECursor::BindArray(TCursor* pC, BSTR Wich,
 
 
 void 
-ECursor::Execute(TCursor* pC, VARIANT& N)  
+ECursor::Execute(TCursor* pC, VARIANT& N, VARIANT& Offset)  
 {
   RAISE_INTERNAL(DBO_E_RUNTIME_UNSPECTED_METHOD, "Execute");
 }
@@ -95,10 +95,10 @@ public:
   void DefineColumns(TCursor* pC);
   void BindParam(TCursor* pC, VARIANT& Wich, VARIANT& Value, VARIANT& AsType, VARIANT& Length);
   void Bind(TCursor* pC, VARIANT& Wich, 
-	    dboVarType AsType, VARIANT& StringLength, VARIANT& Value,  Param** retv);
+	    dboVarType AsType, VARIANT& StringLength, Param** retv);
   void BindArray(TCursor* pC, BSTR Wich, 
 		 short ArraySize, dboVarType AsType, VARIANT& StringLength, Param** retv);
-  void Execute(TCursor* pC, VARIANT& N);
+  void Execute(TCursor* pC, VARIANT& N, VARIANT& Offset);
   void Fetch(TCursor* pC, VARIANT_BOOL* retv);
   void Close(TCursor* pC);
 
@@ -113,10 +113,10 @@ public:
   void DefineColumns(TCursor* pC);
   void BindParam(TCursor* pC, VARIANT& Wich, VARIANT& Value, VARIANT& AsType, VARIANT& Length);
   void Bind(TCursor* pC, VARIANT& Wich, 
-	    dboVarType AsType, VARIANT& StringLength, VARIANT& Value,  Param** retv);
+	    dboVarType AsType, VARIANT& StringLength, Param** retv);
   void BindArray(TCursor* pC, BSTR Wich, 
 		 short ArraySize, dboVarType AsType, VARIANT& StringLength, Param** retv);
-  void Execute(TCursor* pC, VARIANT& N);  
+  void Execute(TCursor* pC, VARIANT& N, VARIANT& Offset);  
   void Fetch(TCursor* pC, VARIANT_BOOL* retv);
   void Close(TCursor* pC);
 };
@@ -125,7 +125,7 @@ class EQryExecuted : public ECursor
 {
 public:
 //   virtual void ParseSQL(TCursor* pC, string& sSql);
-  void Execute(TCursor* pC, VARIANT& N);  
+  void Execute(TCursor* pC, VARIANT& N, VARIANT& Offset);  
   void Fetch(TCursor* pC, VARIANT_BOOL* retv);
   void Close(TCursor* pC);
 };
@@ -134,7 +134,7 @@ class EQryFetched : public ECursor
 {
 public:
   //virtual void ParseSQL(TCursor* pC);
-  void Execute(TCursor* pC, VARIANT& N);  
+  void Execute(TCursor* pC, VARIANT& N, VARIANT& Offset);  
   void Fetch(TCursor* pC, VARIANT_BOOL* retv);
   void Close(TCursor* pC);
 };
@@ -144,7 +144,7 @@ class EQryEOF : public ECursor
 public:
   void get_EOF(TCursor* pC, VARIANT_BOOL* retv);
   //virtual void ParseSQL(TCursor* pC);
-  void Execute(TCursor* pC, VARIANT& N);  
+  void Execute(TCursor* pC, VARIANT& N, VARIANT& Offset);  
   void Fetch(TCursor* pC, VARIANT_BOOL* retv);
   void Close(TCursor* pC);
 };
@@ -155,10 +155,10 @@ public:
   //void ParseSQL(TCursor* pC, string& sSql);
   void BindParam(TCursor* pC, VARIANT& Wich, VARIANT& Value, VARIANT& AsType, VARIANT& Length);
   void Bind(TCursor* pC, VARIANT& Wich, 
-	    dboVarType AsType, VARIANT& StringLength, VARIANT& Value,  Param** retv);
+	    dboVarType AsType, VARIANT& StringLength, Param** retv);
   void BindArray(TCursor* pC, BSTR Wich, short ArraySize,
 		 dboVarType AsType, VARIANT& StringLength, Param** retv);
-  void Execute(TCursor* pC, VARIANT& N);  
+  void Execute(TCursor* pC, VARIANT& N, VARIANT& Offset);  
   void Close(TCursor* pC);
 };
 
@@ -166,7 +166,7 @@ class EPLExecuted : public ECursor
 {
 public:
   //void ParseSQL(TCursor* pC, string& sSql);
-  void Execute(TCursor* pC, VARIANT& N);  
+  void Execute(TCursor* pC, VARIANT& N, VARIANT& Offset);  
   void Close(TCursor* pC);
 };
 
@@ -175,7 +175,7 @@ class EPLEOF : public ECursor
 public:
   void get_EOF(TCursor* pC, VARIANT_BOOL* retv);
   //void ParseSQL(TCursor* pC, string& sSql);
-  void Execute(TCursor* pC, VARIANT& N);  
+  void Execute(TCursor* pC, VARIANT& N, VARIANT& Offset);  
   void Close(TCursor* pC);
 };
 
@@ -284,31 +284,34 @@ EPLParsed::BindParam(TCursor* pC, VARIANT& Wich, VARIANT& Value, VARIANT& AsType
   pC->_BindParam(Wich, Value, AsType, Length);
 }
 
+
 /**
 *** BIND
 ***/
 void 
 EDeferredParse::Bind(TCursor* pC, VARIANT& Wich, 
-		     dboVarType AsType, VARIANT& StringLength, VARIANT& Value,  
+		     dboVarType AsType, VARIANT& StringLength, 
 		     Param** retv)
 {
-  pC->_Bind(Wich,AsType, StringLength, Value, retv);
+  pC->_Bind(Wich,AsType, StringLength, retv);
+  //
+  //????? va esto  UpdateState(pC);
 }
 
 void 
 EQryParsed::Bind(TCursor* pC, VARIANT& Wich, 
-		 dboVarType AsType, VARIANT& StringLength, VARIANT& Value,  
+		 dboVarType AsType, VARIANT& StringLength, 
 		 Param** retv)
 {
-  pC->_Bind(Wich,AsType, StringLength, Value, retv);
+  pC->_Bind(Wich,AsType, StringLength, retv);
 }
 
 void 
 EPLParsed::Bind(TCursor* pC, VARIANT& Wich, 
-		dboVarType AsType, VARIANT& StringLength, VARIANT& Value,  
+		dboVarType AsType, VARIANT& StringLength,   
 		Param** retv)
 {
-  pC->_Bind(Wich,AsType, StringLength, Value, retv);
+  pC->_Bind(Wich,AsType, StringLength, retv);
 }
 
 /**
@@ -356,62 +359,62 @@ EQryParsed::DefineColumns(TCursor* pC)
 *** EXECUTE
 ***/
 void 
-EDeferredParse::Execute(TCursor* pC, VARIANT& N)
+EDeferredParse::Execute(TCursor* pC, VARIANT& N, VARIANT& Offset)
 {
-  pC->_Execute(N);
+  pC->_Execute(N, Offset);
   UpdateState(pC);
 }
 
 void 
-EQryParsed::Execute(TCursor* pC, VARIANT& N)
+EQryParsed::Execute(TCursor* pC, VARIANT& N, VARIANT& Offset)
 {
-  pC->_Execute(N);
+  pC->_Execute(N, Offset);
 
   pC->ChangeState(EQryExecuted_TheInstance());
 }
 
 void 
-EQryExecuted::Execute(TCursor* pC, VARIANT& N)
+EQryExecuted::Execute(TCursor* pC, VARIANT& N, VARIANT& Offset)
 {
-  pC->_Execute(N);
+  pC->_Execute(N, Offset);
   //
   // ver si hay que testear algun cambio
 }
 
 void 
-EQryFetched::Execute(TCursor* pC, VARIANT& N)
+EQryFetched::Execute(TCursor* pC, VARIANT& N, VARIANT& Offset)
 {
-  pC->_Execute(N);
+  pC->_Execute(N, Offset);
 }
 
 void 
-EQryEOF::Execute(TCursor* pC, VARIANT& N)
+EQryEOF::Execute(TCursor* pC, VARIANT& N, VARIANT& Offset)
 {
-  pC->_Execute(N);
+  pC->_Execute(N, Offset);
 
   pC->ChangeState(EQryExecuted_TheInstance());
 }
 
 void 
-EPLParsed::Execute(TCursor* pC, VARIANT& N)
+EPLParsed::Execute(TCursor* pC, VARIANT& N, VARIANT& Offset)
 {
-  if (pC->_ExecutePL(N))
+  if (pC->_ExecutePL(N, Offset))
     pC->ChangeState(EPLExecuted_TheInstance());
   else
     pC->ChangeState(EPLEOF_TheInstance());
 }
 
 void 
-EPLExecuted::Execute(TCursor* pC, VARIANT& N)
+EPLExecuted::Execute(TCursor* pC, VARIANT& N, VARIANT& Offset)
 {
-  if (!pC->_ExecutePL(N))
+  if (!pC->_ExecutePL(N, Offset))
     pC->ChangeState(EPLEOF_TheInstance());
 }
 
 void 
-EPLEOF::Execute(TCursor* pC, VARIANT& N)
+EPLEOF::Execute(TCursor* pC, VARIANT& N, VARIANT& Offset)
 {  
-  if (pC->_ExecutePL(N))
+  if (pC->_ExecutePL(N, Offset))
     pC->ChangeState(EPLExecuted_TheInstance());
 }
 
