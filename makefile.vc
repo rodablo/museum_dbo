@@ -6,7 +6,7 @@ __NODEBUG 	= 0
 ###
 __VER_MAJOR   	= 2
 __VER_MINOR   	= 2
-__VER_RELEASE 	= 5
+__VER_RELEASE 	= 6
 ###
 ### END DEL AREA EDITABLE
 ###
@@ -559,6 +559,7 @@ debug_run: dll
 # 	$(WINDBG) -W "dbo" -T "debug $(__FILE_NAME) build: XXXX" \
 		-srcpath $(SRC) -y $(OUT) -g $(VB) c:\z\work\vb\dbo20.vbp
 
+#	$(WINDBG) c:\z\work\vb\AAPru.exe
 	$(WINDBG) $(VB) c:\z\work\vb\dbo20.vbp
 #	$(WINDBG) C:\DevStudio\VC\bin\Oleview.exe
 

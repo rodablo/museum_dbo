@@ -279,3 +279,19 @@ agregar tipo RAW en la columna
 
 IMPORTANTE!!!! 
 HAY QUE MODIFICAR ANSI Y WIDE X QUE NO SE BANCAN UN \0 EN EL STRING
+
+------------------------------------------
+
+NOTAS X EL MTS
+
+The component must export the DllRegisterServer function and perform self-registration of its CLSID, ProgID, interfaces, and type library in this routine. 
+
+If you do not have a resource dispenser, you can build your own using the Microsoft Transaction Server Beta Software Development Kit (SDK), available at http://www.microsoft.com/support/transactions/. For more information, see the Resource Dispenser Guide and the samples included with the MTS Beta SDK.
+
+For a resource manager to participate in an MTS transaction, it must support one of the following protocols: 
+
+OLE Transactions 
+The X/Open DTP XA standard 
+
+OraOLEDB consumers must install Oracle Services for Microsoft Transaction Server (MTS) release 8.1.5.0.1 or later to be able to participate in Microsoft Transaction Server transactions or to enlist in a global transaction coordinated by Microsoft Distributed Transaction Coordinator (MS DTC). For setup and configuration information on Oracle Services for MTS, see Using Microsoft Transaction Server With Oracle8. 
+

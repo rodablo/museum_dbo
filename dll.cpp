@@ -24,14 +24,16 @@ char      g_szModuleName[] = STRINGIFY(__DLL_FNAME); // inicializar desde GetMod
 BOOL WINAPI 
 DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID /*lpReserved*/)
 {
+  extern void Throw(unsigned int code, _EXCEPTION_POINTERS* pEP);
+
   if (DLL_PROCESS_ATTACH == fdwReason)
     {
       // 
-      extern void Throw(unsigned int code, _EXCEPTION_POINTERS* pEP);
+      //extern void Throw(unsigned int code, _EXCEPTION_POINTERS* pEP);
       _set_se_translator(Throw);
       //	DebugBreak();  //asm { int 0x03 }
       // bye DLL_THREAD_ATTACH and DLL_THREAD_DETACH
-      DisableThreadLibraryCalls(hInstance);
+      //DisableThreadLibraryCalls(hInstance);
       // crea el ¿Server? x aqui pasa una sola vez asi que no se chequea nada
       new TServer(hInstance);
       //
@@ -48,6 +50,11 @@ DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID /*lpReserved*/)
       // destruye la representación del server
       delete TServer::TheInstance();
       //
+      return true;
+    }
+  else if (DLL_THREAD_ATTACH == fdwReason)
+    {
+      _set_se_translator(Throw);
       return true;
     }
   else
