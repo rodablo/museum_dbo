@@ -1,3 +1,4 @@
+
 #.NOAUTODEPEND
 #.NOSWAP
 
@@ -122,6 +123,7 @@ $(LINKOBJS:ZZ=$(TMP2))
 $(TMP)\dboidl.obj
 c:\orant\oci73\lib\msvc\ociw32.lib
 libcmtd.lib
+####libcmt.lib
 #msvcrt.lib
 kernel32.lib
 Msvcprt.lib
