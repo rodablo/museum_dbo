@@ -1,7 +1,7 @@
 #if !defined(_ISESSION_HXX_)
 #define _ISESSION_HXX_
 
-class IISession : public ISESSION
+class IISession : public _Session
 {
 public:
   virtual ULONG __stdcall CursorAddRef() = 0;

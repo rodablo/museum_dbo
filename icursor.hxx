@@ -6,7 +6,7 @@
 class IIColumn;
 class IIParam;
 
-class IICursor : public ICURSOR
+class IICursor : public Cursor
 {
 public:
   //

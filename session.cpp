@@ -211,7 +211,7 @@ TSession::get_CursorCount(long* retv)
 *** METODOS 
 ***/
 HRESULT __stdcall
-TSession::CreateCursor(ICURSOR** ppCursor)
+TSession::CreateCursor(Cursor** ppCursor)
 {
   try {
     // conecta si es necesaro
@@ -223,7 +223,7 @@ TSession::CreateCursor(ICURSOR** ppCursor)
     // engancha con el bloque
     AP<IICursor> apC(pC); 
     // Le pide la interfaz IIDCURSOR
-    CHECK_HRESULT(pC->QueryInterface(IIDCURSOR, (void**)ppCursor));
+    CHECK_HRESULT(pC->QueryInterface(IID_Cursor, (void**)ppCursor));
     // libera
     *ppCursor = apC.release();
   }

@@ -4,7 +4,7 @@
 #include "isession.hxx"
 
 class TSession
-  :  public TIDISPATCH<IISession, &IIDSESSION>
+  :  public TIDISPATCH<IISession, &IID__Session>
 {
 public:
   /// Session Propiedades
@@ -27,7 +27,7 @@ public:
   STDMETHOD(Commit)();
   STDMETHOD(Rollback)();
   STDMETHOD(Break)();
-  STDMETHOD(CreateCursor)(ICURSOR** ppCursor);
+  STDMETHOD(CreateCursor)(Cursor** ppCursor);
   STDMETHOD(get_CursorCount)(long* retv);
 
   HRESULT __stdcall Dummy1() {}
