@@ -25,7 +25,7 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hInst = 0;
 ULONG     g_cLock = 0;
 ULONG     g_cObj  = 0;
-char      g_szModuleName[] = "dbo11.dll"; // inicializar desde GetModuleName()
+char      g_szModuleName[] = "dbo21.dll"; // inicializar desde GetModuleName()
 
 extern void __stdcall LicLoad();
 extern void __stdcall LicFree();
