@@ -16,6 +16,7 @@ public:
   virtual void get_IsNull(VARIANT& Index, VARIANT_BOOL* retv) = 0;
   virtual void put_Value(VARIANT& Index, VARIANT& Value) = 0;
   virtual void get_Value(VARIANT& Index, VARIANT* retv) = 0;
+  virtual void get_NVL(VARIANT& Index, VARIANT& NullVaLue, VARIANT* retv) = 0;
   //
   virtual void PreWork() = 0;
   //
@@ -52,6 +53,13 @@ public:
   virtual HRESULT __stdcall get_Value(VARIANT Index, VARIANT* retv);
   virtual HRESULT __stdcall put_Strict(VARIANT_BOOL Strict);
   virtual HRESULT __stdcall get_Strict(VARIANT_BOOL* retv);
+  virtual HRESULT __stdcall get_NVL(VARIANT Index, VARIANT NullVaLue, VARIANT* retv);
+
+  virtual HRESULT __stdcall Dummy1() {}
+  virtual HRESULT __stdcall Dummy2() {}  
+  virtual HRESULT __stdcall Dummy3() {}  
+  virtual HRESULT __stdcall Dummy4() {}
+
   // IIParam
   virtual operator Cda_Def*() { return m_IICursor; }
   virtual long     UniqueID() const { return m_lUniqueID; }
