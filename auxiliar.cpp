@@ -14,7 +14,7 @@
 int
 BuildNumber()
 {
-  return (int)(__DBO2_BUILD_NUMBER__);
+  return (int)(__VERSION_BUILD);
 }
 
 /**
